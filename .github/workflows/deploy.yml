@@ -1,0 +1,26 @@
+name: Deploy PHP Site to InfinityFree
+on:
+  push:
+    branches:
+      - main  # 确保这里是你仓库的主分支名字，如果是 master 请改成 master
+
+jobs:
+  FTP-Deploy-Action:
+    name: FTP-Deploy-Action
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.1.1
+      with:
+        fetch-depth: 2
+
+    - name: FTP-Deploy-Action
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /htdocs/  # InfinityFree 强制要求网站文件必须放在 htdocs 文件夹下
+        exclude: | # 这里列出不想上传的文件
+          **/.git*
+          **/.github*
+          README.md
