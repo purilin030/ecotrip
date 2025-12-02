@@ -83,7 +83,7 @@ include '../header.php';
                     </div>
 
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex flex-col items-center">
-                        <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Team Code</span>
+                        <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Team Code 123</span>
                         <div class="flex items-center gap-2 mt-1">
                             <span class="text-xl font-mono font-bold text-gray-800 tracking-widest">
                                 <?php echo htmlspecialchars($my_team['Team_code']); ?>
