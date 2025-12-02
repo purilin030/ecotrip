@@ -52,7 +52,7 @@ include '../header.php';
             <div class="p-2 bg-white rounded-full mr-3 text-brand-600">
                 <i class="fa-solid fa-wallet"></i>
             </div>
-            <div class="flex flex-col">
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-4 rounded-2xl shadow-lg flex items-center transform hover:scale-105 transition-transform"
                 <span class="text-xs text-brand-700 font-medium uppercase tracking-wider">Your Balance</span>
                 <span class="text-xl"><?php echo number_format($currentUser['RedeemPoint']); ?> pts</span>
             </div>

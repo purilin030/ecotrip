@@ -150,57 +150,89 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
             <?php else: ?>
                 
                 <?php foreach($rows as $row): 
-                    // 如果分数为0，跳过
-                    if ($row['totalPoints'] == 0) continue; 
+    if ($row['totalPoints'] == 0) continue; 
 
-                    $rankDisplay = '';
-                    if ($rank == 1) {
-                        $rankDisplay = '<i class="fa-solid fa-trophy text-yellow-500 bg-yellow-50 text-lg"></i>';
-                    } elseif ($rank == 2) {
-                        $rankDisplay = '<i class="fa-solid fa-trophy text-gray-400 text-lg"></i>';
-                    } elseif ($rank == 3) {
-                        $rankDisplay = '<i class="fa-solid fa-trophy text-amber-600 text-lg"></i>';
-                    } else {
-                        $rankDisplay = '<span class="text-gray-400 font-medium">#' . $rank . '</span>';
-                    }
+    // 1. 定义整行的样式变量
+    $rowClass = "bg-white border-b border-gray-50 hover:bg-gray-50"; // 默认样式 (白色背景)
 
-                    // === 🔥 头像处理逻辑修正 ===
+    // 2. 如果是第一名，改变整行的样式
+    if ($rank == 1) {
+        // bg-yellow-50: 淡黄色背景
+        // border-yellow-100: 黄色边框
+        // shadow-sm: 微微浮起
+        $rowClass = "bg-yellow-50 border-b border-yellow-200 shadow-sm z-10 relative transform scale-[1.01]";
+    } elseif ($rank == 2) {
+        $rowClass = "bg-gray-50 border-b border-gray-200";
+    } elseif ($rank == 3) {
+        $rowClass = "bg-orange-50 border-b border-orange-100";
+    }
+
+    // 3. 定义奖杯图标
+    $rankDisplay = '';
+    if ($rank == 1) {
+        $rankDisplay = '<div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center"><i class="fa-solid fa-crown"></i></div>';
+    } elseif ($rank == 2) {
+        $rankDisplay = '<div class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center"><i class="fa-solid fa-medal"></i></div>';
+    } elseif ($rank == 3) {
+        $rankDisplay = '<div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center"><i class="fa-solid fa-medal"></i></div>';
+    } else {
+        $rankDisplay = '<span class="text-gray-400 font-bold ml-2">#' . $rank . '</span>';
+    }
+
+   // === 🔥 头像处理逻辑修正 ===
+
                     $display_avatar = '';
+
                     $default_avatar = "https://ui-avatars.com/api/?name=" . urlencode($row['Name']) . "&background=random&color=fff&size=128";
+
                     
+
                     if ($mode === 'individual') {
+
                         if (!empty($row['Avatar'])) {
+
                             // 使用 basename() 防止数据库里存了 "avatars/xxx.jpg" 导致路径重复
+
                             // 最终结果强制为： /ecotrip/avatars/xxx.jpg
+
                             $display_avatar = "/ecotrip/avatars/" . basename($row['Avatar']);
+
                         } else {
+
                             $display_avatar = $default_avatar;
+
                         }
-                    } else {
-                        $display_avatar = $default_avatar;
+
+                    }  else {
+
+                       $display_avatar = $default_avatar;
+
                     }
-                ?>
-                    <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors">
-                        <div class="col-span-2 flex items-center pl-1">
-                            <?= $rankDisplay ?>
-                        </div>
-                        
-                        <div class="col-span-6 flex items-center gap-3">
-                            <img src="<?= htmlspecialchars($display_avatar) ?>" class="w-8 h-8 rounded-full object-cover shadow-sm" alt="Avatar">
-                            <span class="font-semibold text-gray-900 truncate">
-                                <?= htmlspecialchars($row['Name']) ?>
-                            </span>
-                        </div>
+?>
 
-                        <div class="col-span-2 text-right font-bold text-brand-600">
-                            <?= number_format($row['totalPoints']) ?>
-                        </div>
+    <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center transition-all duration-200 rounded-lg my-1 <?php echo $rowClass; ?>">
+        
+        <div class="col-span-2 flex items-center pl-1">
+            <?= $rankDisplay ?>
+        </div>
+        
+        <div class="col-span-6 flex items-center gap-3">
+            <img src="<?= htmlspecialchars($display_avatar) ?>" class="w-10 h-10 rounded-full object-cover shadow-sm bg-white" alt="Avatar">
+            <span class="font-bold text-gray-800 truncate">
+                <?= htmlspecialchars($row['Name']) ?>
+            </span>
+        </div>
 
-                        <div class="col-span-2 text-right text-xs text-gray-500">
-                            <?= $row['LastUpdate'] ? date('M d', strtotime($row['LastUpdate'])) : '-' ?>
-                        </div>
-                    </div>
-                <?php $rank++; endforeach; ?>
+        <div class="col-span-2 text-right font-bold text-brand-600">
+            <?= number_format($row['totalPoints']) ?>
+        </div>
+
+        <div class="col-span-2 text-right text-xs text-gray-500">
+            <?= $row['LastUpdate'] ? date('M d', strtotime($row['LastUpdate'])) : '-' ?>
+        </div>
+    </div>
+
+<?php $rank++; endforeach; ?>
 
             <?php endif; ?>
         </div>
