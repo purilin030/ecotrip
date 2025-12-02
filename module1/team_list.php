@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. 安全检查：只有 Admin (1) 或 Moderator (2) 能进
+// 1. 安全检查
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -19,7 +19,7 @@ if ($auth_row['Role'] == 0) {
     exit();
 }
 
-// 2. 获取所有队伍 (关联 User 表获取队长名字)
+// 2. 获取所有队伍
 $sql = "SELECT t.*, u.First_Name, u.Last_Name 
         FROM team t 
         LEFT JOIN user u ON t.Owner_ID = u.User_ID 
@@ -47,27 +47,36 @@ include '../header.php';
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Team Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Code</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Owner</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Members</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Points</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Bio
-                            </th>
-                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                Action</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Team Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Code</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Owner</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Members</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Total Points</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Bio</th>
+                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <?php if (mysqli_num_rows($result) > 0): ?>
                             <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                                
+                                <?php 
+                                    // ======================================================
+                                    // 【核心修改】实时计算队伍总分
+                                    // ======================================================
+                                    $tid = $row['Team_ID'];
+                                    
+                                    // 1. 去 user 表找，条件是 Team_ID 等于当前队伍 ID
+                                    // 2. 使用 SUM(Point) 把分数列加起来
+                                    $sum_sql = "SELECT SUM(Point) as total_points FROM user WHERE Team_ID = '$tid'";
+                                    $sum_res = mysqli_query($con, $sum_sql);
+                                    $sum_row = mysqli_fetch_assoc($sum_res);
+                                    
+                                    // 如果没有成员或积分为空，默认为 0
+                                    $calculated_points = $sum_row['total_points'] ? $sum_row['total_points'] : 0;
+                                ?>
+
                                 <tr class="hover:bg-gray-50 transition">
 
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -76,8 +85,7 @@ include '../header.php';
 
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div
-                                                class="h-8 w-8 rounded bg-brand-100 text-brand-700 flex-shrink-0 flex items-center justify-center font-bold text-xs mr-3">
+                                            <div class="h-8 w-8 rounded bg-brand-100 text-brand-700 flex-shrink-0 flex items-center justify-center font-bold text-xs mr-3">
                                                 <?php echo strtoupper(substr($row['Team_name'], 0, 1)); ?>
                                             </div>
                                             <div class="text-sm font-bold text-gray-900">
@@ -87,8 +95,7 @@ include '../header.php';
                                     </td>
 
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono border border-gray-200">
+                                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-mono border border-gray-200">
                                             <?php echo htmlspecialchars($row['Team_code']); ?>
                                         </span>
                                     </td>
@@ -110,7 +117,7 @@ include '../header.php';
                                     </td>
 
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-brand-600">
-                                        <?php echo number_format($row['Team_points']); ?>
+                                        <?php echo number_format($calculated_points); ?>
                                     </td>
 
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
@@ -150,5 +157,4 @@ include '../header.php';
 </footer>
 
 </body>
-
 </html>
