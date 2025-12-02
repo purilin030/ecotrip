@@ -15,7 +15,7 @@ if (!in_array($current_page, $public_pages)) {
     }
 }
 
-// 3. 全局头像与角色逻辑
+// 3. Global avatar logic
 $display_avatar = "https://ui-avatars.com/api/?name=Guest&background=f3f4f6&color=6b7280";
 $user_name_display = "Guest";
 $user_role_display = "Visitor";
