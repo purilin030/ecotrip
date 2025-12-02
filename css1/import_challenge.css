@@ -1,0 +1,55 @@
+/* Import Page Specific Styles */
+
+/* Table Styles matching the Excel/Preview look */
+table {
+    width: 100%;
+    border-spacing: 0;
+}
+
+thead th {
+    background-color: #e0f2fe; /* Light blue header */
+    color: #334155;
+    font-weight: 700;
+    text-transform: capitalize; /* Normal case looks cleaner */
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid #cbd5e1;
+    text-align: left;
+}
+
+tbody td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+/* Status Badges in the table */
+.status-ok {
+    font-weight: 700;
+    color: #15803d; /* Green */
+}
+
+.status-error {
+    font-weight: 700;
+    color: #b91c1c; /* Red */
+    background-color: #fef2f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    border: 1px solid #fecaca;
+}
+
+/* Row Number Column */
+.row-num {
+    font-family: monospace;
+    color: #64748b;
+    font-weight: 600;
+}
