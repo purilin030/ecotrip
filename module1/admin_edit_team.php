@@ -1,28 +1,37 @@
 <?php
 session_start();
-require 'database.php';
+require 'database.php'; // 注意：这里原代码是 require 'database.php'，如果 admin 文件在子目录，可能需要 require '../database.php'。我保持你原文件的写法。
 
 // 1. 安全检查
-if (!isset($_SESSION['user_id'])) { header("Location: index.php"); exit(); }
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
 
 $current_user_id = $_SESSION['user_id'];
 $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
 $auth_res = mysqli_query($con, $auth_sql);
 $auth_row = mysqli_fetch_assoc($auth_res);
 
-if ($auth_row['Role'] == 0) { header("Location: index.php"); exit(); }
+if ($auth_row['Role'] == 0) {
+    header("Location: index.php");
+    exit();
+}
 
 // 2. 获取目标 ID
-if (!isset($_GET['id'])) { header("Location: team_list.php"); exit(); }
+if (!isset($_GET['id'])) {
+    header("Location: team_list.php");
+    exit();
+}
 $target_team_id = intval($_GET['id']);
 
 // 3. 处理保存逻辑 (更新基本信息)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_team'])) {
     $team_name = mysqli_real_escape_string($con, $_POST['team_name']);
-    $team_bio  = mysqli_real_escape_string($con, $_POST['team_bio']);
+    $team_bio = mysqli_real_escape_string($con, $_POST['team_bio']);
     $team_points = intval($_POST['team_points']);
     $owner_id = intval($_POST['owner_id']);
-    
+
     // 简单的 Owner 检查
     $check_owner = mysqli_query($con, "SELECT User_ID FROM user WHERE User_ID = '$owner_id'");
     if (mysqli_num_rows($check_owner) == 0 && $owner_id != 0) {
@@ -31,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_team'])) {
         $update_sql = "UPDATE team SET 
                        Team_name='$team_name', 
                        Team_Bio='$team_bio', 
-                       Team_points='$team_points', 
                        Owner_ID='$owner_id' 
                        WHERE Team_ID='$target_team_id'";
 
@@ -50,12 +58,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_team'])) {
 
 // 4. 读取当前队伍数据
 $sql = "SELECT * FROM team WHERE Team_ID = '$target_team_id'";
+
+// 5. 实时计算队伍总分 (从 user 表累加)
+$sum_sql = "SELECT SUM(Point) as total_points FROM user WHERE Team_ID = '$target_team_id'";
+$sum_res = mysqli_query($con, $sum_sql);
+$sum_row = mysqli_fetch_assoc($sum_res);
+$real_team_points = $sum_row['total_points'] ? $sum_row['total_points'] : 0;
 $result = mysqli_query($con, $sql);
 $team = mysqli_fetch_assoc($result);
 
-if (!$team) { echo "Team not found."; exit(); }
+if (!$team) {
+    echo "Team not found.";
+    exit();
+}
 
-// 5. 【新增】读取该队伍的所有成员
+// 6. 读取该队伍的所有成员
 $members_sql = "SELECT User_ID, First_Name, Last_Name, Email, Avatar FROM user WHERE Team_ID = '$target_team_id'";
 $members_res = mysqli_query($con, $members_sql);
 
@@ -65,7 +82,7 @@ include '../header.php';
 
 <main class="flex-grow w-full px-4 sm:px-6 lg:px-8 py-12">
     <div class="max-w-4xl mx-auto">
-        
+
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Edit Team #<?php echo $team['Team_ID']; ?></h1>
             <a href="team_list.php" class="text-sm text-gray-500 hover:text-gray-900">Back to List</a>
@@ -80,28 +97,38 @@ include '../header.php';
                 <div class="space-y-6">
                     <div>
                         <label class="block text-sm font-bold text-gray-700">Team Name</label>
-                        <input type="text" name="team_name" value="<?php echo htmlspecialchars($team['Team_name']); ?>" required class="w-full mt-1 border-gray-300 rounded-md shadow-sm border p-2">
+                        <input type="text" name="team_name" value="<?php echo htmlspecialchars($team['Team_name']); ?>"
+                            required class="w-full mt-1 border-gray-300 rounded-md shadow-sm border p-2">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700">Team Bio</label>
-                        <textarea name="team_bio" rows="3" class="w-full mt-1 border-gray-300 rounded-md shadow-sm border p-2"><?php echo htmlspecialchars($team['Team_Bio']); ?></textarea>
+                        <textarea name="team_bio" rows="3"
+                            class="w-full mt-1 border-gray-300 rounded-md shadow-sm border p-2"><?php echo htmlspecialchars($team['Team_Bio']); ?></textarea>
                     </div>
                     <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase">Team Points</label>
-                            <input type="number" name="team_points" value="<?php echo $team['Team_points']; ?>" class="w-full mt-1 border-gray-300 rounded-md border p-2">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase">Team Points
+                                    (Calculated)</label>
+                                <input type="number" value="<?php echo $real_team_points; ?>" disabled
+                                    class="w-full mt-1 border-gray-200 bg-gray-100 text-gray-500 rounded-md shadow-sm border p-2 cursor-not-allowed">
+                                <p class="text-[10px] text-gray-400 mt-1">Sum of all members' points.</p>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase">Owner User ID</label>
-                            <input type="number" name="owner_id" value="<?php echo $team['Owner_ID']; ?>" required class="w-full mt-1 border-gray-300 rounded-md border p-2">
+                            <input type="number" name="owner_id" value="<?php echo $team['Owner_ID']; ?>" required
+                                class="w-full mt-1 border-gray-300 rounded-md border p-2">
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-400">Team Code (Read-only)</label>
-                        <input type="text" value="<?php echo htmlspecialchars($team['Team_code']); ?>" disabled class="w-full mt-1 border-gray-200 bg-gray-100 text-gray-500 rounded-md shadow-sm border p-2 cursor-not-allowed">
+                        <input type="text" value="<?php echo htmlspecialchars($team['Team_code']); ?>" disabled
+                            class="w-full mt-1 border-gray-200 bg-gray-100 text-gray-500 rounded-md shadow-sm border p-2 cursor-not-allowed">
                     </div>
                     <div class="pt-4 flex items-center justify-end gap-3">
-                        <button type="submit" name="update_team" class="px-8 py-2.5 bg-blue-600 text-white rounded-md font-bold hover:bg-blue-700 shadow-md transition">
+                        <button type="submit" name="update_team"
+                            class="px-8 py-2.5 bg-blue-600 text-white rounded-md font-bold hover:bg-blue-700 shadow-md transition">
                             Save Info
                         </button>
                     </div>
@@ -113,28 +140,34 @@ include '../header.php';
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="divide-y divide-gray-100">
                 <?php if (mysqli_num_rows($members_res) > 0): ?>
-                    <?php while($member = mysqli_fetch_assoc($members_res)): ?>
-                        <?php 
-                            $is_owner = ($member['User_ID'] == $team['Owner_ID']);
-                            
-                            // 头像逻辑
-                            $mem_avatar = "https://ui-avatars.com/api/?name=" . $member['First_Name'] . "+" . $member['Last_Name'] . "&background=random&color=fff";
-                            if (!empty($member['Avatar']) && file_exists($member['Avatar'])) {
-                                $mem_avatar = $member['Avatar'];
-                            }
-                        ?>
+                    <?php while ($member = mysqli_fetch_assoc($members_res)): ?>
+                        <?php
+                        $is_owner = ($member['User_ID'] == $team['Owner_ID']);
+
+                        // === 🔥 头像逻辑修正 ===
+                        $fullName = $member['First_Name'] . " " . $member['Last_Name'];
+                        $mem_avatar = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&background=random&color=fff";
                         
-                        <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition">
+                        if (!empty($member['Avatar'])) {
+                            // 强制统一使用 /ecotrip/avatars/ 路径，并使用 basename 避免路径重复
+                            $mem_avatar = "/ecotrip/avatars/" . basename($member['Avatar']);
+                        }
+                        ?>
+
+                        <div
+                            class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition">
                             <div class="flex items-center gap-4">
                                 <div class="h-10 w-10 rounded-full bg-gray-200 overflow-hidden border border-gray-100">
                                     <img src="<?php echo $mem_avatar; ?>" class="h-full w-full object-cover">
                                 </div>
                                 <div>
                                     <p class="font-bold text-gray-900 text-sm flex items-center gap-2">
-                                        <?php echo htmlspecialchars($member['First_Name'] . ' ' . $member['Last_Name']); ?>
-                                        <span class="text-xs text-gray-400 font-normal">(ID: <?php echo $member['User_ID']; ?>)</span>
+                                        <?php echo htmlspecialchars($fullName); ?>
+                                        <span class="text-xs text-gray-400 font-normal">(ID:
+                                            <?php echo $member['User_ID']; ?>)</span>
                                         <?php if ($is_owner): ?>
-                                            <span class="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full font-bold">OWNER</span>
+                                            <span
+                                                class="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full font-bold">OWNER</span>
                                         <?php endif; ?>
                                     </p>
                                     <p class="text-xs text-gray-500"><?php echo htmlspecialchars($member['Email']); ?></p>
@@ -143,20 +176,24 @@ include '../header.php';
 
                             <div class="flex items-center gap-2">
                                 <?php if (!$is_owner): ?>
-                                    <form action="admin_team_manage_action.php" method="POST" onsubmit="return confirm('Promote this user to Team Owner?');">
+                                    <form action="admin_team_manage_action.php" method="POST"
+                                        onsubmit="return confirm('Promote this user to Team Owner?');">
                                         <input type="hidden" name="target_user_id" value="<?php echo $member['User_ID']; ?>">
                                         <input type="hidden" name="team_id" value="<?php echo $target_team_id; ?>">
                                         <input type="hidden" name="action_type" value="transfer">
-                                        <button type="submit" class="text-xs font-bold text-gray-600 border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 rounded transition">
+                                        <button type="submit"
+                                            class="text-xs font-bold text-gray-600 border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 rounded transition">
                                             Make Owner
                                         </button>
                                     </form>
 
-                                    <form action="admin_team_manage_action.php" method="POST" onsubmit="return confirm('Remove this user from the team?');">
+                                    <form action="admin_team_manage_action.php" method="POST"
+                                        onsubmit="return confirm('Remove this user from the team?');">
                                         <input type="hidden" name="target_user_id" value="<?php echo $member['User_ID']; ?>">
                                         <input type="hidden" name="team_id" value="<?php echo $target_team_id; ?>">
                                         <input type="hidden" name="action_type" value="kick">
-                                        <button type="submit" class="text-xs font-bold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded transition">
+                                        <button type="submit"
+                                            class="text-xs font-bold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded transition">
                                             Kick
                                         </button>
                                     </form>
@@ -181,4 +218,5 @@ include '../header.php';
     </div>
 </footer>
 </body>
+
 </html>
