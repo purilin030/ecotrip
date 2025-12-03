@@ -499,8 +499,5 @@ COMMIT;
 -- 1. 添加 Status 列 (用于上下架)
 ALTER TABLE `reward` ADD COLUMN `Status` ENUM('Active', 'Inactive') DEFAULT 'Active';
  
--- 2. 统一图片列名 (把 Reward_Photo 改成 Image，适配新代码)
-ALTER TABLE `reward` CHANGE `Reward_Photo` `Image` VARCHAR(255) DEFAULT NULL;
- 
 -- 3. (可选) 如果你还没有加 Account_Status 给用户表 (用于封号)，也加上
 ALTER TABLE `user` ADD COLUMN `Account_Status` VARCHAR(20) DEFAULT 'Active';

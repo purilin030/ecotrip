@@ -11,7 +11,7 @@ if(!isset($_SESSION['user_id'])){
 $user_id = $_SESSION['user_id'];
 
 // 2. 查询数据
-$sql = "SELECT r.*, rw.Image, 
+$sql = "SELECT r.*, rw.Reward_Photo
         FROM redeemrecord r 
         LEFT JOIN reward rw ON r.Reward_ID = rw.Reward_ID 
         WHERE r.Redeem_By = ? 
