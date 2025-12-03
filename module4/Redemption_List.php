@@ -89,7 +89,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div>
             <h1 class="text-3xl font-bold text-gray-900">📦 Redemption Management</h1>
             <p class="text-gray-500 mt-1">Manage user reward requests and shipping status.</p>
-            <a href="export_data.php" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-2">
+            <a href="exportExcel.php" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-2">
     <i class="fa-solid fa-download"></i> Export CSV
 </a>
         </div>
