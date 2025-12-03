@@ -54,9 +54,10 @@ if (isset($_POST['update_status'])) {
 
 // 筛选逻辑 (新设计功能)
 $filter = $_GET['filter'] ?? 'all';
-$sql = "SELECT r.*, u.First_Name, u.Last_Name, u.Email, u.Phone_num
+$sql = "SELECT r.*, u.First_Name, u.Last_Name, u.Email, u.Phone_num, rw.Type as RewardType 
         FROM redeemrecord r
-        JOIN user u ON r.Redeem_By = u.User_ID ";
+        JOIN user u ON r.Redeem_By = u.User_ID 
+        JOIN reward rw ON r.Reward_ID = rw.Reward_ID ";
 
 if ($filter == 'pending') {
     // 注意：Delivered 前后加了单引号
@@ -166,10 +167,10 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             <?php if ($row['Status'] != 'Delivered'): ?>
                                 <button type="button" 
-                                        onclick="fulfillOrder(<?= $row['RedeemRecord_ID'] ?>, '<?= htmlspecialchars($row['Reward_Name'], ENT_QUOTES) ?>')"
-                                        class="bg-gray-900 hover:bg-black text-white text-xs px-3 py-2 rounded-md font-medium shadow-sm transition flex items-center gap-1">
-                                    <span>Fulfill</span>
-                                </button>
+        onclick="fulfillOrder(<?= $row['RedeemRecord_ID'] ?>, '<?= htmlspecialchars($row['Reward_Name'], ENT_QUOTES) ?>', '<?= $row['RewardType'] ?>')"
+        class="bg-gray-900 hover:bg-black text-white text-xs px-3 py-2 rounded-md font-medium shadow-sm transition flex items-center gap-1">
+    <span>Fulfill</span>
+</button>
                             <?php else: ?>
                                 <span class="text-green-600 text-sm font-bold border border-green-200 bg-green-50 px-2 py-1 rounded-md">
                                     <i class="fa-solid fa-check"></i> Done
