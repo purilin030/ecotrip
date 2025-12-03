@@ -18,41 +18,78 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sub_id = $_POST['submission_id'];
     $action = $_POST['action']; // 'approve' 或 'deny'
     $note = isset($_POST['note']) ? trim($_POST['note']) : '';
-    $action_date = date("Y-m-d"); 
-    
+    $action_date = date("Y-m-d");
+
     // 准备 SQL 语句变量
     $status_text = "";
-    
+
     if ($action == 'approve') {
         $status_text = "Approved";
-        
-        // --- 1. QR Code 生成逻辑 ---
-        $folder_path = "../qr_code/"; 
+
+        // --- 0. 获取挑战积分和用户信息 (新增) ---
+        // 我们需要知道这个 Submission 对应哪个 User，以及对应的 Challenge 有多少分
+        $info_sql = "SELECT s.User_ID, s.Team_ID, c.Points 
+                     FROM submissions s 
+                     JOIN challenge c ON s.Challenge_ID = c.Challenge_ID 
+                     WHERE s.Submission_ID = ?";
+        $info_stmt = $con->prepare($info_sql);
+        $info_stmt->bind_param("i", $sub_id);
+        $info_stmt->execute();
+        $info_result = $info_stmt->get_result();
+
+        if ($info_result->num_rows > 0) {
+            $info_data = $info_result->fetch_assoc();
+            $target_user_id = $info_data['User_ID'];
+            $points_to_add = $info_data['Points'];
+            // 处理 Team_ID，如果为 NULL 则设为 0
+            // If Team_ID is empty or 0, set it to NULL for the database
+            $team_id = (!empty($info_data['Team_ID']) && $info_data['Team_ID'] != 0) ? $info_data['Team_ID'] : null;
+
+            // --- 1. 更新 User 表积分 (新增) ---
+            // 同时增加 Point (总分) 和 RedeemPoint (可兑换分)
+            $update_user_sql = "UPDATE user SET Point = Point + ?, RedeemPoint = RedeemPoint + ? WHERE User_ID = ?";
+            $update_user_stmt = $con->prepare($update_user_sql);
+            $update_user_stmt->bind_param("iii", $points_to_add, $points_to_add, $target_user_id);
+            $update_user_stmt->execute();
+            $update_user_stmt->close();
+
+            // --- 2. 插入 PointsLedger 记录 (新增) ---
+            // 记录这次积分获取的来源
+            $ledger_sql = "INSERT INTO pointsledger (Points_Earned, Points_Spend, Earned_Date, User_ID, Submission_ID, Team_ID) 
+                           VALUES (?, 0, ?, ?, ?, ?)";
+            $ledger_stmt = $con->prepare($ledger_sql);
+            // 注意：Earned_Date 使用当前日期 $action_date
+            $ledger_stmt->bind_param("isiii", $points_to_add, $action_date, $target_user_id, $sub_id, $team_id);
+            $ledger_stmt->execute();
+            $ledger_stmt->close();
+        }
+        $info_stmt->close();
+
+        // --- 3. QR Code 生成逻辑 (保留原有逻辑) ---
+        $folder_path = "../qr_code/";
         if (!file_exists($folder_path)) {
             mkdir($folder_path, 0777, true);
         }
-        
+
         // 准备文件名
         $file_name = "qr_" . $sub_id . "_" . time() . ".png";
         $local_file_path = $folder_path . $file_name;
-        // 存入数据库的相对路径 (根据你其他文件的习惯，这里可能需要调整路径前缀，保持一致)
+        // 存入数据库的相对路径
         $db_qr_path = "../qr_code/" . $file_name;
 
         // 从 API 下载图片
-        $qr_content = "Submission-" . $sub_id . "-Verified"; 
+        $qr_content = "Submission-" . $sub_id . "-Verified";
         $api_url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" . urlencode($qr_content);
-        
-        // 使用 curl 或 file_get_contents
+
+        // 使用 file_get_contents
         $image_data = file_get_contents($api_url);
-        
+
         if ($image_data) {
             file_put_contents($local_file_path, $image_data);
-            
+
             // 更新 Submission 表 (状态 + QR Code + Note)
-            // 注意：表名为 submission (单数)
             $sql = "UPDATE submissions SET Status = 'Approved', Verification_note = ?, QR_Code = ? WHERE Submission_ID = ?";
             $stmt = $con->prepare($sql);
-            // bind_param: s (note), s (qr_path), i (id)
             $stmt->bind_param("ssi", $note, $db_qr_path, $sub_id);
             $stmt->execute();
         } else {
@@ -61,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     } elseif ($action == 'deny') {
         $status_text = "Denied";
-        
+
         // 更新 Submission 表 (只更新状态和备注)
         $sql = "UPDATE submissions SET Status = 'Denied', Verification_note = ? WHERE Submission_ID = ?";
         $stmt = $con->prepare($sql);
@@ -69,13 +106,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
     }
 
-    // --- 2. 插入记录到 Moderation 表 ---
+    // --- 4. 插入记录到 Moderation 表 (保留原有逻辑) ---
     if (!empty($status_text)) {
-        // 假设 moderation 表字段对应正确
         $mod_sql = "INSERT INTO moderation (Submission_ID, User_ID, Action, Action_date) VALUES (?, ?, ?, ?)";
         $mod_stmt = $con->prepare($mod_sql);
         $mod_stmt->bind_param("iiss", $sub_id, $admin_id, $status_text, $action_date);
-        
+
         if ($mod_stmt->execute()) {
             // 成功后跳转回列表
             echo "<script>
