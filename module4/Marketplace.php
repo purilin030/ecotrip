@@ -33,7 +33,7 @@ if (!$currentUser) {
 }
 
 // 6. 获取商品列表
-$stmtRewards = $pdo->query("SELECT * FROM reward");
+$stmtRewards = $pdo->query("SELECT * FROM reward WHERE Status = 'Active'");
 $rewards = $stmtRewards->fetchAll(PDO::FETCH_ASSOC);
 
 // --- 关键点：先准备好数据，再引入 Header ---
