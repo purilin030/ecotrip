@@ -5,6 +5,7 @@
 $path_to_db = __DIR__ . '/../database.php';
 $path_to_header = __DIR__ . '/../header.php';
 
+
 // 检查数据库文件是否存在
 if (!file_exists($path_to_db)) {
     if (file_exists('database.php')) {
@@ -319,6 +320,9 @@ if (isset($stmt)) $stmt->close();
 if (isset($con)) $con->close();
 
 // 结束 HTML 标签
+?>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php';
+include '../footer.php';
 ?>
 </body>
 </html>

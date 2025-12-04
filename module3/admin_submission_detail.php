@@ -207,6 +207,9 @@ $show_form = $is_pending || $edit_mode;
     </div>
 </main>
 
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php';
+include '../footer.php';
+?>
 </body>
 
 </html>

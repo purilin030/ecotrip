@@ -255,5 +255,9 @@ $stats['denied'] = $stats['denied'] ?? 0;
 if (isset($stmt)) $stmt->close();
 if (isset($con)) $con->close();
 ?>
+
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php';
+include '../footer.php';
+?>
 </body>
 </html>

@@ -258,7 +258,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 </script>
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php';
+include '../footer.php';
+?>
 </body>
 
 </html>
