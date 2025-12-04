@@ -38,6 +38,32 @@ $points_data = mysqli_fetch_assoc($points_res);
 // 如果结果为NULL（比如没人有分），就默认为0
 $team_total_points = $points_data['total_points'] ? $points_data['total_points'] : 0;
 
+// ... 上面是步骤 5 ...
+$points_res = mysqli_query($con, $points_sql);
+$points_data = mysqli_fetch_assoc($points_res);
+$team_total_points = $points_data['total_points'] ? $points_data['total_points'] : 0;
+
+// ==========================================
+// 5.5. 【新增】计算团队排名
+// 逻辑：计算所有队伍的总分，然后统计有多少队伍的分数 > 当前队伍分数
+// ==========================================
+$rank_sql = "
+    SELECT COUNT(*) + 1 AS current_rank
+    FROM (
+        SELECT SUM(Point) as team_total
+        FROM user
+        WHERE Team_ID IS NOT NULL AND Team_ID != 0
+        GROUP BY Team_ID
+    ) as all_teams
+    WHERE team_total > $team_total_points
+";
+
+$rank_res = mysqli_query($con, $rank_sql);
+$rank_data = mysqli_fetch_assoc($rank_res);
+$my_rank = $rank_data['current_rank'];
+
+// ... 下面是步骤 6 ...
+
 
 // 6. 获取队友列表
 $members_sql = "SELECT User_ID, First_Name, Last_Name, Avatar, Role FROM user WHERE Team_ID = '$my_team_id'";
@@ -55,7 +81,8 @@ include '../header.php';
             <div class="h-32 bg-gradient-to-r from-brand-500 to-green-400 relative">
                 <div class="absolute -bottom-10 left-8">
                     <div class="h-24 w-24 rounded-xl bg-white p-2 shadow-lg">
-                        <div class="h-full w-full bg-brand-50 rounded-lg flex items-center justify-center text-4xl font-bold text-brand-600">
+                        <div
+                            class="h-full w-full bg-brand-50 rounded-lg flex items-center justify-center text-4xl font-bold text-brand-600">
                             <?php echo strtoupper(substr($my_team['Team_name'], 0, 1)); ?>
                         </div>
                     </div>
@@ -99,10 +126,12 @@ include '../header.php';
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
 
-                    <div class="md:col-span-1 bg-gray-50 rounded-xl p-6 border border-gray-200 flex flex-col justify-center">
+                    <div
+                        class="md:col-span-1 bg-gray-50 rounded-xl p-6 border border-gray-200 flex flex-col justify-center">
                         <div class="text-xs text-gray-400 uppercase font-bold mb-2">Team Bio</div>
                         <?php if (!empty($my_team['Team_Bio'])): ?>
-                            <p class="text-sm text-gray-700 italic">"<?php echo htmlspecialchars($my_team['Team_Bio']); ?>"</p>
+                            <p class="text-sm text-gray-700 italic">"<?php echo htmlspecialchars($my_team['Team_Bio']); ?>"
+                            </p>
                         <?php else: ?>
                             <p class="text-sm text-gray-400 italic">No bio yet.</p>
                         <?php endif; ?>
@@ -119,7 +148,9 @@ include '../header.php';
                     <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
                         <div class="text-blue-600 mb-2"><i class="fa-solid fa-medal text-2xl"></i></div>
                         <div class="text-sm text-blue-800 font-medium">Current Rank</div>
-                        <div class="text-3xl font-bold text-blue-900">#5</div>
+                        <div class="text-3xl font-bold text-blue-900">
+                            #<?php echo $my_rank; ?>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -132,7 +163,7 @@ include '../header.php';
                     <?php
                     $is_owner = ($member['User_ID'] == $my_team['Owner_ID']);
                     $member_avatar = "https://ui-avatars.com/api/?name=" . $member['First_Name'] . "+" . $member['Last_Name'] . "&background=random&color=fff";
-                    
+
                     // 修正后的头像路径检查逻辑
                     // 假设数据库存的是 '/ecotrip/avatars/xxx.png' 这种Web路径
                     if (!empty($member['Avatar'])) {
@@ -140,7 +171,7 @@ include '../header.php';
                         // 注意：你需要根据你的实际文件结构调整这里的逻辑
                         // 这里尝试去掉开头的 '/ecotrip/' 来拼接物理路径
                         $rel_path = str_replace('/ecotrip/', '', $member['Avatar']);
-                        $phys_path = __DIR__ . '/../' . $rel_path; 
+                        $phys_path = __DIR__ . '/../' . $rel_path;
 
                         if (file_exists($phys_path)) {
                             $member_avatar = $member['Avatar'];
@@ -193,4 +224,5 @@ include '../header.php';
 </footer>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php'; ?>
 </body>
+
 </html>
