@@ -78,16 +78,13 @@ $main_image = !empty($challenge['photo_upload']) ? "uploads/" . $challenge['phot
 
 <body>
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-content">
-                <a href="view_challenge.php" class="nav-logo">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    <span>Back to Challenges</span>
-                </a>
-            </div>
-        </div>
-    </nav>
+    <div class="fixed top-24 left-6 z-50">
+        <a href="view_challenge.php"
+            class="inline-flex items-center px-4 py-2.5 bg-white/90 backdrop-blur-md border border-gray-200 rounded-full shadow-sm text-sm font-semibold text-gray-700 hover:bg-white hover:text-green-600 hover:shadow-md transition-all duration-300 group">
+            <i class="fa-solid fa-arrow-left mr-2 transition-transform duration-300 group-hover:-translate-x-1"></i>
+            Back
+        </a>
+    </div>
 
     <div class="detail-container">
 
@@ -137,8 +134,8 @@ $main_image = !empty($challenge['photo_upload']) ? "uploads/" . $challenge['phot
                     </div>
 
                     <div class="action-area">
-                        <a href="/ecotrip/module3/submit_proof.php?challenge_id=<?php echo $current_id; ?>" class="join-btn"
-                            style="text-decoration: none; display: inline-block; text-align: center;">
+                        <a href="/ecotrip/module3/submit_proof.php?challenge_id=<?php echo $current_id; ?>"
+                            class="join-btn" style="text-decoration: none; display: inline-block; text-align: center;">
                             Join Challenge Now
                         </a>
                     </div>

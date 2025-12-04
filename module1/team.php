@@ -298,5 +298,6 @@ include '../header.php';
         });
     });
 </script>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php'; ?>
 </body>
 </html>

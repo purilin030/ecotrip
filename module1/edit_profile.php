@@ -194,6 +194,6 @@ include '../header.php';
             </p>
         </div>
     </footer>
-
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php'; ?>
 </body>
 </html>
