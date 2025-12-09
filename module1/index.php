@@ -42,11 +42,6 @@ if (session_status() === PHP_SESSION_NONE) {
                         <i class="fa-solid fa-leaf text-brand-600 text-2xl"></i>
                         <span class="font-bold text-xl tracking-tight text-gray-900">ecoTrip</span>
                     </a>
-                    <div class="hidden md:ml-10 md:flex md:space-x-8">
-                        <a href="#" class="text-gray-500 hover:text-gray-900 hover:border-gray-300 border-b-2 border-transparent px-1 pt-1 text-sm font-medium">Challenges</a>
-                        <a href="#" class="text-gray-500 hover:text-gray-900 hover:border-gray-300 border-b-2 border-transparent px-1 pt-1 text-sm font-medium">Leaderboard</a>
-                        <a href="#" class="text-gray-500 hover:text-gray-900 hover:border-gray-300 border-b-2 border-transparent px-1 pt-1 text-sm font-medium">Marketplace</a>
-                    </div>
                 </div>
 
                 <div class="flex items-center">
