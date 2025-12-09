@@ -161,8 +161,8 @@ require '../header.php';
                         <tr class="<?= $rowOpacity ?> transition group">
                             <td class="p-4 pl-6 flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 flex-shrink-0 overflow-hidden">
-                                    <?php if($r['Image']): ?>
-                                        <img src="<?= htmlspecialchars($r['Image']) ?>" class="w-full h-full object-cover">
+                                    <?php if($r['Reward_Photo']): ?>
+                                        <img src="<?= htmlspecialchars($r['Reward_Photo']) ?>" class="w-full h-full object-cover">
                                     <?php else: ?>
                                         <div class="w-full h-full flex items-center justify-center text-gray-300"><i class="fa-solid fa-image"></i></div>
                                     <?php endif; ?>
