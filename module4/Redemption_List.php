@@ -86,17 +86,19 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">📦 Redemption Management</h1>
-            <p class="text-gray-500 mt-1">Manage user reward requests and shipping status.</p>
-            <a href="exportExcel.php" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-2">
-    <i class="fa-solid fa-download"></i> Export CSV
-</a>
-        </div>
+   <div class="flex flex-col md:flex-row justify-between md:items-end mb-8 gap-4">
+    
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">📦 Redemption Management</h1>
+        <p class="text-gray-500 mt-1">Manage user reward requests and shipping status.</p>
         
-        <div class="flex gap-2 mt-4 md:mt-0">
-            <input type="text" id="searchInput" placeholder="Search user name..." class="px-4 py-2 border rounded-lg text-sm w-64">
+        <a href="exportExcel.php" class="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-2 w-fit">
+            <i class="fa-solid fa-download"></i> Export CSV
+        </a>
+    </div>
+    
+    <div class="flex gap-2 mt-4 md:mt-0">
+        <input type="text" id="searchInput" placeholder="Search user name..." class="px-4 py-2 border rounded-lg text-sm w-64">
             <a href="?filter=all" class="px-4 py-2 rounded-lg text-sm font-bold <?php echo $filter=='all' ? 'bg-gray-800 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'; ?>">All</a>
             <a href="?filter=pending" class="px-4 py-2 rounded-lg text-sm font-bold <?php echo $filter=='pending' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'; ?>">Pending</a>
             <a href="?filter=delivered" class="px-4 py-2 rounded-lg text-sm font-bold <?php echo $filter=='delivered' ? 'bg-green-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'; ?>">Delivered</a>
