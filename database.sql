@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Dec 09, 2025 at 05:25 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- 主機： 127.0.0.1
+-- 產生時間： 2025 年 12 月 09 日 05:37
+-- 伺服器版本： 10.4.32-MariaDB
+-- PHP 版本： 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `ecotrip`
+-- 資料庫： `ecotrip`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `category`
+-- 資料表結構 `category`
 --
 
 CREATE TABLE `category` (
@@ -33,7 +33,7 @@ CREATE TABLE `category` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `category`
+-- 傾印資料表的資料 `category`
 --
 
 INSERT INTO `category` (`CategoryID`, `CategoryName`) VALUES
@@ -47,7 +47,7 @@ INSERT INTO `category` (`CategoryID`, `CategoryName`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `challenge`
+-- 資料表結構 `challenge`
 --
 
 CREATE TABLE `challenge` (
@@ -67,7 +67,7 @@ CREATE TABLE `challenge` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `challenge`
+-- 傾印資料表的資料 `challenge`
 --
 
 INSERT INTO `challenge` (`Challenge_ID`, `Category_ID`, `City_ID`, `Created_by`, `Title`, `Detailed_Description`, `preview_description`, `Difficulty`, `Points`, `Start_date`, `End_date`, `photo_upload`, `status`) VALUES
@@ -93,7 +93,7 @@ INSERT INTO `challenge` (`Challenge_ID`, `Category_ID`, `City_ID`, `Created_by`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `city`
+-- 資料表結構 `city`
 --
 
 CREATE TABLE `city` (
@@ -103,7 +103,7 @@ CREATE TABLE `city` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `city`
+-- 傾印資料表的資料 `city`
 --
 
 INSERT INTO `city` (`CityID`, `CityName`, `State`) VALUES
@@ -117,7 +117,7 @@ INSERT INTO `city` (`CityID`, `CityName`, `State`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `moderation`
+-- 資料表結構 `moderation`
 --
 
 CREATE TABLE `moderation` (
@@ -129,7 +129,7 @@ CREATE TABLE `moderation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `moderation`
+-- 傾印資料表的資料 `moderation`
 --
 
 INSERT INTO `moderation` (`Moderation_ID`, `Submission_ID`, `User_ID`, `Action`, `Action_date`) VALUES
@@ -138,25 +138,22 @@ INSERT INTO `moderation` (`Moderation_ID`, `Submission_ID`, `User_ID`, `Action`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pointsledger`
+-- 資料表結構 `pointsledger`
 --
 
 CREATE TABLE `pointsledger` (
   `LedgeID` int(11) UNSIGNED NOT NULL,
   `Points_Earned` int(11) UNSIGNED NOT NULL DEFAULT 0,
-  `Points_Spend` int(11) UNSIGNED NOT NULL DEFAULT 0,
   `Earned_Date` date NOT NULL,
-  `Spend_Date` date DEFAULT NULL,
-  `RedeemRecord_ID` int(11) DEFAULT NULL,
   `User_ID` int(10) NOT NULL,
   `Submission_ID` int(10) NOT NULL,
-  `Team_ID` int(10) NOT NULL
+  `Team_ID` int(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `redeemrecord`
+-- 資料表結構 `redeemrecord`
 --
 
 CREATE TABLE `redeemrecord` (
@@ -173,7 +170,7 @@ CREATE TABLE `redeemrecord` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `redeemrecord`
+-- 傾印資料表的資料 `redeemrecord`
 --
 
 INSERT INTO `redeemrecord` (`Reward_ID`, `RedeemRecord_ID`, `Reward_Name`, `Redeem_Quantity`, `Redeem_By`, `Redeem_Date`, `Status`, `DeliveryDate`, `Proof_Photo`, `Admin_Note`) VALUES
@@ -194,7 +191,7 @@ INSERT INTO `redeemrecord` (`Reward_ID`, `RedeemRecord_ID`, `Reward_Name`, `Rede
 -- --------------------------------------------------------
 
 --
--- Table structure for table `reward`
+-- 資料表結構 `reward`
 --
 
 CREATE TABLE `reward` (
@@ -209,7 +206,7 @@ CREATE TABLE `reward` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `reward`
+-- 傾印資料表的資料 `reward`
 --
 
 INSERT INTO `reward` (`Reward_ID`, `Reward_name`, `Image`, `Points_Required`, `Stock`, `Type`, `Description`, `Status`) VALUES
@@ -219,7 +216,7 @@ INSERT INTO `reward` (`Reward_ID`, `Reward_name`, `Image`, `Points_Required`, `S
 -- --------------------------------------------------------
 
 --
--- Table structure for table `submissions`
+-- 資料表結構 `submissions`
 --
 
 CREATE TABLE `submissions` (
@@ -237,7 +234,7 @@ CREATE TABLE `submissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `submissions`
+-- 傾印資料表的資料 `submissions`
 --
 
 INSERT INTO `submissions` (`Submission_ID`, `Challenge_ID`, `User_ID`, `Team_ID`, `Caption`, `Photo`, `image_hash`, `Submission_date`, `Status`, `Verification_note`, `QR_Code`) VALUES
@@ -247,7 +244,7 @@ INSERT INTO `submissions` (`Submission_ID`, `Challenge_ID`, `User_ID`, `Team_ID`
 -- --------------------------------------------------------
 
 --
--- Table structure for table `team`
+-- 資料表結構 `team`
 --
 
 CREATE TABLE `team` (
@@ -260,7 +257,7 @@ CREATE TABLE `team` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `team`
+-- 傾印資料表的資料 `team`
 --
 
 INSERT INTO `team` (`Team_ID`, `Owner_ID`, `Team_code`, `Team_name`, `Team_Bio`, `Total_members`) VALUES
@@ -271,7 +268,7 @@ INSERT INTO `team` (`Team_ID`, `Owner_ID`, `Team_code`, `Team_name`, `Team_Bio`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- 資料表結構 `user`
 --
 
 CREATE TABLE `user` (
@@ -293,7 +290,7 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `user`
+-- 傾印資料表的資料 `user`
 --
 
 INSERT INTO `user` (`User_ID`, `First_Name`, `Last_Name`, `Caption`, `User_DOB`, `Avatar`, `Email`, `Phone_num`, `Team_ID`, `Point`, `RedeemPoint`, `Password`, `Register_Date`, `Role`, `Account_Status`) VALUES
@@ -309,7 +306,7 @@ INSERT INTO `user` (`User_ID`, `First_Name`, `Last_Name`, `Caption`, `User_DOB`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `verification_token`
+-- 資料表結構 `verification_token`
 --
 
 CREATE TABLE `verification_token` (
@@ -319,17 +316,17 @@ CREATE TABLE `verification_token` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexes for dumped tables
+-- 已傾印資料表的索引
 --
 
 --
--- Indexes for table `category`
+-- 資料表索引 `category`
 --
 ALTER TABLE `category`
   ADD PRIMARY KEY (`CategoryID`);
 
 --
--- Indexes for table `challenge`
+-- 資料表索引 `challenge`
 --
 ALTER TABLE `challenge`
   ADD PRIMARY KEY (`Challenge_ID`),
@@ -338,13 +335,13 @@ ALTER TABLE `challenge`
   ADD KEY `City_ID` (`City_ID`);
 
 --
--- Indexes for table `city`
+-- 資料表索引 `city`
 --
 ALTER TABLE `city`
   ADD PRIMARY KEY (`CityID`);
 
 --
--- Indexes for table `moderation`
+-- 資料表索引 `moderation`
 --
 ALTER TABLE `moderation`
   ADD PRIMARY KEY (`Moderation_ID`),
@@ -352,17 +349,16 @@ ALTER TABLE `moderation`
   ADD KEY `moderation_ibfk_2` (`User_ID`);
 
 --
--- Indexes for table `pointsledger`
+-- 資料表索引 `pointsledger`
 --
 ALTER TABLE `pointsledger`
   ADD PRIMARY KEY (`LedgeID`),
   ADD KEY `Submission_ID` (`Submission_ID`),
   ADD KEY `Team_ID` (`Team_ID`),
-  ADD KEY `User_ID` (`User_ID`),
-  ADD KEY `RedeemRecord_ID` (`RedeemRecord_ID`);
+  ADD KEY `User_ID` (`User_ID`);
 
 --
--- Indexes for table `submissions`
+-- 資料表索引 `submissions`
 --
 ALTER TABLE `submissions`
   ADD PRIMARY KEY (`Submission_ID`),
@@ -371,14 +367,14 @@ ALTER TABLE `submissions`
   ADD KEY `Team_ID` (`Team_ID`);
 
 --
--- Indexes for table `team`
+-- 資料表索引 `team`
 --
 ALTER TABLE `team`
   ADD PRIMARY KEY (`Team_ID`),
   ADD UNIQUE KEY `owner_id_unique` (`Owner_ID`);
 
 --
--- Indexes for table `user`
+-- 資料表索引 `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`User_ID`),
@@ -386,70 +382,76 @@ ALTER TABLE `user`
   ADD KEY `user_ibfk_1` (`Team_ID`);
 
 --
--- Indexes for table `verification_token`
+-- 資料表索引 `verification_token`
 --
 ALTER TABLE `verification_token`
   ADD PRIMARY KEY (`Token_ID`),
   ADD KEY `User_ID` (`User_ID`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- 在傾印的資料表使用自動遞增(AUTO_INCREMENT)
 --
 
 --
--- AUTO_INCREMENT for table `category`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `category`
 --
 ALTER TABLE `category`
   MODIFY `CategoryID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT for table `challenge`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `challenge`
 --
 ALTER TABLE `challenge`
   MODIFY `Challenge_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
--- AUTO_INCREMENT for table `city`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `city`
 --
 ALTER TABLE `city`
   MODIFY `CityID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT for table `moderation`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `moderation`
 --
 ALTER TABLE `moderation`
   MODIFY `Moderation_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT for table `submissions`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `pointsledger`
+--
+ALTER TABLE `pointsledger`
+  MODIFY `LedgeID` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- 使用資料表自動遞增(AUTO_INCREMENT) `submissions`
 --
 ALTER TABLE `submissions`
   MODIFY `Submission_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
--- AUTO_INCREMENT for table `team`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `team`
 --
 ALTER TABLE `team`
   MODIFY `Team_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- AUTO_INCREMENT for table `user`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `user`
 --
 ALTER TABLE `user`
   MODIFY `User_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
--- AUTO_INCREMENT for table `verification_token`
+-- 使用資料表自動遞增(AUTO_INCREMENT) `verification_token`
 --
 ALTER TABLE `verification_token`
   MODIFY `Token_ID` int(10) NOT NULL AUTO_INCREMENT;
 
 --
--- Constraints for dumped tables
+-- 已傾印資料表的限制式
 --
 
 --
--- Constraints for table `challenge`
+-- 資料表的限制式 `challenge`
 --
 ALTER TABLE `challenge`
   ADD CONSTRAINT `challenge_ibfk_1` FOREIGN KEY (`City_ID`) REFERENCES `city` (`CityID`) ON UPDATE CASCADE,
@@ -457,14 +459,14 @@ ALTER TABLE `challenge`
   ADD CONSTRAINT `challenge_ibfk_3` FOREIGN KEY (`Created_by`) REFERENCES `user` (`User_ID`) ON UPDATE CASCADE;
 
 --
--- Constraints for table `moderation`
+-- 資料表的限制式 `moderation`
 --
 ALTER TABLE `moderation`
   ADD CONSTRAINT `moderation_ibfk_1` FOREIGN KEY (`Submission_ID`) REFERENCES `submissions` (`Submission_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `moderation_ibfk_2` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `pointsledger`
+-- 資料表的限制式 `pointsledger`
 --
 ALTER TABLE `pointsledger`
   ADD CONSTRAINT `pointsledger_ibfk_4` FOREIGN KEY (`Submission_ID`) REFERENCES `submissions` (`Submission_ID`),
@@ -472,7 +474,7 @@ ALTER TABLE `pointsledger`
   ADD CONSTRAINT `pointsledger_ibfk_6` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`);
 
 --
--- Constraints for table `submissions`
+-- 資料表的限制式 `submissions`
 --
 ALTER TABLE `submissions`
   ADD CONSTRAINT `submissions_ibfk_4` FOREIGN KEY (`Challenge_ID`) REFERENCES `challenge` (`Challenge_ID`) ON UPDATE CASCADE,
@@ -480,19 +482,19 @@ ALTER TABLE `submissions`
   ADD CONSTRAINT `submissions_ibfk_6` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`) ON UPDATE CASCADE;
 
 --
--- Constraints for table `team`
+-- 資料表的限制式 `team`
 --
 ALTER TABLE `team`
   ADD CONSTRAINT `team_ibfk_1` FOREIGN KEY (`Owner_ID`) REFERENCES `user` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `user`
+-- 資料表的限制式 `user`
 --
 ALTER TABLE `user`
   ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`Team_ID`) REFERENCES `team` (`Team_ID`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Constraints for table `verification_token`
+-- 資料表的限制式 `verification_token`
 --
 ALTER TABLE `verification_token`
   ADD CONSTRAINT `verification_token_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`);
