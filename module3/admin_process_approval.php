@@ -55,8 +55,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // --- 2. 插入 PointsLedger 记录 (新增) ---
             // 记录这次积分获取的来源
-            $ledger_sql = "INSERT INTO pointsledger (Points_Earned, Points_Spend, Earned_Date, User_ID, Submission_ID, Team_ID) 
-                           VALUES (?, 0, ?, ?, ?, ?)";
+            $ledger_sql = "INSERT INTO pointsledger (Points_Earned, Earned_Date, User_ID, Submission_ID, Team_ID) 
+                           VALUES (?, ?, ?, ?, ?)";
             $ledger_stmt = $con->prepare($ledger_sql);
             // 注意：Earned_Date 使用当前日期 $action_date
             $ledger_stmt->bind_param("isiii", $points_to_add, $action_date, $target_user_id, $sub_id, $team_id);
