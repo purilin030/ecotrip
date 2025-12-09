@@ -40,7 +40,6 @@ $stmtRewards = $pdo->query("SELECT * FROM reward WHERE Status = 'Active'");
 $rewards = $stmtRewards->fetchAll(PDO::FETCH_ASSOC);
 
 // --- 关键点：先准备好数据，再引入 Header ---
-include '../header.php'; 
 ?>
 
 <main class="flex-grow max-w-7xl mx-auto px-8 py-10 w-full">
