@@ -11,7 +11,7 @@ document.addEventListener('click', function (event) {
     const dropdown = document.getElementById('adminDropdown');
     const button = document.querySelector('.nav-dropdown-btn');
 
-    if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+    if (button && dropdown && !button.contains(event.target) && !dropdown.contains(event.target)) {
         dropdown.classList.add('hidden');
     }
 });
@@ -19,11 +19,11 @@ document.addEventListener('click', function (event) {
 // Filter Challenges Function
 function filterChallenges() {
     // 1. Get all filter values
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const selectedCategory = document.getElementById('categoryFilter').value;
-    const selectedCity = document.getElementById('cityFilter').value;
-    const selectedPointsRange = document.getElementById('pointsFilter').value;
-    const selectedDifficulty = document.getElementById('difficultyFilter').value;
+    const searchTerm = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
+    const selectedCategory = document.getElementById('categoryFilter') ? document.getElementById('categoryFilter').value : '';
+    const selectedCity = document.getElementById('cityFilter') ? document.getElementById('cityFilter').value : '';
+    const selectedPointsRange = document.getElementById('pointsFilter') ? document.getElementById('pointsFilter').value : '';
+    const selectedDifficulty = document.getElementById('difficultyFilter') ? document.getElementById('difficultyFilter').value : '';
 
     const cards = document.querySelectorAll('.challenge-card');
 
@@ -56,20 +56,33 @@ function filterChallenges() {
             }
         }
 
-        // 4. Show or Hide based on all criteria
-        if (matchesSearch && matchesCategory && matchesCity && matchesPoints && matchesDifficulty) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
+        // 4. Show or Hide the PARENT WRAPPER
+        // Finding the parent <a> tag ensures the grid gap disappears
+        const cardWrapper = card.closest('.card-link-wrapper');
+
+        if (cardWrapper) {
+            if (matchesSearch && matchesCategory && matchesCity && matchesPoints && matchesDifficulty) {
+                // Use empty string '' to let CSS control the display (block/flex/grid)
+                // distinct from 'block' which might override CSS rules
+                cardWrapper.style.display = ''; 
+            } else {
+                cardWrapper.style.display = 'none';
+            }
         }
     });
 }
 
 // Add Event Listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('searchInput').addEventListener('input', filterChallenges);
-    document.getElementById('categoryFilter').addEventListener('change', filterChallenges);
-    document.getElementById('cityFilter').addEventListener('change', filterChallenges);
-    document.getElementById('pointsFilter').addEventListener('change', filterChallenges);
-    document.getElementById('difficultyFilter').addEventListener('change', filterChallenges);
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const cityFilter = document.getElementById('cityFilter');
+    const pointsFilter = document.getElementById('pointsFilter');
+    const difficultyFilter = document.getElementById('difficultyFilter');
+
+    if(searchInput) searchInput.addEventListener('input', filterChallenges);
+    if(categoryFilter) categoryFilter.addEventListener('change', filterChallenges);
+    if(cityFilter) cityFilter.addEventListener('change', filterChallenges);
+    if(pointsFilter) pointsFilter.addEventListener('change', filterChallenges);
+    if(difficultyFilter) difficultyFilter.addEventListener('change', filterChallenges);
 });
