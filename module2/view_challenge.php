@@ -42,7 +42,7 @@ $city_result = $con->query($city_sql);
     <main class="main-content">
 
         <div class="header-section">
-            <h1 class="page-title">Eco-Challenges</h1>
+            <h1 class="page-title">Eco Challenges</h1>
             <p class="page-subtitle">Join challenges, earn points, and make an impact.</p>
 
             <div class="filter-section">
