@@ -5,7 +5,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // 2. 引入数据库连接 (提供 $pdo)
+
 require '../database.php';
+include '../header.php';
 include '../background.php'; 
 
 // 3. 设置页面标题 (header.php 会用到这个变量)
