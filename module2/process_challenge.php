@@ -28,8 +28,11 @@ $preview_desc   = htmlspecialchars(trim($_POST['preview_description'] ?? ''));
 $detailed_desc  = htmlspecialchars(trim($_POST['detailed_description'] ?? ''));
 
 // --- 2. USER ID LOGIC (Crucial for Foreign Key Constraints) ---
-// Priority: 1. Session -> 2. Form Input -> 3. DB Fallback (Safety net)
+// We determine WHO is creating/updating this challenge.
+// Priority: 1. Session (Logged in Admin) -> 2. Form Input -> 3. DB Fallback
+
 if (isset($_SESSION['user_id'])) {
+    // Best Case: Use the currently logged-in admin's ID
     $user_id = $_SESSION['user_id'];
 } elseif (!empty($_POST['user_id'])) {
     $user_id = (int)$_POST['user_id'];
@@ -95,8 +98,9 @@ if (empty($errors)) {
         // ==========================
         if ($challenge_id <= 0) die("Invalid Challenge ID for update.");
 
+        // UPDATED: Changed 'User_ID' to 'Created_by' in the SQL
         $sql = "UPDATE challenge SET 
-                Category_ID=?, City_ID=?, User_ID=?, Title=?, Preview_Description=?, 
+                Category_ID=?, City_ID=?, Created_by=?, Title=?, Preview_Description=?, 
                 Detailed_Description=?, Difficulty=?, Points=?, Start_Date=?, End_Date=?, 
                 status=?, photo_upload=? 
                 WHERE Challenge_ID=?";
@@ -114,7 +118,9 @@ if (empty($errors)) {
         // ==========================
         //      CREATE FLOW
         // ==========================
-        $sql = "INSERT INTO challenge (Category_ID, City_ID, User_ID, Title, Preview_Description, 
+        
+        // UPDATED: Changed 'User_ID' to 'Created_by' in the SQL
+        $sql = "INSERT INTO challenge (Category_ID, City_ID, Created_by, Title, Preview_Description, 
                 Detailed_Description, Difficulty, Points, Start_Date, End_Date, status, photo_upload)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         

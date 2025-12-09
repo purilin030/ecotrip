@@ -41,7 +41,7 @@ $number_of_pages = ceil($total_challenges / $results_per_page);
 $sql = "SELECT c.Challenge_ID, 
         c.Category_ID, 
         c.City_ID, 
-        c.User_ID, 
+        c.Created_by, 
         c.Title, 
         c.Preview_Description, 
         c.Detailed_Description, 
