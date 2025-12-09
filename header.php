@@ -243,10 +243,18 @@ if (isset($_SESSION['Firstname'])) {
                         </div>
                         
 
-                        <a href="/ecotrip/module5/dashboard.php"
-                            class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Dashboard</a>
+                        <?php 
+                        // 默认为普通用户的 Dashboard
+                        $dashboard_url = "/ecotrip/module5/dashboard_user.php"; 
+                        
+                        // 如果是管理员 (Role 1)，则跳转到 Admin Dashboard
+                        if ($db_role == 1 || $db_role == 2) {
+                            $dashboard_url = "/ecotrip/module5/dashboard_admin.php";
+                        }
+                        ?>
 
-                        <div class="relative group h-full flex items-center"></div>
+                        <a href="<?php echo $dashboard_url; ?>"
+                            class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Dashboard</a>
                     </div>
                 </div>
 
