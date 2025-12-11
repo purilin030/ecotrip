@@ -1,6 +1,7 @@
 <?php
 session_start();
 require '../database.php';
+include '../header.php';
 
 // 1. Security Check
 if (!isset($_SESSION['Firstname']) || !isset($_SESSION['user_id'])) {
@@ -108,10 +109,9 @@ while ($row = mysqli_fetch_assoc($res_subs)) $recent_submissions[] = $row;
 // ---------------------------------------------------------
 
 $page_title = "ecoTrip - Dashboard";
-include '../header.php';
+
 ?>
 
-<link rel="stylesheet" href="../css1/dashboard_admin.css">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
