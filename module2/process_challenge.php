@@ -98,7 +98,6 @@ if (empty($errors)) {
         // ==========================
         if ($challenge_id <= 0) die("Invalid Challenge ID for update.");
 
-        // UPDATED: Changed 'User_ID' to 'Created_by' in the SQL
         $sql = "UPDATE challenge SET 
                 Category_ID=?, City_ID=?, Created_by=?, Title=?, Preview_Description=?, 
                 Detailed_Description=?, Difficulty=?, Points=?, Start_Date=?, End_Date=?, 
@@ -112,14 +111,16 @@ if (empty($errors)) {
             $status, $image_path, $challenge_id
         );
         
-        $redirect_url = "view_challenge.php?id=" . $challenge_id . "&updated=true";
+        // --- CHANGED REDIRECT HERE ---
+        // Old: view_challenge.php?id=...
+        // New: manage_challenge.php?updated=true
+        $redirect_url = "manage_challenge.php?updated=true"; 
 
     } else {
         // ==========================
         //      CREATE FLOW
         // ==========================
         
-        // UPDATED: Changed 'User_ID' to 'Created_by' in the SQL
         $sql = "INSERT INTO challenge (Category_ID, City_ID, Created_by, Title, Preview_Description, 
                 Detailed_Description, Difficulty, Points, Start_Date, End_Date, status, photo_upload)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -131,6 +132,7 @@ if (empty($errors)) {
             $status, $image_path
         );
 
+        // This was already correct, keeping it consistent
         $redirect_url = "manage_challenge.php?created=true";
     }
 
