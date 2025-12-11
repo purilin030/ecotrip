@@ -1,9 +1,11 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize default view
     // (Optional: You can add logic here to restore the active tab from local storage)
-    
+
     initializeCharts();
 });
+
+
 
 // ---------------------- Tab Switching Logic ----------------------
 function switchTab(tabName) {
@@ -14,7 +16,7 @@ function switchTab(tabName) {
 
     // 2. Show selected section
     const selectedSection = document.getElementById('view-' + tabName);
-    if(selectedSection) {
+    if (selectedSection) {
         selectedSection.classList.remove('hidden');
     }
 
@@ -27,7 +29,7 @@ function switchTab(tabName) {
 
     // Set active style
     const activeBtn = document.getElementById('tab-' + tabName);
-    if(activeBtn) {
+    if (activeBtn) {
         activeBtn.classList.remove('border-transparent', 'text-gray-500');
         activeBtn.classList.add('border-green-500', 'text-green-600');
     }
@@ -213,6 +215,32 @@ function initializeCharts() {
             plugins: {
                 legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
             }
+        }
+    });
+
+    // --- 8. Top Campaigns (Bar) ---
+    
+    const ctxCamp = document.getElementById('campaignChart').getContext('2d');
+    new Chart(ctxCamp, {
+        type: 'bar',
+        data: {
+            labels: dashboardData.campLabels,
+            datasets: [{
+                label: 'Points Raised',
+                data: dashboardData.campData,
+                backgroundColor: '#ec4899', // Pink-500
+                borderRadius: 6,
+                barThickness: 40,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
         }
     });
 }
