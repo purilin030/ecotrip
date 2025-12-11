@@ -64,7 +64,7 @@ while ($row = mysqli_fetch_assoc($res_pop)) {
     $reward_data[] = $row['cnt'];
 }
 
-$sql_low_stock = "SELECT Reward_name, Stock, Reward_Photo FROM reward WHERE Stock < 10 AND Status = 'Active' ORDER BY Stock ASC LIMIT 5";
+$sql_low_stock = "SELECT Reward_name, Stock, Reward_Photo FROM reward WHERE Stock < 50 AND Status = 'Active' ORDER BY Stock ASC LIMIT 5";
 $res_low_stock = mysqli_query($con, $sql_low_stock);
 $low_stock_items = [];
 while ($row = mysqli_fetch_assoc($res_low_stock)) $low_stock_items[] = $row;
@@ -111,7 +111,7 @@ $page_title = "ecoTrip - Dashboard";
 include '../header.php';
 ?>
 
-<link rel="stylesheet" href="../css1/dashboard_admin.css">
+<link rel="stylesheet" href="dashboard_admin.css">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -341,7 +341,7 @@ include '../header.php';
     };
 </script>
 
-<script src="../js/dashboard_admin.js"></script>
+<script src="dashboard_admin.js"></script>
 
 </body>
 </html>
