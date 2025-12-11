@@ -1,7 +1,6 @@
 <?php
 session_start();
 require '../database.php';
-include '../header.php';
 
 // 1. Security Check
 if (!isset($_SESSION['Firstname']) || !isset($_SESSION['user_id'])) {
@@ -9,11 +8,14 @@ if (!isset($_SESSION['Firstname']) || !isset($_SESSION['user_id'])) {
     exit();
 }
 
+$page_title = "ecoTrip - Dashboard";
+include '../header.php';
+
 // ---------------------------------------------------------
-// DATA FETCHING LOGIC (All your existing SQL)
+// DATA FETCHING LOGIC
 // ---------------------------------------------------------
 
-// --- OVERVIEW TAB ---
+// --- 1. OVERVIEW TAB DATA ---
 $stats = [];
 $res = mysqli_query($con, "SELECT COUNT(*) as cnt FROM user");
 $stats['users'] = mysqli_fetch_assoc($res)['cnt'];
@@ -45,7 +47,7 @@ while ($row = mysqli_fetch_assoc($team_chart_res)) {
     $team_members[] = $row['Total_members'];
 }
 
-// --- POINTS TAB ---
+// --- 2. POINTS & REWARDS TAB DATA ---
 $sql_earned = "SELECT MONTH(Earned_Date) as m, SUM(Points_Earned) as total FROM pointsledger WHERE YEAR(Earned_Date) = YEAR(CURRENT_DATE) GROUP BY MONTH(Earned_Date)";
 $res_earned = mysqli_query($con, $sql_earned);
 $earned_data = array_fill(1, 12, 0);
@@ -80,7 +82,7 @@ $res_recent = mysqli_query($con, $sql_recent);
 $recent_tx = [];
 while ($row = mysqli_fetch_assoc($res_recent)) $recent_tx[] = $row;
 
-// --- ACTIVITY TAB ---
+// --- 3. ACTIVITY TAB DATA ---
 $sql_pop_chal = "SELECT c.Title, COUNT(s.Submission_ID) as cnt FROM challenge c LEFT JOIN submissions s ON c.Challenge_ID = s.Challenge_ID GROUP BY c.Challenge_ID ORDER BY cnt DESC LIMIT 5";
 $res_pop_chal = mysqli_query($con, $sql_pop_chal);
 $chal_labels = [];
@@ -104,14 +106,48 @@ $res_subs = mysqli_query($con, $sql_subs);
 $recent_submissions = [];
 while ($row = mysqli_fetch_assoc($res_subs)) $recent_submissions[] = $row;
 
-// ---------------------------------------------------------
-// END DATA FETCHING
-// ---------------------------------------------------------
+// --- 4. DONATIONS TAB DATA (New) ---
+// Initialize defaults
+$don_stats = ['count' => 0, 'total' => 0];
+$camp_labels = [];
+$camp_data = [];
+$recent_donations = [];
 
-$page_title = "ecoTrip - Dashboard";
+// Safe check: Only run query if donation_record table exists
+$table_check = mysqli_query($con, "SHOW TABLES LIKE 'donation_record'");
+if (mysqli_num_rows($table_check) > 0) {
+    // Stats
+    $res_d = mysqli_query($con, "SELECT COUNT(*) as cnt, SUM(Amount) as total FROM donation_record");
+    $row_d = mysqli_fetch_assoc($res_d);
+    $don_stats['count'] = $row_d['cnt'] ?? 0;
+    $don_stats['total'] = $row_d['total'] ?? 0;
 
+    // Top Campaigns
+    $sql_top_camp = "SELECT dc.Title, SUM(dr.Amount) as raised 
+                     FROM donation_campaign dc 
+                     JOIN donation_record dr ON dc.Campaign_ID = dr.Campaign_ID 
+                     GROUP BY dc.Title 
+                     ORDER BY raised DESC LIMIT 5";
+    $res_camp = mysqli_query($con, $sql_top_camp);
+    while($row = mysqli_fetch_assoc($res_camp)) {
+        $title = (strlen($row['Title']) > 15) ? substr($row['Title'], 0, 15) . '...' : $row['Title'];
+        $camp_labels[] = $title;
+        $camp_data[] = $row['raised'];
+    }
+
+    // Recent Donations
+    $sql_rec_don = "SELECT dr.Donation_Date, dr.Amount, u.First_Name, u.Last_Name, dc.Title 
+                    FROM donation_record dr 
+                    JOIN user u ON dr.User_ID = u.User_ID 
+                    JOIN donation_campaign dc ON dr.Campaign_ID = dc.Campaign_ID 
+                    ORDER BY dr.Donation_Date DESC LIMIT 5";
+    $res_rec_don = mysqli_query($con, $sql_rec_don);
+    while($row = mysqli_fetch_assoc($res_rec_don)) {
+        $recent_donations[] = $row;
+    }
+}
+// ---------------------------------------------------------
 ?>
-
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -131,6 +167,9 @@ $page_title = "ecoTrip - Dashboard";
                 <button onclick="switchTab('financial')" id="tab-financial" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     <i class="fa-solid fa-coins mr-2"></i> Points & Rewards
                 </button>
+                <button onclick="switchTab('donations')" id="tab-donations" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <i class="fa-solid fa-hand-holding-heart mr-2"></i> Donations
+                </button>
                 <button onclick="switchTab('activity')" id="tab-activity" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
                     <i class="fa-solid fa-person-running mr-2"></i> Challenges & Submissions
                 </button>
@@ -140,31 +179,19 @@ $page_title = "ecoTrip - Dashboard";
         <div id="view-overview" class="dashboard-section animate-fade-in">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Users</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($stats['users']); ?></p>
-                    </div>
+                    <div><p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Users</p><p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($stats['users']); ?></p></div>
                     <div class="p-3 bg-blue-50 text-blue-600 rounded-full"><i class="fa-solid fa-users text-xl"></i></div>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Active Teams</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($stats['teams']); ?></p>
-                    </div>
+                    <div><p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Active Teams</p><p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($stats['teams']); ?></p></div>
                     <div class="p-3 bg-green-50 text-green-600 rounded-full"><i class="fa-solid fa-people-group text-xl"></i></div>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Submissions</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($stats['submissions']); ?></p>
-                    </div>
+                    <div><p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Submissions</p><p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($stats['submissions']); ?></p></div>
                     <div class="p-3 bg-purple-50 text-purple-600 rounded-full"><i class="fa-solid fa-camera text-xl"></i></div>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Eco Points</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($stats['points']); ?></p>
-                    </div>
+                    <div><p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Eco Points</p><p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($stats['points']); ?></p></div>
                     <div class="p-3 bg-yellow-50 text-yellow-600 rounded-full"><i class="fa-solid fa-leaf text-xl"></i></div>
                 </div>
             </div>
@@ -178,10 +205,7 @@ $page_title = "ecoTrip - Dashboard";
                     <div class="relative h-72 w-full"><canvas id="userGrowthChart"></canvas></div>
                 </div>
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-bold text-gray-800">Top Teams</h3>
-                        <p class="text-xs text-gray-400">By member count</p>
-                    </div>
+                    <div class="mb-6"><h3 class="text-lg font-bold text-gray-800">Top Teams</h3><p class="text-xs text-gray-400">By member count</p></div>
                     <div class="relative h-64 w-full flex justify-center"><canvas id="teamChart"></canvas></div>
                 </div>
             </div>
@@ -190,17 +214,11 @@ $page_title = "ecoTrip - Dashboard";
         <div id="view-financial" class="dashboard-section hidden animate-fade-in space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-bold text-gray-800">Points Economy</h3>
-                        <p class="text-xs text-gray-400">Earned (Green) vs. Spent (Red)</p>
-                    </div>
+                    <div class="mb-6"><h3 class="text-lg font-bold text-gray-800">Points Economy</h3><p class="text-xs text-gray-400">Earned (Green) vs. Spent (Red)</p></div>
                     <div class="relative h-72 w-full"><canvas id="pointsFlowChart"></canvas></div>
                 </div>
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-bold text-gray-800">Top Redeemed Rewards</h3>
-                        <p class="text-xs text-gray-400">Most popular items</p>
-                    </div>
+                    <div class="mb-6"><h3 class="text-lg font-bold text-gray-800">Top Redeemed Rewards</h3><p class="text-xs text-gray-400">Most popular items</p></div>
                     <div class="relative h-64 w-full flex justify-center"><canvas id="popularRewardsChart"></canvas></div>
                 </div>
             </div>
@@ -209,7 +227,6 @@ $page_title = "ecoTrip - Dashboard";
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                     <div class="mb-4 flex justify-between items-center"><h3 class="font-bold text-gray-800">User Purchasing Power</h3></div>
                     <div class="relative h-48"><canvas id="wealthChart"></canvas></div>
-                    <p class="text-xs text-center text-gray-400 mt-2">Points Balance Distribution</p>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
@@ -257,20 +274,51 @@ $page_title = "ecoTrip - Dashboard";
             </div>
         </div>
 
+        <div id="view-donations" class="dashboard-section hidden animate-fade-in space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-pink-50 p-6 rounded-2xl shadow-sm border border-pink-100 flex items-center justify-between">
+                    <div><p class="text-sm font-medium text-pink-600 uppercase tracking-wider">Total Donated</p><p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($don_stats['total']); ?> pts</p></div>
+                    <div class="p-3 bg-white text-pink-500 rounded-full shadow-sm"><i class="fa-solid fa-heart text-xl"></i></div>
+                </div>
+                <div class="bg-blue-50 p-6 rounded-2xl shadow-sm border border-blue-100 flex items-center justify-between">
+                    <div><p class="text-sm font-medium text-blue-600 uppercase tracking-wider">Total Donors</p><p class="text-3xl font-bold text-gray-900 mt-1"><?php echo number_format($don_stats['count']); ?></p></div>
+                    <div class="p-3 bg-white text-blue-500 rounded-full shadow-sm"><i class="fa-solid fa-users text-xl"></i></div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Top Campaigns</h3><p class="text-xs text-gray-400 mb-4">By total points raised</p>
+                    <div class="relative h-64 w-full"><canvas id="campaignChart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Recent Donors</h3>
+                    <div class="space-y-4">
+                        <?php if (empty($recent_donations)): ?>
+                            <p class="text-sm text-gray-400">No donations yet.</p>
+                        <?php else: ?>
+                            <?php foreach ($recent_donations as $don): ?>
+                                <div class="flex items-center justify-between border-b border-gray-50 pb-2">
+                                    <div><p class="text-sm font-bold text-gray-700"><?php echo htmlspecialchars($don['First_Name']); ?></p><p class="text-xs text-gray-400 truncate w-32"><?php echo htmlspecialchars($don['Title']); ?></p></div>
+                                    <span class="text-sm font-bold text-pink-500">+<?php echo number_format($don['Amount']); ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="view-activity" class="dashboard-section hidden animate-fade-in space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">Most Popular Challenges</h3>
-                    <p class="text-xs text-gray-400 mb-4">Based on total submission count</p>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Most Popular Challenges</h3><p class="text-xs text-gray-400 mb-4">Based on total submission count</p>
                     <div class="relative h-64 w-full"><canvas id="challengePopChart"></canvas></div>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">Submission Status</h3>
-                    <p class="text-xs text-gray-400 mb-4">Approval Rate Overview</p>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Submission Status</h3><p class="text-xs text-gray-400 mb-4">Approval Rate Overview</p>
                     <div class="relative h-64 w-full flex justify-center"><canvas id="statusChart"></canvas></div>
                 </div>
             </div>
-
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold text-gray-800">Recent Submissions</h3>
@@ -280,10 +328,7 @@ $page_title = "ecoTrip - Dashboard";
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="text-xs text-gray-500 border-b border-gray-100">
-                                <th class="font-medium py-3">User</th>
-                                <th class="font-medium py-3">Challenge</th>
-                                <th class="font-medium py-3">Date</th>
-                                <th class="font-medium py-3">Status</th>
+                                <th class="font-medium py-3">User</th><th class="font-medium py-3">Challenge</th><th class="font-medium py-3">Date</th><th class="font-medium py-3">Status</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm">
@@ -298,12 +343,7 @@ $page_title = "ecoTrip - Dashboard";
                                     if ($sub['Status'] == 'Pending') $statusColor = 'bg-yellow-100 text-yellow-700';
                                 ?>
                                     <tr class="group hover:bg-gray-50 transition-colors">
-                                        <td class="py-3 pr-4">
-                                            <div class="flex items-center gap-3">
-                                                <img src="<?php echo $avatar; ?>" class="w-8 h-8 rounded-full border border-gray-200">
-                                                <span class="font-medium text-gray-700"><?php echo htmlspecialchars($sub['First_Name'] . ' ' . $sub['Last_Name']); ?></span>
-                                            </div>
-                                        </td>
+                                        <td class="py-3 pr-4"><div class="flex items-center gap-3"><img src="<?php echo $avatar; ?>" class="w-8 h-8 rounded-full border border-gray-200"><span class="font-medium text-gray-700"><?php echo htmlspecialchars($sub['First_Name'] . ' ' . $sub['Last_Name']); ?></span></div></td>
                                         <td class="py-3 pr-4 text-gray-600"><?php echo htmlspecialchars($sub['Title']); ?></td>
                                         <td class="py-3 pr-4 text-gray-400 text-xs"><?php echo date('M d, Y h:i A', strtotime($sub['Submission_Date'])); ?></td>
                                         <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-bold <?php echo $statusColor; ?>"><?php echo ucfirst($sub['Status']); ?></span></td>
@@ -315,6 +355,7 @@ $page_title = "ecoTrip - Dashboard";
                 </div>
             </div>
         </div>
+
     </div>
 </main>
 
@@ -325,6 +366,7 @@ $page_title = "ecoTrip - Dashboard";
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php'; ?>
 
 <script>
+    // 1. Pass Data to JS
     const dashboardData = {
         weeks: <?php echo json_encode($weeks); ?>,
         userCounts: <?php echo json_encode($user_counts); ?>,
@@ -339,9 +381,60 @@ $page_title = "ecoTrip - Dashboard";
         chalData: <?php echo json_encode($chal_data); ?>,
         statusCounts: <?php echo json_encode($status_counts); ?>
     };
-</script>
 
+    // 2. Load External Chart Logic (For existing charts)
+    // Note: If you have issues with the external file, you can copy its content here.
+</script>
 <script src="../js/dashboard_admin.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab Switching Logic (Overrides or complements existing)
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.dashboard-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('view-' + tabName);
+            if(target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-green-500', 'text-green-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            const activeBtn = document.getElementById('tab-' + tabName);
+            if(activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-gray-500');
+                activeBtn.classList.add('border-green-500', 'text-green-600');
+            }
+        };
+
+        // Initialize Donation Chart
+        const ctxCamp = document.getElementById('campaignChart');
+        if(ctxCamp) {
+            new Chart(ctxCamp.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: <?php echo json_encode($camp_labels); ?>,
+                    datasets: [{
+                        label: 'Points Raised',
+                        data: <?php echo json_encode($camp_data); ?>,
+                        backgroundColor: '#ec4899', // Pink-500
+                        borderRadius: 6,
+                        barThickness: 40,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    });
+</script>
 
 </body>
 </html>
