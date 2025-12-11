@@ -54,8 +54,8 @@ if (isset($_SESSION['Firstname'])) {
                 $user_role_display = "Admin";
                 $role_badge_class = "bg-red-900 text-white";
             } elseif ($db_role == 2) {
-                $user_role_display = "Moderator";
-                $role_badge_class = "bg-blue-900 text-white";
+                $user_role_display = "Team Owner";
+                $role_badge_class = "bg-blue-500 text-white";
             } else {
                 $user_role_display = "Member";
                 $role_badge_class = "bg-green-500 text-white";
@@ -119,13 +119,13 @@ if (isset($_SESSION['Firstname'])) {
                             <a href="/ecotrip/module2/view_challenge.php"
                                 class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full focus:outline-none">
                                 Challenges
-                                <?php if ($db_role == 1 || $db_role == 2): ?>
+                                <?php if ($db_role == 1): ?>
                                     <i
                                         class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
                                 <?php endif; ?>
                             </a>
 
-                            <?php if ($db_role == 1 || $db_role == 2): ?>
+                            <?php if ($db_role == 1 ): ?>
                                 <div
                                     class="absolute top-full left-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-left z-50">
                                     <div class="py-2">
@@ -145,12 +145,15 @@ if (isset($_SESSION['Firstname'])) {
     <a href="../module4/Marketplace.php"
         class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full focus:outline-none">
         Marketplace
-        <?php if ($db_role == 1 || $db_role == 2): ?>
+        <?php if ($db_role == 1): ?>
             <i class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
         <?php endif; ?>
     </a>
+    
+    
 
-    <?php if ($db_role == 1 || $db_role == 2): ?>
+
+    <?php if ($db_role == 1): ?>
         <div class="absolute top-full left-0 mt-0 w-56 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-left z-50">
             <div class="py-2">
                 
@@ -174,18 +177,22 @@ if (isset($_SESSION['Firstname'])) {
         </div>
     <?php endif; ?>
 </div>
-
+        <div class="relative group h-full flex items-center">
+            <a href="../module4/Donations.php"
+                            class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Donations</a>
+        </div>
+            
                         <div class="relative group h-full flex items-center">
                             <a href="/ecotrip/module3/submission_list.php"
                                 class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full focus:outline-none">
                                 Submission
-                                <?php if ($db_role == 1 || $db_role == 2): ?>
+                                <?php if ($db_role == 1): ?>
                                     <i
                                         class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
                                 <?php endif; ?>
                             </a>
 
-                            <?php if ($db_role == 1 || $db_role == 2): ?>
+                            <?php if ($db_role == 1): ?>
                                 <div
                                     class="absolute top-full left-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-left z-50">
                                     <div class="py-2">
@@ -213,7 +220,7 @@ if (isset($_SESSION['Firstname'])) {
                             <a href="/ecotrip/module1/team.php"
                                 class="<?php echo $team_class; ?> h-full focus:outline-none">
                                 Team
-                                <?php if ($db_role == 1 || $db_role == 2): ?>
+                                <?php if ($db_role == 1): ?>
                                     <i
                                         class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
                                 <?php endif; ?>
@@ -221,7 +228,7 @@ if (isset($_SESSION['Firstname'])) {
 
                             
 
-                            <?php if ($db_role == 1 || $db_role == 2): ?>
+                            <?php if ($db_role == 1): ?>
                                 <div
                                     class="absolute top-full left-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-left z-50">
                                     <div class="py-2">
@@ -248,7 +255,7 @@ if (isset($_SESSION['Firstname'])) {
                         $dashboard_url = "/ecotrip/module5/dashboard_user.php"; 
                         
                         // 如果是管理员 (Role 1)，则跳转到 Admin Dashboard
-                        if ($db_role == 1 || $db_role == 2) {
+                        if ($db_role == 1) {
                             $dashboard_url = "/ecotrip/module5/dashboard_admin.php";
                         }
                         ?>

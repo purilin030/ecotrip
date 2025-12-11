@@ -159,7 +159,7 @@ include '../header.php';
                                             if ($user_info['Role'] == 1) {
                                                 $role_display_text = "Admin";
                                             } elseif ($user_info['Role'] == 2) {
-                                                $role_display_text = "Moderator";
+                                                $role_display_text = "Team Owner";
                                             }
                                         ?>
                                         

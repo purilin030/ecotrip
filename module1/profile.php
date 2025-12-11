@@ -29,8 +29,8 @@ if ($role_code == 1) {
     $role_display = "Admin";
     $role_badge_color = "bg-red-900 text-white"; // 可选：给不同角色不同颜色
 } elseif ($role_code == 2) {
-    $role_display = "Moderator";
-    $role_badge_color = "bg-blue-900 text-white";
+    $role_display = "Team Owner";
+    $role_badge_color = "bg-blue-500 text-white";
 } else {
     $role_display = "Member";
     $role_badge_color = "bg-green-500 text-white"; // 默认颜色

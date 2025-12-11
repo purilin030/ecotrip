@@ -10,7 +10,7 @@ $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
 $auth_res = mysqli_query($con, $auth_sql);
 $auth_row = mysqli_fetch_assoc($auth_res);
 
-if ($auth_row['Role'] == 0) { header("Location: index.php"); exit(); }
+if ($auth_row['Role'] != 1 ) { header("Location: index.php"); exit(); }
 
 // 2. 获取目标 ID
 if (isset($_GET['id'])) {
