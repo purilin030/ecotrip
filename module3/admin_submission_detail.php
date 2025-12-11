@@ -210,6 +210,40 @@ $show_form = $is_pending || $edit_mode;
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php';
 include '../footer.php';
 ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const submitter = e.submitter; // 获取触发提交的那个按钮
+            if (!submitter) return;
+
+            // 1. 创建一个隐藏 input 来传递被点击按钮的 value (approve/deny)
+            // 因为禁用按钮后，它的 value 不会被 POST 提交
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = submitter.name;
+            hiddenInput.value = submitter.value;
+            this.appendChild(hiddenInput);
+
+            // 2. 视觉反馈：禁用所有提交按钮
+            const buttons = this.querySelectorAll('button[type="submit"]');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                // 给被点击的按钮添加 Loading 文字
+                if (btn === submitter) {
+                    const originalText = btn.innerText;
+                    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Processing...';
+                }
+            });
+        });
+    });
+});
+</script>
 </body>
 
 </html>
