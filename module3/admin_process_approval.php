@@ -20,6 +20,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $note = isset($_POST['note']) ? trim($_POST['note']) : '';
     $action_date = date("Y-m-d");
 
+    $check_sql = "SELECT Status FROM submissions WHERE Submission_ID = ?";
+    $check_stmt = $con->prepare($check_sql);
+    $check_stmt->bind_param("i", $sub_id);
+    $check_stmt->execute();
+    $check_result = $check_stmt->get_result();
+    $current_data = $check_result->fetch_assoc();
+    $check_stmt->close();
+
+    // 2. 如果状态已经不是 'Pending'，说明已经被处理过，直接终止
+    // 注意：这里假设未处理状态必须是 'Pending'。如果不等于 Pending，说明已经是 Approved 或 Denied
+    if (!$current_data || strtolower($current_data['Status']) !== 'pending') {
+        echo "<script>
+            alert('This submission has already been processed.'); 
+            window.location.href='admin_verification_list.php';
+        </script>";
+        exit(); // 停止脚本运行，防止重复加分
+    }
+    // === 新增代码结束 ===
+
+    $note = isset($_POST['note']) ? trim($_POST['note']) : '';
+    // ... 后续原有逻辑保持不变 ...
+
     // 准备 SQL 语句变量
     $status_text = "";
 
