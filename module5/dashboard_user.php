@@ -69,6 +69,7 @@ while($row = mysqli_fetch_assoc($team_chart_res)) {
     $team_names[] = $row['Team_name'];
     $team_members[] = $row['Total_members'];
 }
+
 //-------------------------------------------------------------------------------------------
 //-----------------------------END OF OVERVIEW TAB DATA SQL----------------------------------
 //-------------------------------------------------------------------------------------------
@@ -96,6 +97,10 @@ $my_submissions = mysqli_fetch_assoc($res_sub)['cnt'];
 // --- B. 获取积分流水 (History - UNION Query) ---
 // 这是一个高级查询：把 pointsledger (赚) 和 redeemrecord (花) 合并
 // Type: 1 = Earned, 2 = Spent
+// --- B. 获取积分流水 (History - UNION Query) ---
+// 1. 赚取 (Earned)
+// 2. 兑换 (Spent - Redeemed)
+// 3. 捐赠 (Spent - Donated)  <-- 补回这一段
 $sql_history = "
     (SELECT 
         'Earned' as Type, 
@@ -117,6 +122,17 @@ $sql_history = "
      FROM redeemrecord r
      JOIN reward rw ON r.Reward_ID = rw.Reward_ID
      WHERE r.Redeem_By = '$user_id')
+
+    UNION ALL
+
+    (SELECT 
+        'Donated' as Type, 
+        d.Amount as Points, 
+        d.Donation_Date as Date, 
+        CONCAT('Donated to: ', dc.Title) as Description
+     FROM donation_record d
+     JOIN donation_campaign dc ON d.Campaign_ID = dc.Campaign_ID
+     WHERE d.User_ID = '$user_id')
     
     ORDER BY Date DESC
     LIMIT 20
@@ -271,23 +287,29 @@ include '../header.php';
         </div>
 
         <div id="view-history" class="dashboard-section hidden animate-fade-in">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                    <h3 class="font-bold text-gray-800">Recent Transactions</h3>
-                </div>
-                
-                <?php if(empty($history_items)): ?>
-                    <div class="p-12 text-center text-gray-500">
-                        No activity yet. Start a challenge!
-                    </div>
-                <?php else: ?>
-                    <div class="divide-y divide-gray-100">
+            <div class="divide-y divide-gray-100">
                         <?php foreach($history_items as $item): 
-                            $is_earned = ($item['Type'] == 'Earned');
-                            $color_class = $is_earned ? 'text-green-600' : 'text-red-500';
-                            $sign = $is_earned ? '+' : '-';
-                            $icon = $is_earned ? '<i class="fa-solid fa-leaf"></i>' : '<i class="fa-solid fa-cart-shopping"></i>';
-                            $bg_icon = $is_earned ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
+                            $type = $item['Type'];
+                            
+                            // 默认样式 (Spent/Redeemed)
+                            $color_class = 'text-red-500';
+                            $sign = '-';
+                            $icon = '<i class="fa-solid fa-cart-shopping"></i>';
+                            $bg_icon = 'bg-red-100 text-red-600';
+
+                            if ($type == 'Earned') {
+                                // 🟢 赚取样式
+                                $color_class = 'text-green-600';
+                                $sign = '+';
+                                $icon = '<i class="fa-solid fa-leaf"></i>';
+                                $bg_icon = 'bg-green-100 text-green-600';
+                            } elseif ($type == 'Donated') {
+                                // 🩷 捐赠样式 (新增)
+                                $color_class = 'text-pink-500';
+                                $sign = '-';
+                                $icon = '<i class="fa-solid fa-heart"></i>';
+                                $bg_icon = 'bg-pink-100 text-pink-500';
+                            }
                         ?>
                         <div class="p-5 flex items-center justify-between hover:bg-gray-50 transition">
                             <div class="flex items-center gap-4">
@@ -305,8 +327,6 @@ include '../header.php';
                         </div>
                         <?php endforeach; ?>
                     </div>
-                <?php endif; ?>
-            </div>
         </div>
 
         <?php if ($my_team_id): ?>
@@ -358,7 +378,7 @@ include '../header.php';
                             $is_me = ($mem['User_ID'] == $user_id);
                             $bg_row = $is_me ? 'bg-green-50/50' : 'hover:bg-gray-50';
                             
-                            // 头像处理 (复用 header 逻辑)
+                            // 头像处理
                             $display_avatar = "https://ui-avatars.com/api/?name=" . urlencode($mem['First_Name']) . "&background=random&color=fff";
                             if (!empty($mem['Avatar'])) {
                                 $phys_path = $_SERVER['DOCUMENT_ROOT'] . $mem['Avatar'];

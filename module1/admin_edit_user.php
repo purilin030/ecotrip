@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. Security check
+// 1. 安全检查
 if (!isset($_SESSION['user_id'])) { header("Location: index.php"); exit(); }
 
 $current_user_id = $_SESSION['user_id'];
@@ -10,33 +10,33 @@ $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
 $auth_res = mysqli_query($con, $auth_sql);
 $auth_row = mysqli_fetch_assoc($auth_res);
 
-if ($auth_row['Role'] == 0) { header("Location: index.php"); exit(); }
+if ($auth_row['Role'] != 1 ) { header("Location: index.php"); exit(); }
 
-// 2. Get ID
+// 2. 获取目标 ID
 if (!isset($_GET['id'])) { header("Location: user_list.php"); exit(); }
 $target_id = intval($_GET['id']);
 
-// 3. Saving logic
+// 3. 保存逻辑 (修改了这里)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
-    // Basic information
+    // 基础信息
     $fname = mysqli_real_escape_string($con, $_POST['firstname']);
     $lname = mysqli_real_escape_string($con, $_POST['lastname']);
     $email = mysqli_real_escape_string($con, $_POST['email']);
     $phone = mysqli_real_escape_string($con, $_POST['phone']);
     $dob   = mysqli_real_escape_string($con, $_POST['dob']);
     $caption = mysqli_real_escape_string($con, $_POST['caption']);
-    $avatar_path = mysqli_real_escape_string($con, $_POST['avatar']); // Change path
+    $avatar_path = mysqli_real_escape_string($con, $_POST['avatar']); 
     
-    // change number
-    $role  = intval($_POST['role']);
+    // 权限与数值
+    $new_role  = intval($_POST['role']);
     $points = intval($_POST['points']);
     $redeem_points = intval($_POST['redeem_points']);
-    $team_id = intval($_POST['team_id']);
+    $new_team_id = intval($_POST['team_id']);
     
-    // Team ID (0 to NULL)
-    $team_sql_val = ($team_id == 0) ? "NULL" : "'$team_id'";
+    // Team ID 处理 (0 转 NULL)
+    $team_sql_val = ($new_team_id == 0) ? "NULL" : "'$new_team_id'";
 
-    // SQL
+    // 更新 User 表
     $update_sql = "UPDATE user SET 
                    First_Name='$fname', 
                    Last_Name='$lname', 
@@ -45,28 +45,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
                    User_DOB='$dob',
                    Caption='$caption',
                    Avatar='$avatar_path',
-                   Role='$role', 
+                   Role='$new_role', 
                    Point='$points', 
                    RedeemPoint='$redeem_points',
                    Team_ID=$team_sql_val";
 
-    // Password
+    // 密码处理
     if (!empty($_POST['new_password'])) {
-        $new_pass_hash = md5($_POST['new_password']); // MD5 password progress
+        $new_pass_hash = md5($_POST['new_password']); 
         $update_sql .= ", Password='$new_pass_hash'";
     }
 
     $update_sql .= " WHERE User_ID='$target_id'";
 
     if (mysqli_query($con, $update_sql)) {
-        echo "<script>alert('User updated successfully!'); window.location.href='user_list.php';</script>";
+        
+        // ======================================================
+        // 【新增】同步 Team Owner 逻辑
+        // ======================================================
+        
+        // 情况 A: 用户被设为 Team Owner (Role 2) 且有队伍
+        if ($new_role == 2 && $new_team_id > 0) {
+            
+            // 1. 更新 Team 表：让这个队归顺新队长
+            $sync_team = "UPDATE team SET Owner_ID = '$target_id' WHERE Team_ID = '$new_team_id'";
+            mysqli_query($con, $sync_team);
+
+            // 2. 冲突处理：如果这个队之前有别的队长，把他降级 (Role 0)
+            // 保护机制：不降级 Admin (Role 1)
+            $downgrade_others = "UPDATE user SET Role = 0 
+                                 WHERE Team_ID = '$new_team_id' 
+                                 AND User_ID != '$target_id' 
+                                 AND Role != 1";
+            mysqli_query($con, $downgrade_others);
+
+            // 3. 清理旧账：如果这个用户换了队，把他之前拥有的旧队的 Owner 设为 0
+            $clear_old_team = "UPDATE team SET Owner_ID = 0 
+                               WHERE Owner_ID = '$target_id' 
+                               AND Team_ID != '$new_team_id'";
+            mysqli_query($con, $clear_old_team);
+        }
+
+        // 情况 B: 用户不再是 Team Owner (被降级为 0 或 1)
+        elseif ($new_role != 2) {
+            // 把他之前拥有的所有队的 Owner 设为 0 (释放队伍)
+            $release_team = "UPDATE team SET Owner_ID = 0 WHERE Owner_ID = '$target_id'";
+            mysqli_query($con, $release_team);
+        }
+
+        echo "<script>alert('User updated and team data synchronized!'); window.location.href='user_list.php';</script>";
         exit();
     } else {
         $error_msg = "Error updating: " . mysqli_error($con);
     }
 }
 
-// 4. Read data
+// 4. 读取数据
 $sql = "SELECT * FROM user WHERE User_ID = '$target_id'";
 $result = mysqli_query($con, $sql);
 $user = mysqli_fetch_assoc($result);
@@ -132,7 +166,7 @@ include '../header.php';
                         <select name="role" class="w-full mt-1 border-gray-300 rounded-md border p-2 bg-white">
                             <option value="0" <?php if($user['Role']==0) echo 'selected'; ?>>Member (0)</option>
                             <option value="1" <?php if($user['Role']==1) echo 'selected'; ?>>Admin (1)</option>
-                            <option value="2" <?php if($user['Role']==2) echo 'selected'; ?>>Moderator (2)</option>
+                            <option value="2" <?php if($user['Role']==2) echo 'selected'; ?>>Team Owner (2)</option>
                         </select>
                     </div>
 

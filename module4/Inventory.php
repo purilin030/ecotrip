@@ -1,7 +1,6 @@
 <?php
 session_start();
 require '../database.php';
-require '../background.php';
 // --- 1. 后端处理逻辑 (放在 Header 之前) ---
 
 // A. 添加新商品
@@ -23,7 +22,7 @@ if (isset($_POST['add_reward'])) {
     }
 
     // 默认 Status 是 Active
-    $stmt = $pdo->prepare("INSERT INTO reward (Reward_name, Points_Required, Stock, Description, Type, Image, Status) VALUES (?, ?, ?, ?, ?, ?, 'Active')");
+    $stmt = $pdo->prepare("INSERT INTO reward (Reward_name, Points_Required, Stock, Description, Type, Reward_Photo, Status) VALUES (?, ?, ?, ?, ?, ?, 'Active')");
     $stmt->execute([$name, $points, $stock, $desc, $type, $imagePath]);
     header("Location: Inventory.php?msg=added"); exit;
 }
@@ -59,6 +58,7 @@ if (isset($_POST['edit_details'])) {
 $rewards = $pdo->query("SELECT * FROM reward ORDER BY Reward_ID DESC")->fetchAll(PDO::FETCH_ASSOC);
 
 require '../header.php'; 
+require '../background.php';
 ?>
 
 <!DOCTYPE html>
@@ -101,11 +101,17 @@ require '../header.php';
                 </h2>
                 
                 <form method="POST" enctype="multipart/form-data" class="space-y-4">
-                    <div class="group relative w-full h-36 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition flex flex-col items-center justify-center cursor-pointer">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 group-hover:text-gray-600 mb-2 transition"></i>
-                        <span class="text-xs text-gray-500 group-hover:text-gray-700">Upload Image</span>
-                        <input type="file" name="image" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="this.previousElementSibling.innerHTML = this.files[0].name">
-                    </div>
+                    <div class="group relative w-full h-36 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition flex flex-col items-center justify-center cursor-pointer overflow-hidden bg-white">
+                <img id="previewImg" class="absolute inset-0 w-full h-full object-cover hidden z-0"> 
+                    <div id="uploadPlaceholder" class="flex flex-col items-center z-10 pointer-events-none transition-opacity group-hover:opacity-100">
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 group-hover:text-gray-600 mb-2 transition"></i>
+                    <span class="text-xs text-gray-500 group-hover:text-gray-700" id="fileNameDisplay">Upload Image</span>
+                </div>
+
+                            <input type="file" name="image" accept="image/*" 
+                            class="absolute inset-0 opacity-0 cursor-pointer z-20" 
+                            onchange="handleImageUpload(this)">
+                </div>
 
                     <div>
                         <label class="text-xs font-bold text-gray-500 uppercase">Item Name</label>
@@ -287,6 +293,30 @@ require '../header.php';
     const labels = <?php echo json_encode(array_column($rewards, 'Reward_name')); ?>;
     const dataPoints = <?php echo json_encode(array_column($rewards, 'Stock')); ?>;
     new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Stock', data: dataPoints, backgroundColor: '#10b981', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+    
+    function handleImageUpload(input) {
+    const file = input.files[0];
+    const preview = document.getElementById('previewImg');
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const nameDisplay = document.getElementById('fileNameDisplay');
+
+    if (file) {
+        // 1. 显示文件名
+        nameDisplay.innerHTML = file.name;
+        
+        // 2. 读取并显示图片
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('hidden'); // 显示图片
+            
+            // 可选：为了让图片看得更清楚，可以把图标隐藏，或者加个半透明背景
+            // placeholder.classList.add('hidden'); 
+            placeholder.classList.add('bg-white/80', 'p-2', 'rounded'); // 给文字加个背景防止看不清
+        }
+        reader.readAsDataURL(file);
+    }
+}
 </script>
 <?php
 include '../footer.php';

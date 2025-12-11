@@ -55,10 +55,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_team_id = mysqli_insert_id($con);
 
         // B. 更新队长的 User 表，把 Team_ID 填进去
-        $update_owner_sql = "UPDATE user SET Team_ID = '$new_team_id' WHERE User_ID = '$owner_id'";
+        $update_user_sql = "UPDATE user SET Team_ID = '$new_team_id', Role = 2 WHERE User_ID = '$user_id'";
         mysqli_query($con, $update_owner_sql);
 
-        $_SESSION['flash_success'] = "Team '$team_name' created! You are now the leader.";
+        if (mysqli_query($con, $update_user_sql)) {
+            $_SESSION['flash_success'] = "Team '$team_name' created successfully! You are now a Team Owner.";
+            header("Location: team_information.php"); // Redirect to their new team page
+            exit();
+        } else {
+            // Rollback if user update fails (Optional but recommended)
+            mysqli_query($con, "DELETE FROM team WHERE Team_ID = '$new_team_id'");
+            $_SESSION['flash_error'] = "Error updating user role: " . mysqli_error($con);
+        }
     } else {
         $_SESSION['flash_error'] = "Database error: " . mysqli_error($con);
     }
