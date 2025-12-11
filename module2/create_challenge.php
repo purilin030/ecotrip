@@ -7,6 +7,7 @@ require '../header.php';
 // 2. Fetch Categories & Cities
 include("get_categories.php");
 include("get_cities.php");
+include("../background.php")
 ?>
 
 <!DOCTYPE html>
