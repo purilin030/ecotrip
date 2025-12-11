@@ -116,93 +116,60 @@ if (isset($_SESSION['Firstname'])) {
                     <div class="hidden md:ml-10 md:flex md:space-x-8 h-full">
 
                         <div class="relative group h-full flex items-center">
-                            <a href="/ecotrip/module2/view_challenge.php"
-                                class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full focus:outline-none">
-                                Challenges
-                                <?php if ($db_role == 1): ?>
-                                    <i
-                                        class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
-                                <?php endif; ?>
-                            </a>
-
-                            <?php if ($db_role == 1 ): ?>
-                                <div
-                                    class="absolute top-full left-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-left z-50">
-                                    <div class="py-2">
-                                        <a href="/ecotrip/module2/manage_challenge.php"
-                                            class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-600 transition">
-                                            <i class="fa-solid fa-list-check mr-2 text-gray-400"></i> Manage Challenge
-                                        </a>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
+                            <a href="../module2/view_challenge.php"
+                                class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Challenges</a>
                         </div>
 
                         <a href="../module4/Leaderboard.php"
                             class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Leaderboard</a>
 
                         <div class="relative group h-full flex items-center">
-    <a href="../module4/Marketplace.php"
-        class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full focus:outline-none">
-        Marketplace
-        <?php if ($db_role == 1): ?>
-            <i class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
-        <?php endif; ?>
-    </a>
-    
-    
-
-
-    <?php if ($db_role == 1): ?>
-        <div class="absolute top-full left-0 mt-0 w-56 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-left z-50">
-            <div class="py-2">
-                
-                <div class="border-b border-gray-100 pb-1 mb-1">
-                    <p class="px-4 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        Store Manager
-                    </p>
-                </div>
-
-                <a href="/ecotrip/module4/Inventory.php"
-                    class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-600 transition">
-                    <i class="fa-solid fa-boxes-stacked mr-2 text-blue-400"></i> Inventory
-                </a>
-
-                <a href="/ecotrip/module4/Redemption_List.php"
-                    class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-600 transition">
-                    <i class="fa-solid fa-clipboard-check mr-2 text-green-400"></i> Redemption Requests
-                </a>
-
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
-        <div class="relative group h-full flex items-center">
-            <a href="../module4/Donations.php"
-                            class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Donations</a>
-        </div>
-            
-                        <div class="relative group h-full flex items-center">
-                            <a href="/ecotrip/module3/submission_list.php"
+                            <a href="../module4/Marketplace.php"
                                 class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full focus:outline-none">
-                                Submission
+                                Marketplace
                                 <?php if ($db_role == 1): ?>
                                     <i
                                         class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
                                 <?php endif; ?>
                             </a>
 
+
+
+
                             <?php if ($db_role == 1): ?>
                                 <div
-                                    class="absolute top-full left-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-left z-50">
+                                    class="absolute top-full left-0 mt-0 w-56 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-left z-50">
                                     <div class="py-2">
-                                        <a href="/ecotrip/module3/admin_verification_list.php"
+
+                                        <div class="border-b border-gray-100 pb-1 mb-1">
+                                            <p class="px-4 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                                Store Manager
+                                            </p>
+                                        </div>
+
+                                        <a href="/ecotrip/module4/Inventory.php"
                                             class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-600 transition">
-                                            <i class="fa-solid fa-list-check mr-2 text-gray-400"></i> Verification Queue
+                                            <i class="fa-solid fa-boxes-stacked mr-2 text-blue-400"></i> Inventory
                                         </a>
+
+                                        <a href="/ecotrip/module4/Redemption_List.php"
+                                            class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-600 transition">
+                                            <i class="fa-solid fa-clipboard-check mr-2 text-green-400"></i> Redemption
+                                            Requests
+                                        </a>
+
                                     </div>
                                 </div>
                             <?php endif; ?>
+                        </div>
+                        <div class="relative group h-full flex items-center">
+                            <a href="../module4/Donations.php"
+                                class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Donations</a>
+                        </div>
+
+                        <div class="relative group h-full flex items-center">
+                            <a href="../module3/submit_proof.php"
+                                class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Submission</a>
                         </div>
 
 
@@ -226,7 +193,7 @@ if (isset($_SESSION['Firstname'])) {
                                 <?php endif; ?>
                             </a>
 
-                            
+
 
                             <?php if ($db_role == 1): ?>
                                 <div
@@ -248,12 +215,12 @@ if (isset($_SESSION['Firstname'])) {
                                 </div>
                             <?php endif; ?>
                         </div>
-                        
 
-                        <?php 
+
+                        <?php
                         // 1. 设置默认链接：所有人默认去 User Dashboard
-                        $dashboard_main_url = "/ecotrip/module5/dashboard_user.php"; 
-                        
+                        $dashboard_main_url = "/ecotrip/module5/dashboard_user.php";
+
                         // 2. 如果是管理员，点击标题默认去 Admin Dashboard
                         if ($db_role == 1) {
                             $dashboard_main_url = "/ecotrip/module5/dashboard_admin.php";
@@ -261,17 +228,19 @@ if (isset($_SESSION['Firstname'])) {
                         ?>
 
                         <div class="relative group h-full flex items-center">
-                            
+
                             <a href="<?php echo $dashboard_main_url; ?>"
                                 class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full focus:outline-none">
                                 Dashboard
                                 <?php if ($db_role == 1): ?>
-                                    <i class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
+                                    <i
+                                        class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
                                 <?php endif; ?>
                             </a>
 
                             <?php if ($db_role == 1): ?>
-                                <div class="absolute top-full right-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-right z-50">
+                                <div
+                                    class="absolute top-full right-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-right z-50">
                                     <div class="py-2">
                                         <a href="/ecotrip/module5/dashboard_user.php"
                                             class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-600 transition">
@@ -280,7 +249,7 @@ if (isset($_SESSION['Firstname'])) {
                                     </div>
                                 </div>
                             <?php endif; ?>
-                            
+
                         </div>
                     </div>
                 </div>

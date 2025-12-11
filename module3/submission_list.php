@@ -3,8 +3,8 @@
 // 1. 配置与数据库连接
 // ==========================================
 $path_to_db = __DIR__ . '/../database.php';
-$path_to_header = __DIR__ . '/../header.php';
 
+$path_to_header = __DIR__ . '/../header.php';
 
 // 检查数据库文件是否存在
 if (!file_exists($path_to_db)) {
@@ -21,6 +21,7 @@ if (!file_exists($path_to_db)) {
 if (!isset($con)) {
     die("Error: Database connection variable \$con is not set. Please check database.php.");
 }
+
 
 // ==========================================
 // 2. 会话与权限
