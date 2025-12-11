@@ -232,23 +232,7 @@ if (isset($_SESSION['Firstname'])) {
                             <a href="<?php echo $dashboard_main_url; ?>"
                                 class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full focus:outline-none">
                                 Dashboard
-                                <?php if ($db_role == 1): ?>
-                                    <i
-                                        class="fa-solid fa-chevron-down ml-1.5 text-xs text-gray-400 group-hover:text-gray-600 transition-transform group-hover:rotate-180"></i>
-                                <?php endif; ?>
                             </a>
-
-                            <?php if ($db_role == 1): ?>
-                                <div
-                                    class="absolute top-full right-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 transform origin-top-right z-50">
-                                    <div class="py-2">
-                                        <a href="/ecotrip/module5/dashboard_user.php"
-                                            class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-600 transition">
-                                            <i class="fa-solid fa-user-tag mr-2 text-gray-400"></i> User Dashboard
-                                        </a>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
 
                         </div>
                     </div>
