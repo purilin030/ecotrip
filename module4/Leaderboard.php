@@ -270,7 +270,6 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
     </div>
 </div>
 <div class="h-20"></div>
-<?php include '../footer.php'; ?>
 <?php endif; ?>
 </body>
 </html>
