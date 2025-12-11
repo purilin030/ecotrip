@@ -244,7 +244,7 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
     </div>
 </main>
 
-<?php include '../footer.php'; ?>
+
 
 <?php if ($myRankData && $mode === 'individual'): ?>
 <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 px-4 py-3">
@@ -270,6 +270,7 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
     </div>
 </div>
 <div class="h-20"></div>
+<?php include '../footer.php'; ?>
 <?php endif; ?>
 </body>
 </html>
