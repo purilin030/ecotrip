@@ -323,7 +323,7 @@ CREATE TABLE `user` (
   `Last_Name` text NOT NULL,
   `Caption` text DEFAULT NULL COMMENT '(OPTIONAL)',
   `User_DOB` text NOT NULL,
-  `Avatar` varchar(255) NOT NULL,
+  `Avatar` varchar(500) NOT NULL,
   `Email` varchar(255) NOT NULL,
   `Phone_num` int(20) NOT NULL,
   `Team_ID` int(10) DEFAULT NULL,
