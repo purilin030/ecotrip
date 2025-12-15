@@ -47,7 +47,7 @@ if (isset($_SESSION['Firstname'])) {
                 // 检查 1：如果是 http 或 https 开头，说明是网络图片 (Google)，直接用
                 if (strpos($db_avatar, 'http') === 0) {
                     $display_avatar = $db_avatar;
-                } 
+                }
                 // 检查 2：如果是本地图片，先检查文件是否存在，防止破图
                 else {
                     $physical_path = $_SERVER['DOCUMENT_ROOT'] . $db_avatar;
@@ -175,11 +175,18 @@ if (isset($_SESSION['Firstname'])) {
                             <a href="../module4/Donations.php"
                                 class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Donations</a>
                         </div>
-
-                        <div class="relative group h-full flex items-center">
-                            <a href="../module3/submit_proof.php"
-                                class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Submission</a>
-                        </div>
+                        <?php if ($db_role == 0): ?>
+                            <div class="relative group h-full flex items-center">
+                                <a href="../module3/submission_list.php"
+                                    class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Submission</a>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($db_role == 1): ?>
+                            <div class="relative group h-full flex items-center">
+                                <a href="../module3/admin_verification_list.php"
+                                    class="nav-custom-link text-gray-500 hover:text-gray-900 px-1 pt-1 text-sm font-medium inline-flex items-center border-b-2 border-transparent hover:border-gray-300 h-full">Submission</a>
+                            </div>
+                        <?php endif; ?>
 
 
                         <?php
