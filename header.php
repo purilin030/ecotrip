@@ -25,6 +25,7 @@ $role_badge_class = "bg-gray-100 text-gray-500";
 $db_role = 0;
 
 if (isset($_SESSION['Firstname'])) {
+    // 默认备选：用名字生成头像
     $display_avatar = "https://ui-avatars.com/api/?name=" . $_SESSION['Firstname'] . "+" . $_SESSION['Lastname'] . "&background=0D8ABC&color=fff&size=128";
     $user_name_display = $_SESSION['Firstname'] . " " . $_SESSION['Lastname'];
     $user_role_display = "Member";
@@ -37,14 +38,22 @@ if (isset($_SESSION['Firstname'])) {
         if ($h_res) {
             $h_row = mysqli_fetch_assoc($h_res);
 
-            // 检查数据库字段不为空
+            // =======================================================
+            // 🔴 修复重点：区分 Google 头像 (URL) 和本地上传头像 (File)
+            // =======================================================
             if (!empty($h_row['Avatar'])) {
-                // 拼接物理路径用于检查：C:/xampp/htdocs + /ecotrip/avatars/xxx.jpg
-                $physical_path = $_SERVER['DOCUMENT_ROOT'] . $h_row['Avatar'];
+                $db_avatar = $h_row['Avatar'];
 
-                if (file_exists($physical_path)) {
-                    // 如果文件确实存在，就使用数据库里的 Web 路径
-                    $display_avatar = $h_row['Avatar'];
+                // 检查 1：如果是 http 或 https 开头，说明是网络图片 (Google)，直接用
+                if (strpos($db_avatar, 'http') === 0) {
+                    $display_avatar = $db_avatar;
+                } 
+                // 检查 2：如果是本地图片，先检查文件是否存在，防止破图
+                else {
+                    $physical_path = $_SERVER['DOCUMENT_ROOT'] . $db_avatar;
+                    if (file_exists($physical_path)) {
+                        $display_avatar = $db_avatar;
+                    }
                 }
             }
 
