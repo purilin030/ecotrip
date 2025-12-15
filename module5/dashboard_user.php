@@ -140,7 +140,7 @@ if (!empty($my_team_id)) {
     <div class="max-w-7xl mx-auto">
         
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Welcome back, <?php echo htmlspecialchars($user_name); ?>! 窓</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Welcome back, <?php echo htmlspecialchars($user_name); ?>! </h1>
             <p class="text-gray-500 mt-1">Here's your personal eco-impact summary.</p>
         </div>
 
