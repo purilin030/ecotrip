@@ -15,7 +15,6 @@ if (session_status() === PHP_SESSION_NONE) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="/../css/login.css">
     
     <link rel="stylesheet" href="/../css/style.css">
 
@@ -57,9 +56,9 @@ if (session_status() === PHP_SESSION_NONE) {
         </div>
     </nav>
     
-    <main class="flex-grow flex items-center justify-center py-12">
-         <?php include 'login.php';?>
-    </main>
+    <main class="flex-grow flex items-center justify-center py-12 px-4 w-full">
+     <?php include 'login.php';?>
+</main>
 
     <footer class="bg-white border-t border-gray-200 mt-auto">
         <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
