@@ -35,10 +35,10 @@ function switchTab(tabName) {
 function initializeCharts() {
     if (typeof dashboardData === 'undefined') return;
 
-    // 1. My Activity Chart
+    // 1. My Activity Chart (Existing)
     const ctxMyGrowth = document.getElementById('myGrowthChart');
     if (ctxMyGrowth) {
-        if(dashboardData.chartLabels.length > 0) {
+        if(dashboardData.chartLabels && dashboardData.chartLabels.length > 0) {
             new Chart(ctxMyGrowth.getContext('2d'), {
                 type: 'line',
                 data: {
@@ -71,5 +71,64 @@ function initializeCharts() {
             ctx2d.textAlign = "center";
             ctx2d.fillText("No recent activity data to display", ctxMyGrowth.width/2, ctxMyGrowth.height/2);
         }
+    }
+
+    // --- NEW STATISTICAL CHARTS ---
+
+    // 2. My Success Rate (Doughnut)
+    // Requires: dashboardData.successRate { approved: int, rejected: int }
+    const ctxSuccess = document.getElementById('successRateChart');
+    if (ctxSuccess && dashboardData.successRate) {
+        new Chart(ctxSuccess.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Rejected'],
+                datasets: [{
+                    data: [dashboardData.successRate.approved, dashboardData.successRate.rejected],
+                    backgroundColor: ['#22c55e', '#ef4444'], 
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // 3. Consistency Score (Trend Line)
+    // Requires: dashboardData.weeklyLabels (e.g. ['Wk1', 'Wk2']) and dashboardData.weeklyCounts
+    const ctxConsistency = document.getElementById('consistencyChart');
+    if (ctxConsistency && dashboardData.weeklyLabels) {
+        new Chart(ctxConsistency.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dashboardData.weeklyLabels,
+                datasets: [{
+                    label: 'Submissions',
+                    data: dashboardData.weeklyCounts,
+                    borderColor: '#6366f1', // Indigo
+                    backgroundColor: 'rgba(99, 102, 241, 0.05)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { display: false, beginAtZero: true }, 
+                    x: { display: false } 
+                }
+            }
+        });
     }
 }

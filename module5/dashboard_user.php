@@ -35,7 +35,7 @@ $my_team_id = $user_data['Team_ID'];
 $res_sub = mysqli_query($con, "SELECT COUNT(*) as cnt FROM submissions WHERE User_ID = '$user_id'");
 $my_submissions = ($res_sub) ? mysqli_fetch_assoc($res_sub)['cnt'] : 0;
 
-// --- CHART DATA (Last 30 Days) ---
+// --- CHART DATA 1: POINTS GROWTH (Last 30 Days) ---
 $sql_chart = "SELECT DATE_FORMAT(Earned_Date, '%m-%d') as day_label, SUM(Points_Earned) as daily_total
               FROM pointsledger
               WHERE User_ID = '$user_id' AND Earned_Date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
@@ -49,6 +49,44 @@ if ($res_chart) {
         $chart_data[] = $row['daily_total'];
     }
 }
+
+// --- NEW STATS: SUCCESS RATE & CONSISTENCY ---
+
+// 1. Success Rate (Approved vs Rejected)
+$sql_success = "SELECT 
+    SUM(CASE WHEN Status = 'Approved' THEN 1 ELSE 0 END) as approved,
+    SUM(CASE WHEN Status = 'Rejected' THEN 1 ELSE 0 END) as rejected
+    FROM submissions WHERE User_ID = '$user_id'";
+$res_success = mysqli_query($con, $sql_success);
+$row_success = mysqli_fetch_assoc($res_success);
+$success_rate_data = [
+    'approved' => $row_success['approved'] ?? 0, 
+    'rejected' => $row_success['rejected'] ?? 0
+];
+
+// 2. Preferred Difficulty (Most attempted)
+$sql_diff = "SELECT c.Difficulty, COUNT(*) as cnt 
+             FROM submissions s 
+             JOIN challenge c ON s.Challenge_ID = c.Challenge_ID 
+             WHERE s.User_ID = '$user_id' AND s.Status = 'Approved'
+             GROUP BY c.Difficulty 
+             ORDER BY cnt DESC LIMIT 1";
+$res_diff = mysqli_query($con, $sql_diff);
+$fav_diff = ($res_diff && mysqli_num_rows($res_diff) > 0) ? mysqli_fetch_assoc($res_diff)['Difficulty'] : 'None yet';
+
+// 3. Consistency (Submissions per week)
+$sql_consist = "SELECT DATE_FORMAT(Submission_Date, 'Wk %u') as wk, COUNT(*) as cnt 
+                FROM submissions 
+                WHERE User_ID = '$user_id' 
+                GROUP BY wk ORDER BY Submission_Date ASC LIMIT 8";
+$res_consist = mysqli_query($con, $sql_consist);
+$weekly_labels = [];
+$weekly_counts = [];
+while($row = mysqli_fetch_assoc($res_consist)) {
+    $weekly_labels[] = $row['wk'];
+    $weekly_counts[] = $row['cnt'];
+}
+
 
 // --- HISTORY DATA ---
 $check_table = mysqli_query($con, "SHOW TABLES LIKE 'donation_record'");
@@ -102,7 +140,7 @@ if (!empty($my_team_id)) {
     <div class="max-w-7xl mx-auto">
         
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Welcome back, <?php echo htmlspecialchars($user_name); ?>! 👋</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Welcome back, <?php echo htmlspecialchars($user_name); ?>! 窓</h1>
             <p class="text-gray-500 mt-1">Here's your personal eco-impact summary.</p>
         </div>
 
@@ -156,22 +194,61 @@ if (!empty($my_team_id)) {
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <div class="mb-6 flex justify-between items-center"><h3 class="text-lg font-bold text-gray-800">My Eco Journey</h3><span class="text-xs text-gray-400">Last 30 Days</span></div>
+                    <div class="mb-6 flex justify-between items-center"><h3 class="text-lg font-bold text-gray-800">My Eco Journey</h3><span class="text-xs text-gray-400">Points Earned (Last 30 Days)</span></div>
                     <div class="relative h-72 w-full"><canvas id="myGrowthChart"></canvas></div>
                 </div>
-                <div class="lg:col-span-1 bg-indigo-900 text-white p-6 rounded-2xl shadow-md flex flex-col justify-center items-center text-center">
-                    <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 text-3xl">🚀</div>
-                    <h3 class="text-xl font-bold mb-2">Next Milestone</h3>
-                    <p class="text-indigo-200 text-sm mb-6">You are <strong><?php echo number_format(5000 - $my_total_points); ?></strong> points away from becoming an <strong>Eco Legend</strong>!</p>
-                    <a href="../module2/view_challenge.php" class="bg-white text-indigo-900 font-bold py-3 px-8 rounded-full hover:bg-indigo-50 transition w-full">Find Challenges</a>
+                
+                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">Consistency Score</h3>
+                        <p class="text-xs text-gray-400">Your weekly submission streak</p>
+                    </div>
+                    <div class="relative flex-grow h-48">
+                        <canvas id="consistencyChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-xs text-gray-400">Keep the line going up! 墜</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div id="view-achievements" class="dashboard-section hidden animate-fade-in">
+        <div id="view-achievements" class="dashboard-section hidden animate-fade-in space-y-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl shadow-sm flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-indigo-900 text-lg">Your Challenge Style</h4>
+                        <p class="text-sm text-indigo-700 mt-1">
+                            You seem to prefer <strong><?php echo htmlspecialchars($fav_diff); ?></strong> challenges!
+                        </p>
+                    </div>
+                    <div class="h-16 w-16 bg-white rounded-full flex items-center justify-center text-indigo-500 shadow-sm text-2xl">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm flex items-center gap-6">
+                    <div class="h-24 w-24 relative">
+                        <canvas id="successRateChart"></canvas>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-lg">Success Rate</h4>
+                        <p class="text-sm text-gray-500 mb-2">Approved vs Rejected</p>
+                        <?php 
+                            $total_attempts = $success_rate_data['approved'] + $success_rate_data['rejected'];
+                            $rate_pct = ($total_attempts > 0) ? round(($success_rate_data['approved'] / $total_attempts) * 100) : 0;
+                        ?>
+                        <span class="inline-block bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
+                            <?php echo $rate_pct; ?>% Approval
+                        </span>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-                    <h3 class="font-bold text-gray-800">Your Badge Collection</h3>
+                    <h3 class="font-bold text-gray-800">Badge Collection</h3>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -293,9 +370,9 @@ if (!empty($my_team_id)) {
                         <?php foreach($team_members as $index => $mem): 
                             $rank = $index + 1;
                             $medal = '';
-                            if($rank == 1) $medal = '🥇';
-                            elseif($rank == 2) $medal = '🥈';
-                            elseif($rank == 3) $medal = '🥉';
+                            if($rank == 1) $medal = '🥇';      // Gold Medal
+                            elseif($rank == 2) $medal = '🥈';  // Silver Medal
+                            elseif($rank == 3) $medal = '🥉';  // Bronze Medal
                             else $medal = '<span class="text-gray-400 font-mono w-6 text-center inline-block">#'.$rank.'</span>';
                             
                             $is_me = ($mem['User_ID'] == $user_id);
@@ -335,7 +412,11 @@ if (!empty($my_team_id)) {
 <script>
     const dashboardData = {
         chartLabels: <?php echo json_encode($chart_labels ?? []); ?>,
-        chartData: <?php echo json_encode($chart_data ?? []); ?>
+        chartData: <?php echo json_encode($chart_data ?? []); ?>,
+        // NEW STATS PASSED TO JS
+        successRate: <?php echo json_encode($success_rate_data); ?>,
+        weeklyLabels: <?php echo json_encode($weekly_labels); ?>,
+        weeklyCounts: <?php echo json_encode($weekly_counts); ?>
     };
 </script>
 
