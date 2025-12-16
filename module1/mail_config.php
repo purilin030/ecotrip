@@ -16,16 +16,16 @@ function sendOTPEmail($toEmail, $otpCode) {
         
         // 🔴 Required: your Gmail and 16-character app password
         $mail->Username   = 'utarecotrip2025@gmail.com'; 
-        $mail->Password   = 'hrtw bipe xmtd jqhj'; // 填入你的应用密码，不要有空格
+        $mail->Password   = 'hrtw bipe xmtd jqhj'; // Enter your app password; do not include spaces
         
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        // --- 收件人 ---
+        // --- Recipients ---
         $mail->setFrom('no-reply@ecotrip.com', 'ecoTrip Security');
         $mail->addAddress($toEmail);
 
-        // --- 内容 ---
+        // --- Content ---
         $mail->isHTML(true);
         $mail->Subject = 'Your ecoTrip Verification Code';
         $mail->Body    = "

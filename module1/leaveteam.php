@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. 安全检查
+// 1. Security check
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -10,19 +10,19 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 2. 获取当前用户的 Team_ID
+// 2. Get current user's Team_ID
 $user_sql = "SELECT Team_ID FROM user WHERE User_ID = '$user_id'";
 $user_res = mysqli_query($con, $user_sql);
 $user_data = mysqli_fetch_assoc($user_res);
 $team_id = $user_data['Team_ID'];
 
-// 如果用户本来就没有队，直接回 team.php
+// If user has no team, redirect to team.php
 if ($team_id == NULL || $team_id == 0) {
     header("Location: team.php");
     exit();
 }
 
-// 3. 获取队伍信息 (为了检查他是不是队长，以及队里还剩几个人)
+// 3. Get team info (to check owner and member count)
 $team_sql = "SELECT * FROM team WHERE Team_ID = '$team_id'";
 $team_res = mysqli_query($con, $team_sql);
 $team_data = mysqli_fetch_assoc($team_res);
@@ -31,7 +31,7 @@ $is_owner = ($team_data['Owner_ID'] == $user_id);
 $total_members = $team_data['Total_members'];
 
 // ======================================================
-// 核心逻辑处理
+// Core logic
 // ======================================================
 
 if ($is_owner) {

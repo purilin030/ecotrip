@@ -1,7 +1,7 @@
 /* 1. Top small links (Help, Become a member...) */
 .top-link {
     font-size: 11px;
-    font-weight: 700; /* 粗体 */
+    font-weight: 700; /* bold */
     text-transform: capitalize;
     color: #333;
     text-decoration: none;
@@ -20,7 +20,7 @@
 /* 3. Center main menu links (SHOES, MEN...) */
 .nav-custom-link {
     font-size: 14px;
-    font-weight: 700; /* 粗体 */
+    font-weight: 700; /* bold */
     text-transform: uppercase; /* Force uppercase */
     color: #000 !important;
     letter-spacing: 1px;
