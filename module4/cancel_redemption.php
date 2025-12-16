@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = (int)$_SESSION['user_id'];
 
-// 兼容 FormData 或 JSON
+// Get record ID from POST or JSON body
 $record_id = 0;
 if (isset($_POST['id'])) {
     $record_id = (int)$_POST['id'];
@@ -28,7 +28,7 @@ if ($record_id <= 0) {
 try {
     $pdo->beginTransaction();
 
-    // 锁订单
+    // lock redeem record
     $stmtGet = $pdo->prepare("SELECT * FROM redeemrecord WHERE RedeemRecord_ID = ? FOR UPDATE");
     $stmtGet->execute([$record_id]);
     $order = $stmtGet->fetch(PDO::FETCH_ASSOC);
@@ -37,11 +37,11 @@ try {
     if ((int)$order['Redeem_By'] !== $user_id) throw new Exception("Not allowed");
     if ($order['Status'] !== 'Pending') throw new Exception("Only Pending can be cancelled");
 
-    // 锁 user
+    // lock user
     $stmtUser = $pdo->prepare("SELECT RedeemPoint FROM user WHERE User_ID = ? FOR UPDATE");
     $stmtUser->execute([$user_id]);
 
-    // 锁 reward + 取价格
+    // lock reward and Read Points Required
     $stmtReward = $pdo->prepare("SELECT Points_Required FROM reward WHERE Reward_ID = ? FOR UPDATE");
     $stmtReward->execute([$order['Reward_ID']]);
     $reward = $stmtReward->fetch(PDO::FETCH_ASSOC);
@@ -50,15 +50,15 @@ try {
     $qty = (int)$order['Redeem_Quantity'];
     $pointsToRefund = (int)$reward['Points_Required'] * $qty;
 
-    // 还库存
+    // Restock Reward
     $stmtStock = $pdo->prepare("UPDATE reward SET Stock = Stock + ? WHERE Reward_ID = ?");
     $stmtStock->execute([$qty, $order['Reward_ID']]);
 
-    // 退积分
+    // Refund Redeem Points
     $stmtRefund = $pdo->prepare("UPDATE user SET RedeemPoint = RedeemPoint + ? WHERE User_ID = ?");
     $stmtRefund->execute([$pointsToRefund, $user_id]);
 
-    // 删除记录（你的 database.sql 的 Status enum 没有 'Cancelled'）
+    // Deleted Record
     $stmtDel = $pdo->prepare("DELETE FROM redeemrecord WHERE RedeemRecord_ID = ?");
     $stmtDel->execute([$record_id]);
 

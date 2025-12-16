@@ -2,7 +2,7 @@
 session_start();
 require 'database.php'; // 注意：这里原代码是 require 'database.php'，如果 admin 文件在子目录，可能需要 require '../database.php'。我保持你原文件的写法。
 
-// 1. 安全检查
+// 1. Safety Check: Only Admin can access
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -18,21 +18,21 @@ if ($auth_row['Role'] != 1 ) {
     exit();
 }
 
-// 2. 获取目标 ID
+// 2. Fetch Target ID
 if (!isset($_GET['id'])) {
     header("Location: team_list.php");
     exit();
 }
 $target_team_id = intval($_GET['id']);
 
-// 3. 处理保存逻辑 (更新基本信息)
+// 3. Process "Save" logic (update info)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_team'])) {
     $team_name = mysqli_real_escape_string($con, $_POST['team_name']);
     $team_bio = mysqli_real_escape_string($con, $_POST['team_bio']);
     $team_points = intval($_POST['team_points']);
     $owner_id = intval($_POST['owner_id']);
 
-    // 简单的 Owner 检查
+    // Simple Owner Check
     $check_owner = mysqli_query($con, "SELECT User_ID FROM user WHERE User_ID = '$owner_id'");
     if (mysqli_num_rows($check_owner) == 0 && $owner_id != 0) {
         $error_msg = "Error: The Owner ID ($owner_id) does not exist.";
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_team'])) {
                        WHERE Team_ID='$target_team_id'";
 
         if (mysqli_query($con, $update_sql)) {
-            // 如果换了队长，同步更新 user 表
+            // if change leader，update user table
             if ($owner_id != 0) {
                 mysqli_query($con, "UPDATE user SET Team_ID='$target_team_id' WHERE User_ID='$owner_id'");
             }
@@ -56,10 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_team'])) {
     }
 }
 
-// 4. 读取当前队伍数据
+// 4. fetch current team info
 $sql = "SELECT * FROM team WHERE Team_ID = '$target_team_id'";
 
-// 5. 实时计算队伍总分 (从 user 表累加)
+// 5. calculate Team Point (accumulate member's points from user table)
 $sum_sql = "SELECT SUM(Point) as total_points FROM user WHERE Team_ID = '$target_team_id'";
 $sum_res = mysqli_query($con, $sum_sql);
 $sum_row = mysqli_fetch_assoc($sum_res);
@@ -72,7 +72,7 @@ if (!$team) {
     exit();
 }
 
-// 6. 读取该队伍的所有成员
+// 6. fetch team members
 $members_sql = "SELECT User_ID, First_Name, Last_Name, Email, Avatar FROM user WHERE Team_ID = '$target_team_id'";
 $members_res = mysqli_query($con, $members_sql);
 
@@ -144,7 +144,7 @@ include '../header.php';
                         <?php
                         $is_owner = ($member['User_ID'] == $team['Owner_ID']);
 
-                        // === 🔥 头像逻辑修正 ===
+                        // === 🔥 Avatar Logic Fixed ===
                         $fullName = $member['First_Name'] . " " . $member['Last_Name'];
                         $mem_avatar = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&background=random&color=fff";
                         
