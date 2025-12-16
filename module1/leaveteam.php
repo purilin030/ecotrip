@@ -35,24 +35,24 @@ $total_members = $team_data['Total_members'];
 // ======================================================
 
 if ($is_owner) {
-    // --- 情况 A: 队长离开 ---
+    // --- Case A: owner leaving ---
     
     if ($total_members <= 1) {
-        // A1. 队里只剩队长一个人 -> 直接解散队伍 (删除队伍)
+        // A1. If owner is the only member -> disband the team (delete team)
         $delete_sql = "DELETE FROM team WHERE Team_ID = '$team_id'";
         mysqli_query($con, $delete_sql);
         
         $_SESSION['flash_success'] = "You left and the team has been disbanded.";
     } else {
-        // A2. 队里还有别人 -> 必须把队长转让给下一个人
+        // A2. If others exist -> transfer ownership to the next member
         
-        // 找一个不是自己的最早加入的队员
+        // Find the earliest member who isn't the owner
         $next_owner_sql = "SELECT User_ID FROM user WHERE Team_ID = '$team_id' AND User_ID != '$user_id' LIMIT 1";
         $next_res = mysqli_query($con, $next_owner_sql);
         $next_data = mysqli_fetch_assoc($next_res);
         $new_owner_id = $next_data['User_ID'];
         
-        // 更新队伍：设置新队长，人数 -1
+        // Update team: set new owner and decrement member count
         $update_team_sql = "UPDATE team SET Owner_ID = '$new_owner_id', Total_members = Total_members - 1 WHERE Team_ID = '$team_id'";
         mysqli_query($con, $update_team_sql);
         
@@ -60,20 +60,20 @@ if ($is_owner) {
     }
 
 } else {
-    // --- 情况 B: 普通成员离开 ---
+    // --- Case B: regular member leaving ---
     
-    // 队伍人数 -1
+    // Decrement team member count
     $update_team_sql = "UPDATE team SET Total_members = Total_members - 1 WHERE Team_ID = '$team_id'";
     mysqli_query($con, $update_team_sql);
     
     $_SESSION['flash_success'] = "You have successfully left the team.";
 }
 
-// 4. 最后一步：清空用户的 Team_ID (设置为 NULL)
+// 4. Final step: clear user's Team_ID (set to NULL)
 $update_user_sql = "UPDATE user SET Team_ID = NULL WHERE User_ID = '$user_id'";
 mysqli_query($con, $update_user_sql);
 
-// 5. 跳转回 team.php (这时候因为没 Team_ID 了，会显示 Join/Create 界面)
+// 5. Redirect back to team.php (user will see Join/Create now)
 header("Location: team.php");
 exit();
 ?>
