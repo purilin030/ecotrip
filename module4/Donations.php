@@ -4,30 +4,29 @@ require '../database.php';
 if (isset($_SESSION['user_id'])) {
     $current_user_id = $_SESSION['user_id'];
 
-    // 3. 从数据库查询 Role
-    // 即使 Session 里存了 Role，最好也从数据库查一次，以防管理员刚修改了权限但 Session 没更新
+    // 3. Read Role from MySQL
     $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
     $auth_res = mysqli_query($con, $auth_sql);
     
     if ($auth_row = mysqli_fetch_assoc($auth_res)) {
         
-        // 4. 判断：如果 Role 等于 1 (Admin)
+        // 4. Check：if Role == 1 (Admin)
         if ($auth_row['Role'] == 1) {
             
-            // 跳转到目标页面 (记得改成你实际的文件名)
+            // Jump to target page 
             header("Location: /ecotrip/module4/ManageDonation.php");
-            exit(); // 必须加 exit，阻止后续代码执行
+            exit(); // Must add exit to stop further code execution
         }
     }
 }
 require '../header.php';
 require '../background.php';
 
-// 获取所有活动
+// Fetch active donation campaigns
 $stmt = $pdo->query("SELECT * FROM donation_campaign WHERE Status != 'Closed' ORDER BY Status ASC, Created_At DESC");
 $campaigns = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 获取用户余额 (用于前端判断)
+// Get current user's balance
 $user_id = $_SESSION['user_id'] ?? 0;
 $stmtUser = $pdo->prepare("SELECT RedeemPoint FROM user WHERE User_ID = ?");
 $stmtUser->execute([$user_id]);
@@ -131,7 +130,7 @@ $my_balance = $user['RedeemPoint'] ?? 0;
                 } else if (amount > <?= $my_balance ?>) {
                     Swal.showValidationMessage(`Insufficient balance! You have <?= $my_balance ?> pts.`)
                 } else {
-                    // 发送 AJAX 请求
+                    // Send donation request
                     return fetch('process_donation.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

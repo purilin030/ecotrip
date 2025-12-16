@@ -1,9 +1,9 @@
 <?php
 session_start();
 require '../database.php';
-// --- 1. 后端处理逻辑 (放在 Header 之前) ---
+// --- 1. backend logic ---
 
-// A. 添加新商品
+// A. add new reward
 if (isset($_POST['add_reward'])) {
     $name = $_POST['name'];
     $points = $_POST['points'];
@@ -21,18 +21,18 @@ if (isset($_POST['add_reward'])) {
         }
     }
 
-    // 默认 Status 是 Active
+    // Default Status is Active
     $stmt = $pdo->prepare("INSERT INTO reward (Reward_name, Points_Required, Stock, Description, Type, Reward_Photo, Status) VALUES (?, ?, ?, ?, ?, ?, 'Active')");
     $stmt->execute([$name, $points, $stock, $desc, $type, $imagePath]);
     header("Location: Inventory.php?msg=added"); exit;
 }
 
-// B. ❌ 删除逻辑已移除 -> ✅ 替换为：切换上下架状态 (Toggle Status)
+// B. deactivate / activate reward
 if (isset($_POST['toggle_status'])) {
     $id = $_POST['reward_id'];
     $current_status = $_POST['current_status'];
     
-    // 如果是 Active 就变 Inactive，反之亦然
+    // Toggle status
     $new_status = ($current_status === 'Active') ? 'Inactive' : 'Active';
 
     $stmt = $pdo->prepare("UPDATE reward SET Status = ? WHERE Reward_ID = ?");
@@ -40,21 +40,21 @@ if (isset($_POST['toggle_status'])) {
     header("Location: Inventory.php?msg=status_changed"); exit;
 }
 
-// C. 更新库存
+// C. update stock
 if (isset($_POST['update_stock'])) {
     $stmt = $pdo->prepare("UPDATE reward SET Stock = ? WHERE Reward_ID = ?");
     $stmt->execute([$_POST['stock'], $_POST['reward_id']]);
     header("Location: Inventory.php?msg=updated"); exit;
 }
 
-// D. 编辑商品详情
+// D. edit reward details
 if (isset($_POST['edit_details'])) {
     $stmt = $pdo->prepare("UPDATE reward SET Reward_name = ?, Points_Required = ?, Description = ? WHERE Reward_ID = ?");
     $stmt->execute([$_POST['edit_name'], $_POST['edit_points'], $_POST['edit_desc'], $_POST['edit_id']]);
     header("Location: Inventory.php?msg=edited"); exit;
 }
 
-// --- 2. 数据查询 ---
+// --- 2. fetch rewards for display ---
 $rewards = $pdo->query("SELECT * FROM reward ORDER BY Reward_ID DESC")->fetchAll(PDO::FETCH_ASSOC);
 
 require '../header.php'; 
@@ -161,7 +161,7 @@ require '../background.php';
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <?php foreach ($rewards as $r): 
-                            // 样式处理：如果 Inactive，整行半透明
+                            // Dim inactive rows
                             $rowOpacity = ($r['Status'] === 'Inactive') ? 'opacity-60 bg-gray-50' : 'hover:bg-gray-50';
                         ?>
                         <tr class="<?= $rowOpacity ?> transition group">
@@ -243,7 +243,7 @@ require '../background.php';
 </div>
 
 <script>
-    // 搜索
+    // search filter
     document.getElementById('searchInput').addEventListener('keyup', function() {
         let filter = this.value.toUpperCase();
         let rows = document.querySelectorAll("#inventoryTable tbody tr");
@@ -254,7 +254,7 @@ require '../background.php';
         });
     });
 
-    // 编辑弹窗
+    // edit modal
     function openEditModal(id, name, points, desc) {
         Swal.fire({
             title: 'Edit Reward',
@@ -270,7 +270,7 @@ require '../background.php';
         });
     }
 
-    // 快捷改库存弹窗
+    // quick stock update
     function quickStock(id, current) {
         Swal.fire({
             title: 'Update Stock',
@@ -288,7 +288,7 @@ require '../background.php';
         });
     }
 
-    // 图表
+    // chart.js for stock overview
     const ctx = document.getElementById('stockChart');
     const labels = <?php echo json_encode(array_column($rewards, 'Reward_name')); ?>;
     const dataPoints = <?php echo json_encode(array_column($rewards, 'Stock')); ?>;
@@ -301,18 +301,16 @@ require '../background.php';
     const nameDisplay = document.getElementById('fileNameDisplay');
 
     if (file) {
-        // 1. 显示文件名
+        // 1. Set file name
         nameDisplay.innerHTML = file.name;
         
-        // 2. 读取并显示图片
+        // 2. Show preview
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.src = e.target.result;
-            preview.classList.remove('hidden'); // 显示图片
-            
-            // 可选：为了让图片看得更清楚，可以把图标隐藏，或者加个半透明背景
-            // placeholder.classList.add('hidden'); 
-            placeholder.classList.add('bg-white/80', 'p-2', 'rounded'); // 给文字加个背景防止看不清
+            preview.classList.remove('hidden'); // show image
+             
+            placeholder.classList.add('bg-white/80', 'p-2', 'rounded'); // add background to placeholder
         }
         reader.readAsDataURL(file);
     }
