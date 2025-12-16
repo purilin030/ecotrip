@@ -3,34 +3,34 @@
 $path_to_db = __DIR__ . '/../database.php';
 $path_to_header = __DIR__ . '/../header.php';
 
-// 1. 确保连接数据库 (这对 Header 显示正确的头像/角色很重要)
+// to ensure connect database
 if (file_exists($path_to_db)) {
     require_once $path_to_db;
 }
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-// 简单的权限检查
+// permission check
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php"); exit();
 }
 
-// 设置页面标题
+// setting page title
 $page_title = "Action Completed";
 
-// 2. 加载 Header
+// 2. upload Header
 if (file_exists($path_to_header)) {
     include $path_to_header;
 } else {
-    // 备用 Header，防止路径错误导致白屏
+    // Fallback header to prevent blank screens caused by incorrect paths
     echo '<!DOCTYPE html><html lang="en"><head><script src="https://cdn.tailwindcss.com"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"></head><body class="bg-gray-50">';
 }
 
-// 获取参数
+// get parameter
 $status = isset($_GET['status']) ? strtolower($_GET['status']) : 'processed';
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-// 根据状态定义颜色和图标
+// Define colours and icons based on status
 if ($status == 'approved') {
     $icon = 'fa-circle-check';
     $color_class = 'text-green-600';
@@ -75,7 +75,7 @@ if ($status == 'approved') {
 </main>
 
 <?php
-// 3. 补充底部的背景和 Footer，保持页面完整
+// add footer
 if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php')) {
     include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php';
 }

@@ -1,16 +1,11 @@
 <?php
-// === 1. 配置与连接 ===
+
 $path_to_db = __DIR__ . '/../database.php';
 
-
-// 开启 Session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-
-
-// 权限检查 (防止直接访问)
 if (!isset($_SESSION['user_id'])) {
     echo "<script>window.location.href = '../index.php';</script>";
     exit();
@@ -70,7 +65,6 @@ if (!isset($_SESSION['user_id'])) {
 </div>
 
 <style>
-    /* 自定义一个缓慢弹跳动画，比 tailwind 的 bounce 慢一点 */
     @keyframes bounce-slow {
 
         0%,

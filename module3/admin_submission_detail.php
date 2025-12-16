@@ -14,19 +14,18 @@ if (file_exists($path_to_header)) {
     echo '<!DOCTYPE html><html lang="en"><head><script src="https://cdn.tailwindcss.com"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"></head><body class="bg-gray-50">';
 }
 
-// 权限检查 (简单示例)
+
 if (!isset($_SESSION['user_id'])) {
     // header("Location: ../index.php"); 
     // exit(); 
 }
 
-// 获取 ID
+// get ID
 $submission_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-// 获取是否处于编辑模式
+
 $edit_mode = isset($_GET['edit']) && $_GET['edit'] == '1';
 
-// 查询数据
-// 注意：这里已经查询了 u.Avatar，所以我们可以直接使用
+// check data
 $sql = "SELECT s.*, c.Title as Challenge_Title, c.Points, u.First_Name, u.Last_Name, u.Avatar 
         FROM submissions s 
         JOIN challenge c ON s.Challenge_ID = c.Challenge_ID
@@ -40,9 +39,9 @@ $data = $stmt->get_result()->fetch_assoc();
 if (!$data)
     die("<div class='p-10 text-center text-red-500'>Submission not found.</div>");
 
-// 判断当前状态
+
 $is_pending = (strtolower($data['Status']) == 'pending');
-// 决定是否显示表单
+// Determining whether to display the form
 $show_form = $is_pending || $edit_mode;
 ?>
 
@@ -96,14 +95,10 @@ $show_form = $is_pending || $edit_mode;
                         // default avatar
                         $default_avatar = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&background=random&color=fff&size=64";
 
-                        // check if custom avatar is 
-                        // 拼接物理路径进行检查
-                        // 拼接物理路径进行检查
-                        $phys_path = $_SERVER['DOCUMENT_ROOT'] . $data['Avatar']; // 改成 $data
+                        $phys_path = $_SERVER['DOCUMENT_ROOT'] . $data['Avatar']; 
                         
-                        if (!empty($data['Avatar']) && file_exists($phys_path)) { // 改成 $data
-                            // 数据库里已经是 /ecotrip/avatars/... 直接用
-                            $display_avatar = $data['Avatar']; // 改成 $data
+                        if (!empty($data['Avatar']) && file_exists($phys_path)) { 
+                            $display_avatar = $data['Avatar']; 
                         } else {
                             $display_avatar = $default_avatar;
                         }
@@ -217,24 +212,24 @@ document.addEventListener('DOMContentLoaded', function() {
     
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
-            const submitter = e.submitter; // 获取触发提交的那个按钮
+            const submitter = e.submitter; // Obtain the button that triggers the submission
             if (!submitter) return;
 
-            // 1. 创建一个隐藏 input 来传递被点击按钮的 value (approve/deny)
-            // 因为禁用按钮后，它的 value 不会被 POST 提交
+            // Create a hidden input field to pass the value of the clicked button (approve/deny).
+            // Because once the button is disabled, its value will not be submitted via the POST request.
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = submitter.name;
             hiddenInput.value = submitter.value;
             this.appendChild(hiddenInput);
 
-            // 2. 视觉反馈：禁用所有提交按钮
+            // prohibit all submit button
             const buttons = this.querySelectorAll('button[type="submit"]');
             buttons.forEach(btn => {
                 btn.disabled = true;
                 btn.classList.add('opacity-50', 'cursor-not-allowed');
                 
-                // 给被点击的按钮添加 Loading 文字
+                // Add loading text to the clicked button
                 if (btn === submitter) {
                     const originalText = btn.innerText;
                     btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Processing...';

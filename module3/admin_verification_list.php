@@ -1,7 +1,4 @@
 <?php
-// ==========================================
-// 1. 配置与连接
-// ==========================================
 $path_to_db = __DIR__ . '/../database.php';
 $path_to_header = __DIR__ . '/../header.php';
 
@@ -29,10 +26,10 @@ if (file_exists($path_to_header)) {
     echo '<!DOCTYPE html><html lang="en"><head><script src="https://cdn.tailwindcss.com"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"></head><body class="bg-gray-50">';
 }
 
-// === 2. 筛选逻辑 ===
+
 $filter_status = isset($_GET['status']) ? $_GET['status'] : 'All';
 
-// 构建 SQL 查询
+// constructe SQL query
 $sql = "SELECT 
             s.Submission_ID, 
             s.Submission_date, 
@@ -62,7 +59,7 @@ if ($filter_status != 'All') {
 $stmt->execute();
 $result = $stmt->get_result();
 
-// === 3. 统计各状态数量 ===
+// count the quantity of each status
 $count_sql = "SELECT 
     COUNT(*) as total,
     SUM(CASE WHEN Status = 'Pending' THEN 1 ELSE 0 END) as pending,
@@ -73,7 +70,7 @@ FROM submissions";
 $stats_result = $con->query($count_sql);
 $stats = $stats_result ? $stats_result->fetch_assoc() : ['total' => 0, 'pending' => 0, 'approved' => 0, 'denied' => 0];
 
-// 确保默认值不为null
+// make sure defult is not null
 $stats['pending'] = $stats['pending'] ?? 0;
 $stats['approved'] = $stats['approved'] ?? 0;
 $stats['denied'] = $stats['denied'] ?? 0;
@@ -121,7 +118,6 @@ $stats['denied'] = $stats['denied'] ?? 0;
                     $borderClass = $active ? 'border-brand-500 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
                     $bgClass = $active ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-gray-600';
 
-                    // 为 Denied 单独设置红色的 Badge 样式
                     if ($key == 'Denied') {
                         $bgClass = $active ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500';
                     }
@@ -129,9 +125,6 @@ $stats['denied'] = $stats['denied'] ?? 0;
                     echo '<a href="?status=' . $key . '" class="' . $borderClass . ' w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm flex justify-center items-center transition group">';
                     echo $val['label'];
                     
-                    // 【关键修改】始终显示 Denied 的数量 (即使是 0)，其他只有 >0 才显示
-                    // 或者统一都显示 >= 0，这里我按照你的习惯：Approved 和 Denied 如果是 0 也显示，方便看状态
-                    // 原代码是跳过 Approved/Denied 的显示。现在我让它们都显示出来。
                     if ($val['count'] >= 0) {
                         echo '<span class="ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium ' . $bgClass . '">' . $val['count'] . '</span>';
                     }
@@ -160,13 +153,10 @@ $stats['denied'] = $stats['denied'] ?? 0;
                         <?php while ($row = $result->fetch_assoc()): ?>
 
                             <?php
-                            // 头像处理
+                            // avatar execution
                             $fullName = $row['First_Name'] . ' ' . $row['Last_Name'];
                             $default_avatar = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&background=random&color=fff&size=64";
-                            
-                            // 路径修正：如果数据库存的是相对路径，需要拼上 DOCUMENT_ROOT 检查是否存在
-                            // 假设头像存在 /ecotrip/avatars/
-                            // 这里做一个简单处理：如果有值就用，没值用默认
+                    
                             $display_avatar = !empty($row['Avatar']) ? $row['Avatar'] : $default_avatar;
                             ?>
 

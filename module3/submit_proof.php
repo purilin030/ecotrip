@@ -1,40 +1,38 @@
 <?php
-// === 1. 配置与连接 ===
+
 $path_to_db = __DIR__ . '/../database.php';
 $path_to_header = __DIR__ . '/../header.php';
 
 
-// 检查数据库文件
 if (!file_exists($path_to_db)) {
     die("Error: Cannot find database.php at " . $path_to_db);
 }
 require_once $path_to_db;
 
-// 开启 Session
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (isset($_SESSION['user_id'])) {
     $current_user_id = $_SESSION['user_id'];
 
-    // 3. 从数据库查询 Role
-    // 即使 Session 里存了 Role，最好也从数据库查一次，以防管理员刚修改了权限但 Session 没更新
+    // Query the database for Role
     $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
     $auth_res = mysqli_query($con, $auth_sql);
     
     if ($auth_row = mysqli_fetch_assoc($auth_res)) {
         
-        // 4. 判断：如果 Role 等于 1 (Admin)
+        
         if ($auth_row['Role'] == 1) {
             
-            // 跳转到目标页面 (记得改成你实际的文件名)
+            
             header("Location: /ecotrip/module3/submission_list.php");
-            exit(); // 必须加 exit，阻止后续代码执行
+            exit();
         }
     }
 }
 
-// 引入 Header
+// add header
 if (file_exists($path_to_header)) {
     $page_title = "Submit Proof";
     include $path_to_header;
@@ -43,19 +41,19 @@ if (file_exists($path_to_header)) {
     echo '<!DOCTYPE html><html lang="en"><head><script src="https://cdn.tailwindcss.com"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"></head><body class="bg-gray-50">';
 }
 
-// === 2. 用户权限检查 ===
+
 if (!isset($_SESSION['user_id'])) {
     echo "<script>window.location.href = '../index.php';</script>";
     exit();
 }
 
-// 获取预选的 Challenge ID (如果有)
+// Retrieve the pre-selected Challenge ID (if available)
 $preselected_challenge_id = isset($_GET['challenge_id']) ? (int) $_GET['challenge_id'] : 0;
 
 $user_id = $_SESSION['user_id'];
 $message = "";
 
-// 获取用户 Team_ID
+// get Team_ID
 $team_id = NULL;
 if (isset($con) && $con) {
     // 注意：假设数据库连接变量名为 $con (与 header/submission_list 一致)，原代码是 $conn，这里统一用 $con
@@ -66,52 +64,45 @@ if (isset($con) && $con) {
     }
 }
 
-// === 3. 处理表单提交 ===
+// === 3. Handling form submissions ===
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $challenge_id = $_POST['challenge_id'];
     $caption = $con->real_escape_string($_POST['caption']);
     $submission_date = date("Y-m-d");
     $status = "Pending";
 
-    // 准备上传
+    // prepare for upload
     $target_dir = __DIR__ . "/../uploads/";
     if (!file_exists($target_dir)) {
         mkdir($target_dir, 0777, true);
     }
 
-    // 检查是否有文件上传
+    // Check whether any files have been uploaded
     if (isset($_FILES["photo"]) && $_FILES["photo"]["error"] == 0) {
         $file_tmp_path = $_FILES["photo"]["tmp_name"];
         $file_name = basename($_FILES["photo"]["name"]);
         $file_type = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
-        // 简单验证格式
+        // Simple validation format
         $allowTypes = array('jpg', 'png', 'jpeg');
         if (in_array($file_type, $allowTypes)) {
             if ($_FILES["photo"]["size"] < 5000000) { // < 5MB (调大了点)
 
                 // ==========================================
-                // 🔥 Image Hashing 查重机制
+                // Image Hashing
                 // ==========================================
 
-                // 1. 计算 Hash
+                // 1. calculate Hash
                 $image_hash = hash_file('sha256', $file_tmp_path);
 
-                // 2. 查重
+                // 2. Plagiarism check
                 $check_sql = "SELECT Submission_ID FROM submissions WHERE Image_Hash = '$image_hash'";
-                // 注意表名：submission_list 里用的是 'submissions'，这里原代码是 'submission'。
-                // 请根据实际数据库表名调整。这里假设统一用 'submissions'。
-                // 如果你的表名确实是 submission (单数)，请改回 submission。
-                // 为了保险，我先用 submission (单数) 匹配你上传的原文件逻辑，但请自行确认表名。
-                // 修改：根据 submission_list.php 看来表名是 `submissions` (复数) ? 
-                // 原上传代码写的是 `submission` (单数)。
-                // 这里我使用 `submissions` (复数) 以匹配之前的 `submission_list.php`，如果不一致请修改。
                 $table_name = "submissions";
 
                 $check_result = $con->query("SELECT Submission_ID FROM $table_name WHERE Image_Hash = '$image_hash'");
 
                 if ($check_result && $check_result->num_rows > 0) {
-                    // 3. 重复
+                    // 3. repeat
                     $message = "<div class='rounded-md bg-red-50 p-4 mb-6 border border-red-200'>
                         <div class='flex'>
                             <div class='flex-shrink-0'>
@@ -126,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                     </div>";
                 } else {
-                    // 4. 上传
+                    // 4. upload
                     $final_file_name = time() . "_" . $user_id . "_" . preg_replace("/[^a-zA-Z0-9.]/", "", $file_name);
                     $target_file_path = $target_dir . $final_file_name;
                     $db_file_path = "../uploads/" . $final_file_name; // 相对路径存入DB
@@ -188,7 +179,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $c_result = $con->query($challenge_sql);
                             if ($c_result && $c_result->num_rows > 0) {
                                 while ($row = $c_result->fetch_assoc()) {
-                                    // 检查是否是预选的 ID
+                                
                                     $selected = ($row['Challenge_ID'] == $preselected_challenge_id) ? "selected" : "";
 
                                     echo "<option value='" . $row['Challenge_ID'] . "' $selected>" .
@@ -271,8 +262,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             reader.onload = function (e) {
                 preview.src = e.target.result;
                 preview.classList.remove('hidden');
-                // 也可以选择隐藏 placeholder，或者保留
-                // placeholder.classList.add('hidden'); 
             }
             reader.readAsDataURL(input.files[0]);
         }
