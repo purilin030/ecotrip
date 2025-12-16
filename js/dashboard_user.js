@@ -35,7 +35,7 @@ function switchTab(tabName) {
 function initializeCharts() {
     if (typeof dashboardData === 'undefined') return;
 
-    // 1. My Activity Chart (Existing)
+    // 1. My Activity Chart (Growth/Eco Journey)
     const ctxMyGrowth = document.getElementById('myGrowthChart');
     if (ctxMyGrowth) {
         if(dashboardData.chartLabels && dashboardData.chartLabels.length > 0) {
@@ -64,7 +64,6 @@ function initializeCharts() {
                 }
             });
         } else {
-            // Placeholder text if no data
             const ctx2d = ctxMyGrowth.getContext('2d');
             ctx2d.font = "14px Inter";
             ctx2d.fillStyle = "#9ca3af";
@@ -73,9 +72,7 @@ function initializeCharts() {
         }
     }
 
-    // --- NEW STATISTICAL CHARTS FOR USER ---
-
-    // 2. User Submission Status (Pie Chart - Shows Counts)
+    // 2. User Submission Status (Pie Chart)
     const ctxUserStatus = document.getElementById('userStatusChart');
     if (ctxUserStatus && dashboardData.userStatus) {
         new Chart(ctxUserStatus.getContext('2d'), {
@@ -141,7 +138,7 @@ function initializeCharts() {
         });
     }
 
-    // 4. Consistency Score (Trend Line - Existing)
+    // 4. Consistency Score (Trend Line)
     const ctxConsistency = document.getElementById('consistencyChart');
     if (ctxConsistency && dashboardData.weeklyLabels) {
         new Chart(ctxConsistency.getContext('2d'), {
@@ -166,6 +163,35 @@ function initializeCharts() {
                 scales: { 
                     y: { display: false, beginAtZero: true }, 
                     x: { display: false } 
+                }
+            }
+        });
+    }
+
+    // 5. NEW: Difficulty Breakdown (Doughnut Chart)
+    const ctxDiff = document.getElementById('userDifficultyChart');
+    if (ctxDiff && dashboardData.difficultyCounts) {
+        new Chart(ctxDiff.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Easy', 'Medium', 'Hard'],
+                datasets: [{
+                    data: [
+                        dashboardData.difficultyCounts.Easy || 0,
+                        dashboardData.difficultyCounts.Medium || 0,
+                        dashboardData.difficultyCounts.Hard || 0
+                    ],
+                    backgroundColor: ['#4ade80', '#fbbf24', '#f87171'], // Green, Yellow, Red
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } }
                 }
             }
         });

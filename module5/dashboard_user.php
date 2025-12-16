@@ -20,6 +20,7 @@ include '../header.php';
 // ---------------------------------------------------------
 
 // --- USER SPECIFIC DATA ---
+// Removed City_ID from query
 $sql_user = "SELECT Point, RedeemPoint, Team_ID, 
             (SELECT COUNT(*) + 1 FROM user WHERE Point > u.Point) as `Rank` 
             FROM user u WHERE User_ID = '$user_id'";
@@ -35,7 +36,53 @@ $my_team_id = $user_data['Team_ID'];
 $res_sub = mysqli_query($con, "SELECT COUNT(*) as cnt FROM submissions WHERE User_ID = '$user_id'");
 $my_submissions = ($res_sub) ? mysqli_fetch_assoc($res_sub)['cnt'] : 0;
 
-// --- CHART DATA 1: POINTS GROWTH (Last 30 Days) ---
+// --- 1. COMPLETION RATE LOGIC ---
+$res_approved = mysqli_query($con, "SELECT COUNT(*) as cnt FROM submissions WHERE User_ID = '$user_id' AND Status = 'Approved'");
+$my_approved = ($res_approved) ? mysqli_fetch_assoc($res_approved)['cnt'] : 0;
+$completion_rate = ($my_submissions > 0) ? round(($my_approved / $my_submissions) * 100) : 0;
+
+// --- 2. DIFFICULTY BREAKDOWN LOGIC ---
+$sql_diff = "SELECT c.Difficulty, COUNT(*) as cnt 
+             FROM submissions s 
+             JOIN challenge c ON s.Challenge_ID = c.Challenge_ID 
+             WHERE s.User_ID = '$user_id' 
+             GROUP BY c.Difficulty";
+$res_diff = mysqli_query($con, $sql_diff);
+$difficulty_data = ['Easy' => 0, 'Medium' => 0, 'Hard' => 0];
+while($row = mysqli_fetch_assoc($res_diff)) {
+    $diff_key = ucfirst(strtolower($row['Difficulty']));
+    if(isset($difficulty_data[$diff_key])) {
+        $difficulty_data[$diff_key] = $row['cnt'];
+    }
+}
+
+// --- 3. EXPIRING SOON WATCHLIST ---
+$sql_expiring = "SELECT Title, End_Date, Points, Challenge_ID, Difficulty 
+                 FROM challenge 
+                 WHERE Status = 'Active' 
+                 AND End_Date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+                 AND Challenge_ID NOT IN (SELECT Challenge_ID FROM submissions WHERE User_ID = '$user_id')
+                 ORDER BY End_Date ASC LIMIT 4";
+$res_expiring = mysqli_query($con, $sql_expiring);
+$expiring_challenges = [];
+while($row = mysqli_fetch_assoc($res_expiring)) { $expiring_challenges[] = $row; }
+
+// --- 4. TOP ECO-CITIES (Replacement for Local Impact) ---
+// Finds top 3 cities with the most ACTIVE challenges
+$sql_top_cities = "SELECT city.CityName, city.State, COUNT(c.Challenge_ID) as cnt
+                   FROM challenge c
+                   JOIN city ON c.City_ID = city.CityID
+                   WHERE c.Status = 'Active'
+                   GROUP BY c.City_ID
+                   ORDER BY cnt DESC
+                   LIMIT 3";
+$res_cities = mysqli_query($con, $sql_top_cities);
+$top_cities = [];
+while($row = mysqli_fetch_assoc($res_cities)) { $top_cities[] = $row; }
+
+
+// --- EXISTING CHART DATA ---
+// Points Growth
 $sql_chart = "SELECT DATE_FORMAT(Earned_Date, '%m-%d') as day_label, SUM(Points_Earned) as daily_total
               FROM pointsledger
               WHERE User_ID = '$user_id' AND Earned_Date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
@@ -50,19 +97,17 @@ if ($res_chart) {
     }
 }
 
-// --- NEW STATS: USER SUBMISSION STATUS (Pie Chart Data) ---
+// Submission Status
 $sql_user_status = "SELECT Status, COUNT(*) as cnt FROM submissions WHERE User_ID = '$user_id' GROUP BY Status";
 $res_user_status = mysqli_query($con, $sql_user_status);
 $user_status_data = ['Pending' => 0, 'Approved' => 0, 'Rejected' => 0];
 while ($row = mysqli_fetch_assoc($res_user_status)) {
-    // Ensure the key matches the casing used in JS (e.g. 'Approved')
     $key = ucfirst(strtolower($row['Status'])); 
-    if (isset($user_status_data[$key])) {
-        $user_status_data[$key] = $row['cnt'];
-    }
+    if ($key == 'Denied') $key = 'Rejected';
+    if (isset($user_status_data[$key])) $user_status_data[$key] = $row['cnt'];
 }
 
-// --- NEW STATS: GLOBAL TOP 5 CHALLENGES (Bar Chart Data) ---
+// Global Top 5
 $sql_top5_global = "SELECT c.Title, COUNT(s.Submission_ID) as cnt 
                     FROM challenge c 
                     JOIN submissions s ON c.Challenge_ID = s.Challenge_ID 
@@ -72,13 +117,12 @@ $res_top5 = mysqli_query($con, $sql_top5_global);
 $top5_labels = [];
 $top5_data = [];
 while ($row = mysqli_fetch_assoc($res_top5)) {
-    // Truncate long titles for better chart display
     $title = (strlen($row['Title']) > 15) ? substr($row['Title'], 0, 15) . '...' : $row['Title'];
     $top5_labels[] = $title;
     $top5_data[] = $row['cnt'];
 }
 
-// 3. Consistency (Submissions per week)
+// Consistency
 $sql_consist = "SELECT DATE_FORMAT(Submission_Date, 'Wk %u') as wk, COUNT(*) as cnt 
                 FROM submissions 
                 WHERE User_ID = '$user_id' 
@@ -91,11 +135,9 @@ while($row = mysqli_fetch_assoc($res_consist)) {
     $weekly_counts[] = $row['cnt'];
 }
 
-
-// --- HISTORY DATA ---
+// History
 $check_table = mysqli_query($con, "SHOW TABLES LIKE 'donation_record'");
 $has_donations = ($check_table && mysqli_num_rows($check_table) > 0);
-
 $sql_history = "
     (SELECT 'Earned' as Type, pl.Points_Earned as Points, pl.Earned_Date as Date, c.Title as Description
      FROM pointsledger pl JOIN submissions s ON pl.Submission_ID = s.Submission_ID JOIN challenge c ON s.Challenge_ID = c.Challenge_ID
@@ -113,7 +155,7 @@ $res_history = mysqli_query($con, $sql_history);
 $history_items = [];
 if ($res_history) { while($row = mysqli_fetch_assoc($res_history)) { $history_items[] = $row; } }
 
-// --- BADGES LOGIC ---
+// Badges
 $badges_config = [
     ['name' => 'Eco Starter', 'points' => 0, 'icon' => 'fa-seedling', 'desc' => 'Joined the movement'],
     ['name' => 'Green Walker', 'points' => 500, 'icon' => 'fa-shoe-prints', 'desc' => 'Earned 500+ points'],
@@ -121,12 +163,12 @@ $badges_config = [
     ['name' => 'Eco Legend', 'points' => 5000, 'icon' => 'fa-crown', 'desc' => 'Earned 5,000+ points'],
 ];
 
-// --- IMPACT LOGIC ---
+// Impact
 $impact_co2 = round($my_total_points * 0.01, 1);
 $impact_plastic = round($my_total_points * 0.005, 1);
 $impact_water = round($my_total_points * 0.1, 1);
 
-// --- TEAM INFO ---
+// Team Info
 $team_members = [];
 $team_info = null;
 if (!empty($my_team_id)) {
@@ -196,7 +238,7 @@ if (!empty($my_team_id)) {
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                     <div class="mb-6">
                         <h3 class="text-lg font-bold text-gray-800">Trending Challenges</h3>
@@ -220,6 +262,74 @@ if (!empty($my_team_id)) {
                     </div>
                 </div>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Expiring Soon <i class="fa-regular fa-clock text-red-400 ml-1"></i></h3>
+                            <p class="text-xs text-gray-400">Challenges ending within 7 days</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <?php if(empty($expiring_challenges)): ?>
+                            <p class="text-sm text-gray-400 text-center py-4">No expiring challenges found.</p>
+                        <?php else: ?>
+                            <?php foreach($expiring_challenges as $exp): 
+                                $days_left = ceil((strtotime($exp['End_Date']) - time()) / 86400);
+                                $color = ($days_left <= 3) ? 'text-red-600 bg-red-50' : 'text-yellow-600 bg-yellow-50';
+                            ?>
+                            <div class="flex items-center justify-between border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+                                <div>
+                                    <h4 class="text-sm font-bold text-gray-700 truncate w-48"><?php echo htmlspecialchars($exp['Title']); ?></h4>
+                                    <p class="text-xs text-gray-400"><?php echo htmlspecialchars($exp['Difficulty']); ?> • <?php echo $exp['Points']; ?> pts</p>
+                                </div>
+                                <span class="text-xs font-bold px-2 py-1 rounded-full <?php echo $color; ?>">
+                                    <?php echo $days_left; ?> days left
+                                </span>
+                            </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <a href="../module2/view_challenge.php" class="text-xs text-green-600 hover:text-green-700 font-medium">View All Challenges &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Top Eco-Cities <i class="fa-solid fa-tree text-green-500 ml-1"></i></h3>
+                            <p class="text-xs text-gray-400">Locations with the most active challenges</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <?php if(empty($top_cities)): ?>
+                            <p class="text-sm text-gray-400 text-center py-4">No active challenges found.</p>
+                        <?php else: ?>
+                            <?php foreach($top_cities as $index => $city): 
+                                $rank = $index + 1;
+                                $medal = ($rank == 1) ? '🥇' : (($rank == 2) ? '🥈' : '🥉');
+                            ?>
+                            <div class="flex items-center justify-between border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-xl"><?php echo $medal; ?></div>
+                                    <div>
+                                        <h4 class="text-sm font-bold text-gray-700"><?php echo htmlspecialchars($city['CityName']); ?></h4>
+                                        <p class="text-xs text-gray-400"><?php echo htmlspecialchars($city['State']); ?></p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                                    <?php echo $city['cnt']; ?> Challenges
+                                </span>
+                            </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <div id="view-achievements" class="dashboard-section hidden animate-fade-in space-y-8">
@@ -237,11 +347,49 @@ if (!empty($my_team_id)) {
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                     <div class="mb-6">
+                        <h3 class="text-lg font-bold text-gray-800">Challenge Difficulty</h3>
+                        <p class="text-xs text-gray-400">Your completed challenges by level</p>
+                    </div>
+                    <div class="relative h-64 w-full flex justify-center">
+                        <canvas id="userDifficultyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <div class="mb-6">
                         <h3 class="text-lg font-bold text-gray-800">My Submission Status</h3>
                         <p class="text-xs text-gray-400">Breakdown of your activity (Counts)</p>
                     </div>
                     <div class="relative h-64 w-full flex justify-center">
                         <canvas id="userStatusChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-bold text-gray-800">Success Rate</h3>
+                        <p class="text-xs text-gray-400">Approved Submissions / Total Submissions</p>
+                    </div>
+                    
+                    <div class="text-center py-6">
+                        <span class="text-5xl font-extrabold text-green-600"><?php echo $completion_rate; ?>%</span>
+                        <p class="text-sm text-gray-500 mt-2">Approval Rate</p>
+                    </div>
+
+                    <div class="w-full bg-gray-100 rounded-full h-4 mb-4 overflow-hidden">
+                        <div class="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full transition-all duration-1000" style="width: <?php echo $completion_rate; ?>%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-xs text-gray-400 px-1">
+                        <span>0%</span>
+                        <span>50%</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="mt-6 p-4 bg-green-50 rounded-lg text-sm text-green-700">
+                        <i class="fa-solid fa-circle-info mr-2"></i> 
+                        You have <strong><?php echo $my_approved; ?></strong> approved submissions out of <strong><?php echo $my_submissions; ?></strong> total attempts.
                     </div>
                 </div>
             </div>
@@ -415,10 +563,10 @@ if (!empty($my_team_id)) {
         chartData: <?php echo json_encode($chart_data ?? []); ?>,
         weeklyLabels: <?php echo json_encode($weekly_labels); ?>,
         weeklyCounts: <?php echo json_encode($weekly_counts); ?>,
-        // NEW STATS PASSED TO JS
         userStatus: <?php echo json_encode($user_status_data); ?>,
         top5Labels: <?php echo json_encode($top5_labels); ?>,
-        top5Data: <?php echo json_encode($top5_data); ?>
+        top5Data: <?php echo json_encode($top5_data); ?>,
+        difficultyCounts: <?php echo json_encode($difficulty_data); ?>
     };
 </script>
 
