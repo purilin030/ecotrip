@@ -116,9 +116,10 @@ $my_balance = $user['RedeemPoint'] ?? 0;
             text: 'How many points would you like to donate?',
             input: 'number',
             inputAttributes: {
-                min: 1,
-                max: <?= $my_balance ?>,
-                step: 10
+                inputAttributes: {
+                    min: 1,
+                    max: <?= $my_balance ?>,
+                    },
             },
             showCancelButton: true,
             confirmButtonText: 'Confirm Donation',
