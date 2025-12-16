@@ -73,36 +73,75 @@ function initializeCharts() {
         }
     }
 
-    // --- NEW STATISTICAL CHARTS ---
+    // --- NEW STATISTICAL CHARTS FOR USER ---
 
-    // 2. My Success Rate (Doughnut)
-    // Requires: dashboardData.successRate { approved: int, rejected: int }
-    const ctxSuccess = document.getElementById('successRateChart');
-    if (ctxSuccess && dashboardData.successRate) {
-        new Chart(ctxSuccess.getContext('2d'), {
-            type: 'doughnut',
+    // 2. User Submission Status (Pie Chart - Shows Counts)
+    const ctxUserStatus = document.getElementById('userStatusChart');
+    if (ctxUserStatus && dashboardData.userStatus) {
+        new Chart(ctxUserStatus.getContext('2d'), {
+            type: 'pie',
             data: {
-                labels: ['Approved', 'Rejected'],
+                labels: ['Pending', 'Approved', 'Rejected'],
                 datasets: [{
-                    data: [dashboardData.successRate.approved, dashboardData.successRate.rejected],
-                    backgroundColor: ['#22c55e', '#ef4444'], 
-                    borderWidth: 0,
+                    data: [
+                        dashboardData.userStatus.Pending, 
+                        dashboardData.userStatus.Approved, 
+                        dashboardData.userStatus.Rejected
+                    ],
+                    backgroundColor: ['#f59e0b', '#22c55e', '#ef4444'], // Amber, Green, Red
+                    borderWidth: 1,
+                    borderColor: '#ffffff',
                     hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '70%',
                 plugins: {
-                    legend: { display: false }
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) { label += ': '; }
+                                label += context.raw + ' submissions';
+                                return label;
+                            }
+                        }
+                    }
                 }
             }
         });
     }
 
-    // 3. Consistency Score (Trend Line)
-    // Requires: dashboardData.weeklyLabels (e.g. ['Wk1', 'Wk2']) and dashboardData.weeklyCounts
+    // 3. Top 5 Global Challenges (Bar Chart)
+    const ctxTop5 = document.getElementById('userTopChallengesChart');
+    if (ctxTop5 && dashboardData.top5Labels) {
+        new Chart(ctxTop5.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: dashboardData.top5Labels,
+                datasets: [{
+                    label: 'Total Submissions',
+                    data: dashboardData.top5Data,
+                    backgroundColor: '#3b82f6', // Blue
+                    borderRadius: 4,
+                    barThickness: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // 4. Consistency Score (Trend Line - Existing)
     const ctxConsistency = document.getElementById('consistencyChart');
     if (ctxConsistency && dashboardData.weeklyLabels) {
         new Chart(ctxConsistency.getContext('2d'), {

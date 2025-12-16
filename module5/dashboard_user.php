@@ -50,29 +50,33 @@ if ($res_chart) {
     }
 }
 
-// --- NEW STATS: SUCCESS RATE & CONSISTENCY ---
+// --- NEW STATS: USER SUBMISSION STATUS (Pie Chart Data) ---
+$sql_user_status = "SELECT Status, COUNT(*) as cnt FROM submissions WHERE User_ID = '$user_id' GROUP BY Status";
+$res_user_status = mysqli_query($con, $sql_user_status);
+$user_status_data = ['Pending' => 0, 'Approved' => 0, 'Rejected' => 0];
+while ($row = mysqli_fetch_assoc($res_user_status)) {
+    // Ensure the key matches the casing used in JS (e.g. 'Approved')
+    $key = ucfirst(strtolower($row['Status'])); 
+    if (isset($user_status_data[$key])) {
+        $user_status_data[$key] = $row['cnt'];
+    }
+}
 
-// 1. Success Rate (Approved vs Rejected)
-$sql_success = "SELECT 
-    SUM(CASE WHEN Status = 'Approved' THEN 1 ELSE 0 END) as approved,
-    SUM(CASE WHEN Status = 'Rejected' THEN 1 ELSE 0 END) as rejected
-    FROM submissions WHERE User_ID = '$user_id'";
-$res_success = mysqli_query($con, $sql_success);
-$row_success = mysqli_fetch_assoc($res_success);
-$success_rate_data = [
-    'approved' => $row_success['approved'] ?? 0, 
-    'rejected' => $row_success['rejected'] ?? 0
-];
-
-// 2. Preferred Difficulty (Most attempted)
-$sql_diff = "SELECT c.Difficulty, COUNT(*) as cnt 
-             FROM submissions s 
-             JOIN challenge c ON s.Challenge_ID = c.Challenge_ID 
-             WHERE s.User_ID = '$user_id' AND s.Status = 'Approved'
-             GROUP BY c.Difficulty 
-             ORDER BY cnt DESC LIMIT 1";
-$res_diff = mysqli_query($con, $sql_diff);
-$fav_diff = ($res_diff && mysqli_num_rows($res_diff) > 0) ? mysqli_fetch_assoc($res_diff)['Difficulty'] : 'None yet';
+// --- NEW STATS: GLOBAL TOP 5 CHALLENGES (Bar Chart Data) ---
+$sql_top5_global = "SELECT c.Title, COUNT(s.Submission_ID) as cnt 
+                    FROM challenge c 
+                    JOIN submissions s ON c.Challenge_ID = s.Challenge_ID 
+                    GROUP BY c.Challenge_ID 
+                    ORDER BY cnt DESC LIMIT 5";
+$res_top5 = mysqli_query($con, $sql_top5_global);
+$top5_labels = [];
+$top5_data = [];
+while ($row = mysqli_fetch_assoc($res_top5)) {
+    // Truncate long titles for better chart display
+    $title = (strlen($row['Title']) > 15) ? substr($row['Title'], 0, 15) . '...' : $row['Title'];
+    $top5_labels[] = $title;
+    $top5_data[] = $row['cnt'];
+}
 
 // 3. Consistency (Submissions per week)
 $sql_consist = "SELECT DATE_FORMAT(Submission_Date, 'Wk %u') as wk, COUNT(*) as cnt 
@@ -194,8 +198,13 @@ if (!empty($my_team_id)) {
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <div class="mb-6 flex justify-between items-center"><h3 class="text-lg font-bold text-gray-800">My Eco Journey</h3><span class="text-xs text-gray-400">Points Earned (Last 30 Days)</span></div>
-                    <div class="relative h-72 w-full"><canvas id="myGrowthChart"></canvas></div>
+                    <div class="mb-6">
+                        <h3 class="text-lg font-bold text-gray-800">Trending Challenges</h3>
+                        <p class="text-xs text-gray-400">Top 5 with most submissions globally</p>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="userTopChallengesChart"></canvas>
+                    </div>
                 </div>
                 
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col">
@@ -207,7 +216,7 @@ if (!empty($my_team_id)) {
                         <canvas id="consistencyChart"></canvas>
                     </div>
                     <div class="mt-4 text-center">
-                        <p class="text-xs text-gray-400">Keep the line going up! 墜</p>
+                        <p class="text-xs text-gray-400">Keep the line going up! 🚀</p>
                     </div>
                 </div>
             </div>
@@ -215,33 +224,24 @@ if (!empty($my_team_id)) {
 
         <div id="view-achievements" class="dashboard-section hidden animate-fade-in space-y-8">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl shadow-sm flex items-center justify-between">
-                    <div>
-                        <h4 class="font-bold text-indigo-900 text-lg">Your Challenge Style</h4>
-                        <p class="text-sm text-indigo-700 mt-1">
-                            You seem to prefer <strong><?php echo htmlspecialchars($fav_diff); ?></strong> challenges!
-                        </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <div class="mb-6 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">My Eco Journey</h3>
+                            <p class="text-xs text-gray-400">Points Earned (Last 30 Days)</p>
+                        </div>
                     </div>
-                    <div class="h-16 w-16 bg-white rounded-full flex items-center justify-center text-indigo-500 shadow-sm text-2xl">
-                        <i class="fa-solid fa-fire"></i>
-                    </div>
+                    <div class="relative h-64 w-full"><canvas id="myGrowthChart"></canvas></div>
                 </div>
 
-                <div class="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm flex items-center gap-6">
-                    <div class="h-24 w-24 relative">
-                        <canvas id="successRateChart"></canvas>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-bold text-gray-800">My Submission Status</h3>
+                        <p class="text-xs text-gray-400">Breakdown of your activity (Counts)</p>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-gray-800 text-lg">Success Rate</h4>
-                        <p class="text-sm text-gray-500 mb-2">Approved vs Rejected</p>
-                        <?php 
-                            $total_attempts = $success_rate_data['approved'] + $success_rate_data['rejected'];
-                            $rate_pct = ($total_attempts > 0) ? round(($success_rate_data['approved'] / $total_attempts) * 100) : 0;
-                        ?>
-                        <span class="inline-block bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
-                            <?php echo $rate_pct; ?>% Approval
-                        </span>
+                    <div class="relative h-64 w-full flex justify-center">
+                        <canvas id="userStatusChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -413,10 +413,12 @@ if (!empty($my_team_id)) {
     const dashboardData = {
         chartLabels: <?php echo json_encode($chart_labels ?? []); ?>,
         chartData: <?php echo json_encode($chart_data ?? []); ?>,
-        // NEW STATS PASSED TO JS
-        successRate: <?php echo json_encode($success_rate_data); ?>,
         weeklyLabels: <?php echo json_encode($weekly_labels); ?>,
-        weeklyCounts: <?php echo json_encode($weekly_counts); ?>
+        weeklyCounts: <?php echo json_encode($weekly_counts); ?>,
+        // NEW STATS PASSED TO JS
+        userStatus: <?php echo json_encode($user_status_data); ?>,
+        top5Labels: <?php echo json_encode($top5_labels); ?>,
+        top5Data: <?php echo json_encode($top5_data); ?>
     };
 </script>
 
