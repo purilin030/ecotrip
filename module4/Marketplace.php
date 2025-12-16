@@ -187,10 +187,13 @@ $rewards = $stmtRewards->fetchAll(PDO::FETCH_ASSOC);
                     
                     <div class="mt-auto">
                         <div class="flex justify-between items-center mb-4">
+                            <div class="text-xs font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-md">
+                                <?php echo $reward['Points_Required']; ?> pts
+                            </div>
                             <div class="text-xs font-medium <?php echo $reward['Stock'] < 10 ? 'text-red-600 bg-red-50' : 'text-green-700 bg-green-50'; ?> px-2.5 py-1 rounded-md">
                                 <?php echo $reward['Stock']; ?> in stock
                             </div>
-                        </div>
+                    </div>
 
                         <button 
                             class="w-full py-2.5 rounded-lg text-sm font-bold <?php echo $btnClass; ?>"
