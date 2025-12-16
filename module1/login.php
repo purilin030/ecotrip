@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
             $_SESSION['temp_user_id'] = $row['User_ID']; // Remember which user
             $_SESSION['temp_email'] = $row['Email'];     // For display
             
-            // 3. 发送邮件
+            // 3. Send OTP email
             if (sendOTPEmail($email, $otp)) {
                 // Send success: redirect to OTP input page
                 echo "<script>window.location.href = 'otp_verify.php';</script>";

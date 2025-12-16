@@ -234,10 +234,10 @@ if (isset($_SESSION['Firstname'])) {
 
 
                         <?php
-                        // 1. 设置默认链接：所有人默认去 User Dashboard
+                        // 1. Everyone go User Dashboard
                         $dashboard_main_url = "/ecotrip/module5/dashboard_user.php";
 
-                        // 2. 如果是管理员，点击标题默认去 Admin Dashboard
+                        // 2. If admin, go Admin Dashboard
                         if ($db_role == 1) {
                             $dashboard_main_url = "/ecotrip/module5/dashboard_admin.php";
                         }

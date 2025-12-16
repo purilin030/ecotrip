@@ -48,13 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (mysqli_query($con, $insert_sql)) {
         
         // ======================================================
-        // 【新增关键步骤】自动把队长分配进这个新队伍
+        // Update User Role and Team_ID
         // ======================================================
         
-        // A. 获取刚刚创建的那个队伍的 ID (Get Last Insert ID)
+        // A. Get the ID of the team that was just created (Get Last Insert ID)
         $new_team_id = mysqli_insert_id($con);
 
-        // B. 更新队长的 User 表，把 Team_ID 填进去
+        // B. Update the User table for the captain and populate the Team_ID field.
         $update_user_sql = "UPDATE user SET Team_ID = '$new_team_id', Role = 2 WHERE User_ID = '$user_id'";
         mysqli_query($con, $update_owner_sql);
 
