@@ -14,18 +14,18 @@ if (file_exists($path_to_header)) {
     echo '<!DOCTYPE html><html lang="en"><head><script src="https://cdn.tailwindcss.com"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"></head><body class="bg-gray-50">';
 }
 
-// 权限检查 (简单示例)
+// Permission check (simple example)
 if (!isset($_SESSION['user_id'])) {
     // header("Location: ../index.php"); 
     // exit(); 
 }
 
-// 获取 ID
+// Get ID
 $submission_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-// 获取是否处于编辑模式
+// Get whether in edit mode
 $edit_mode = isset($_GET['edit']) && $_GET['edit'] == '1';
 
-// 查询数据
+// Query data
 $sql = "SELECT s.*, c.Title as Challenge_Title, c.Points, u.First_Name, u.Last_Name, u.Avatar 
         FROM submissions s 
         JOIN challenge c ON s.Challenge_ID = c.Challenge_ID
@@ -39,9 +39,9 @@ $data = $stmt->get_result()->fetch_assoc();
 if (!$data)
     die("<div class='p-10 text-center text-red-500'>Submission not found.</div>");
 
-// 判断当前状态
+// Determine current status
 $is_pending = (strtolower($data['Status']) == 'pending');
-// 决定是否显示表单
+// Decide whether to show the form
 $show_form = $is_pending || $edit_mode;
 ?>
 
@@ -89,19 +89,19 @@ $show_form = $is_pending || $edit_mode;
 
                     <div class="flex items-center pb-4 border-b border-gray-100">
                         <?php
-                        // === 头像逻辑修正 ===
+                        // === Avatar logic fixes ===
                         $fullName = $data['First_Name'] . ' ' . $data['Last_Name'];
 
-                        // 1. 设置默认头像
+                        // 1. Set default avatar
                         $display_avatar = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&background=random&color=fff&size=64";
 
-                        // 2. 检查自定义头像 (注意：这里必须用 $data，不能用 $row)
+                        // 2. Check custom avatar (Note: use $data, not $row)
                         if (!empty($data['Avatar'])) {
-                            // 拼接物理路径来检查文件是否存在
+                            // Build physical path to check file exists
                             $phys_path = $_SERVER['DOCUMENT_ROOT'] . $data['Avatar'];
 
                             if (file_exists($phys_path)) {
-                                // 如果存在，使用数据库里的路径
+                                // If exists, use path from DB
                                 $display_avatar = $data['Avatar'];
                             }
                         }

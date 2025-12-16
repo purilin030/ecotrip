@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- 主机： 127.0.0.1
--- 生成日期： 2025-12-16 13:14:14
--- 服务器版本： 10.4.32-MariaDB
--- PHP 版本： 8.2.12
+-- Host: 127.0.0.1
+-- Dump date: 2025-12-16 13:14:14
+-- Server version: 10.4.32-MariaDB
+-- PHP version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- 数据库： `ecotrip`
+-- Database: `ecotrip`
 --
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `category`
+-- Structure of table `category`
 --
 
 CREATE TABLE `category` (
@@ -33,7 +33,7 @@ CREATE TABLE `category` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `category`
+-- Dumping data for table `category`
 --
 
 INSERT INTO `category` (`CategoryID`, `CategoryName`) VALUES
@@ -47,7 +47,7 @@ INSERT INTO `category` (`CategoryID`, `CategoryName`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `challenge`
+-- Structure of table `challenge`
 --
 
 CREATE TABLE `challenge` (
@@ -67,7 +67,7 @@ CREATE TABLE `challenge` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `challenge`
+-- Dumping data for table `challenge`
 --
 
 INSERT INTO `challenge` (`Challenge_ID`, `Category_ID`, `City_ID`, `Created_by`, `Title`, `Detailed_Description`, `preview_description`, `Difficulty`, `Points`, `Start_date`, `End_date`, `photo_upload`, `status`) VALUES
@@ -93,7 +93,7 @@ INSERT INTO `challenge` (`Challenge_ID`, `Category_ID`, `City_ID`, `Created_by`,
 -- --------------------------------------------------------
 
 --
--- 表的结构 `city`
+-- Structure of table `city`
 --
 
 CREATE TABLE `city` (
@@ -103,7 +103,7 @@ CREATE TABLE `city` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `city`
+-- Dumping data for table `city`
 --
 
 INSERT INTO `city` (`CityID`, `CityName`, `State`) VALUES
@@ -117,22 +117,22 @@ INSERT INTO `city` (`CityID`, `CityName`, `State`) VALUES
 -- --------------------------------------------------------
 
 --
--- 表的结构 `donation_campaign`
+-- Structure of table `donation_campaign`
 --
 
 CREATE TABLE `donation_campaign` (
   `Campaign_ID` int(11) NOT NULL,
   `Title` varchar(255) NOT NULL,
   `Description` text NOT NULL,
-  `Target_Points` int(11) NOT NULL COMMENT '目标总积分',
-  `Current_Points` int(11) NOT NULL DEFAULT 0 COMMENT '当前已筹集积分',
+  `Target_Points` int(11) NOT NULL COMMENT 'Target total points',
+  `Current_Points` int(11) NOT NULL DEFAULT 0 COMMENT 'Current points collected',
   `Image` varchar(255) DEFAULT NULL,
   `Status` enum('Active','Completed','Closed') NOT NULL DEFAULT 'Active',
   `Created_At` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `donation_campaign`
+-- Dumping data for table `donation_campaign`
 --
 
 INSERT INTO `donation_campaign` (`Campaign_ID`, `Title`, `Description`, `Target_Points`, `Current_Points`, `Image`, `Status`, `Created_At`) VALUES
@@ -142,19 +142,19 @@ INSERT INTO `donation_campaign` (`Campaign_ID`, `Title`, `Description`, `Target_
 -- --------------------------------------------------------
 
 --
--- 表的结构 `donation_record`
+-- Structure of table `donation_record`
 --
 
 CREATE TABLE `donation_record` (
   `Record_ID` int(11) NOT NULL,
   `Campaign_ID` int(11) NOT NULL,
   `User_ID` int(11) NOT NULL,
-  `Amount` int(11) NOT NULL COMMENT '捐赠分数',
+  `Amount` int(11) NOT NULL COMMENT 'Donation points',
   `Donation_Date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `donation_record`
+-- Dumping data for table `donation_record`
 --
 
 INSERT INTO `donation_record` (`Record_ID`, `Campaign_ID`, `User_ID`, `Amount`, `Donation_Date`) VALUES
@@ -163,7 +163,7 @@ INSERT INTO `donation_record` (`Record_ID`, `Campaign_ID`, `User_ID`, `Amount`, 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `moderation`
+-- Structure of table `moderation`
 --
 
 CREATE TABLE `moderation` (
@@ -175,7 +175,7 @@ CREATE TABLE `moderation` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `moderation`
+-- Dumping data for table `moderation`
 --
 
 INSERT INTO `moderation` (`Moderation_ID`, `Submission_ID`, `User_ID`, `Action`, `Action_date`) VALUES
@@ -184,7 +184,7 @@ INSERT INTO `moderation` (`Moderation_ID`, `Submission_ID`, `User_ID`, `Action`,
 -- --------------------------------------------------------
 
 --
--- 表的结构 `pointsledger`
+-- Structure of table `pointsledger`
 --
 
 CREATE TABLE `pointsledger` (
@@ -199,7 +199,7 @@ CREATE TABLE `pointsledger` (
 -- --------------------------------------------------------
 
 --
--- 表的结构 `redeemrecord`
+-- Structure of table `redeemrecord`
 --
 
 CREATE TABLE `redeemrecord` (
@@ -216,7 +216,7 @@ CREATE TABLE `redeemrecord` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `redeemrecord`
+-- Dumping data for table `redeemrecord`
 --
 
 INSERT INTO `redeemrecord` (`Reward_ID`, `RedeemRecord_ID`, `Reward_Name`, `Redeem_Quantity`, `Redeem_By`, `Redeem_Date`, `Status`, `DeliveryDate`, `Proof_Photo`, `Admin_Note`) VALUES
@@ -239,7 +239,7 @@ INSERT INTO `redeemrecord` (`Reward_ID`, `RedeemRecord_ID`, `Reward_Name`, `Rede
 -- --------------------------------------------------------
 
 --
--- 表的结构 `reward`
+-- Structure of table `reward`
 --
 
 CREATE TABLE `reward` (
@@ -254,7 +254,7 @@ CREATE TABLE `reward` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `reward`
+-- Dumping data for table `reward`
 --
 
 INSERT INTO `reward` (`Reward_ID`, `Reward_name`, `Reward_Photo`, `Points_Required`, `Stock`, `Type`, `Description`, `Status`) VALUES
@@ -264,7 +264,7 @@ INSERT INTO `reward` (`Reward_ID`, `Reward_name`, `Reward_Photo`, `Points_Requir
 -- --------------------------------------------------------
 
 --
--- 表的结构 `submissions`
+-- Structure of table `submissions`
 --
 
 CREATE TABLE `submissions` (
@@ -282,7 +282,7 @@ CREATE TABLE `submissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `submissions`
+-- Dumping data for table `submissions`
 --
 
 INSERT INTO `submissions` (`Submission_ID`, `Challenge_ID`, `User_ID`, `Team_ID`, `Caption`, `Photo`, `image_hash`, `Submission_date`, `Status`, `Verification_note`, `QR_Code`) VALUES
@@ -292,7 +292,7 @@ INSERT INTO `submissions` (`Submission_ID`, `Challenge_ID`, `User_ID`, `Team_ID`
 -- --------------------------------------------------------
 
 --
--- 表的结构 `team`
+-- Structure of table `team`
 --
 
 CREATE TABLE `team` (
@@ -305,7 +305,7 @@ CREATE TABLE `team` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `team`
+-- Dumping data for table `team`
 --
 
 INSERT INTO `team` (`Team_ID`, `Owner_ID`, `Team_code`, `Team_name`, `Team_Bio`, `Total_members`) VALUES
@@ -316,7 +316,7 @@ INSERT INTO `team` (`Team_ID`, `Owner_ID`, `Team_code`, `Team_name`, `Team_Bio`,
 -- --------------------------------------------------------
 
 --
--- 表的结构 `user`
+-- Structure of table `user`
 --
 
 CREATE TABLE `user` (
@@ -338,7 +338,7 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转存表中的数据 `user`
+-- Dumping data for table `user`
 --
 
 INSERT INTO `user` (`User_ID`, `First_Name`, `Last_Name`, `Caption`, `User_DOB`, `Avatar`, `Email`, `Phone_num`, `Team_ID`, `Point`, `RedeemPoint`, `Password`, `Register_Date`, `Role`, `Account_Status`) VALUES
@@ -355,7 +355,7 @@ INSERT INTO `user` (`User_ID`, `First_Name`, `Last_Name`, `Caption`, `User_DOB`,
 -- --------------------------------------------------------
 
 --
--- 表的结构 `verification_token`
+-- Structure of table `verification_token`
 --
 
 CREATE TABLE `verification_token` (
@@ -365,11 +365,11 @@ CREATE TABLE `verification_token` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- 转储表的索引
+-- Dumping indexes for tables
 --
 
 --
--- 表的索引 `category`
+-- Indexes for table `category`
 --
 ALTER TABLE `category`
   ADD PRIMARY KEY (`CategoryID`);
@@ -458,7 +458,7 @@ ALTER TABLE `verification_token`
   ADD KEY `User_ID` (`User_ID`);
 
 --
--- 在导出的表使用AUTO_INCREMENT
+-- Use AUTO_INCREMENT on exported tables
 --
 
 --

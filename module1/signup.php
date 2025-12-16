@@ -1,10 +1,10 @@
 <?php
-// 1. 开启 Session
+// 1. Start Session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 2. 引入数据库连接 (带错误检查)
+// 2. Include DB connection (with error checks)
 require('database.php');
 
 if (!isset($con)) {
@@ -12,12 +12,12 @@ if (!isset($con)) {
 }
 
 $error_msg = "";
-$register_success = false; // 初始化成功标记
+$register_success = false; // Initialize success flag
 
-// 3. 处理注册逻辑
+// 3. Handle registration logic
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     
-    // 清洗数据
+    // Sanitize data
     $firstname = mysqli_real_escape_string($con, stripslashes($_POST['Firstname']));
     $lastname  = mysqli_real_escape_string($con, stripslashes($_POST['Lastname']));
     $email     = mysqli_real_escape_string($con, stripslashes($_POST['Email']));
@@ -25,11 +25,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     
     $trn_date  = date("Y-m-d H:i:s");
 
-    // 【新增】后端验证 Email 格式
+    // [Added] Backend validation of Email format
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_msg = "Invalid email format. Please check your input.";
     } else {
-        // 格式正确，继续查重
+        // Format correct; continue duplicate check
         $check_query = "SELECT Email FROM `user` WHERE Email='$email'";
         $check_result = mysqli_query($con, $check_query);
 
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
             $result = mysqli_query($con, $query);
 
             if ($result) {
-                // 注册成功：仅设置标记，绝不使用 exit()
+                // Registration success: set flag only; do not use exit()
                 $register_success = true;
             } else {
                 $error_msg = "Database Error: " . mysqli_error($con);

@@ -1,14 +1,14 @@
 <?php
 // === module3/admin_process_approval.php ===
-// 引入数据库连接
+// Include DB connection
 require_once __DIR__ . '/../database.php';
 
-// 开启 Session
+// Start Session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 检查是否登录
+// Check if logged in
 if (!isset($_SESSION['user_id'])) {
     die("Error: Access denied. Please log in first.");
 }
@@ -16,11 +16,11 @@ $admin_id = $_SESSION['user_id'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sub_id = intval($_POST['submission_id']);
-    $action = $_POST['action']; // 'approve' 或 'deny'
+    $action = $_POST['action']; // 'approve' or 'deny'
     $note = isset($_POST['note']) ? trim($_POST['note']) : '';
     $action_date = date("Y-m-d");
 
-    // 1. 获取当前数据库中的状态、用户信息和挑战积分
+    // 1. Fetch current DB state, user info, and challenge points
     $check_sql = "SELECT s.Status, s.User_ID, s.Team_ID, c.Points 
                   FROM submissions s 
                   JOIN challenge c ON s.Challenge_ID = c.Challenge_ID 
@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $points = $current_data['Points'];
     $team_id = (!empty($current_data['Team_ID']) && $current_data['Team_ID'] != 0) ? $current_data['Team_ID'] : null;
 
-    // 准备 SQL 变量
+    // Prepare SQL variables
     $status_text = "";
     
     // ======================================================

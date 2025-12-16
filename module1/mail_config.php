@@ -2,19 +2,19 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// 确保路径正确：指向根目录下的 vendor
+// Ensure path is correct: points to vendor in project root
 require '../vendor/autoload.php';
 
 function sendOTPEmail($toEmail, $otpCode) {
     $mail = new PHPMailer(true);
 
     try {
-        // --- 服务器配置 ---
+        // --- Server configuration ---
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
         
-        // 🔴 必填：你的 Gmail 和 16位应用密码
+        // 🔴 Required: your Gmail and 16-character app password
         $mail->Username   = 'utarecotrip2025@gmail.com'; 
         $mail->Password   = 'hrtw bipe xmtd jqhj'; // 填入你的应用密码，不要有空格
         

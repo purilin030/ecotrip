@@ -2,7 +2,7 @@
 session_start();
 require_once('database.php');
 
-// 安全检查：没经过登录页直接访问？踢出去！
+// Security check: accessing without going through login? Kick out!
 if (!isset($_SESSION['temp_otp']) || !isset($_SESSION['temp_user_id'])) {
     header("Location: login.php");
     exit();
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 2. 比对验证码
     else if ($user_otp == $_SESSION['temp_otp']) {
         
-        // ✅ 验证成功！获取正式用户数据
+        // ✅ Verification successful! Fetch official user data
         $user_id = $_SESSION['temp_user_id'];
         $sql = "SELECT * FROM user WHERE User_ID = '$user_id'";
         $result = mysqli_query($con, $sql);

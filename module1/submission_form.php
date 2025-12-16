@@ -50,12 +50,12 @@ if (isset($_SESSION['flash'])) { $flash = $_SESSION['flash']; unset($_SESSION['f
 function updateFileName(input) {
     const fileNameDisplay = document.getElementById('file-chosen-text');
     if (input.files && input.files.length > 0) {
-        // 如果选了文件，显示文件名
+        // If a file is selected, display the file name
         fileNameDisplay.textContent = input.files[0].name;
-        fileNameDisplay.classList.remove('italic', 'text-gray-500'); // 可选：去掉斜体，加深颜色
+        fileNameDisplay.classList.remove('italic', 'text-gray-500'); // Optional: remove italic and darken color
         fileNameDisplay.classList.add('text-gray-800');
     } else {
-        // 如果没选 (取消了)，恢复默认提示
+        // If none selected (canceled), restore default prompt
         fileNameDisplay.textContent = "Recommend picture resolution: 320x320";
         fileNameDisplay.classList.add('italic', 'text-gray-500');
     }

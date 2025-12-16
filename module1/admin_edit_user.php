@@ -27,13 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
     $caption = mysqli_real_escape_string($con, $_POST['caption']);
     $avatar_path = mysqli_real_escape_string($con, $_POST['avatar']); 
     
-    // 权限与数值
+    // Permissions and values
     $new_role  = intval($_POST['role']);
     $points = intval($_POST['points']);
     $redeem_points = intval($_POST['redeem_points']);
     $new_team_id = intval($_POST['team_id']);
     
-    // Process Team ID  (0 转 NULL)
+    // Process Team ID (convert 0 to NULL)
     $team_sql_val = ($new_team_id == 0) ? "NULL" : "'$new_team_id'";
 
     // Update User table

@@ -20,7 +20,7 @@ if ($amount <= 0) {
 try {
     $pdo->beginTransaction();
 
-    // 1. 检查用户余额 (Lock Row)
+    // 1. Check user balance (Lock Row)
     $stmtUser = $pdo->prepare("SELECT RedeemPoint FROM user WHERE User_ID = ? FOR UPDATE");
     $stmtUser->execute([$user_id]);
     $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
@@ -29,7 +29,7 @@ try {
         throw new Exception("Insufficient points balance.");
     }
 
-    // 2. 检查活动状态 (Lock Row)
+    // 2. Check campaign status (Lock Row)
     $stmtCamp = $pdo->prepare("SELECT Current_Points, Target_Points, Status FROM donation_campaign WHERE Campaign_ID = ? FOR UPDATE");
     $stmtCamp->execute([$campaign_id]);
     $camp = $stmtCamp->fetch(PDO::FETCH_ASSOC);
@@ -38,15 +38,15 @@ try {
         throw new Exception("This campaign is no longer active.");
     }
 
-    // 3. 扣除用户积分
+    // 3. Deduct user points
     $stmtDeduct = $pdo->prepare("UPDATE user SET RedeemPoint = RedeemPoint - ? WHERE User_ID = ?");
     $stmtDeduct->execute([$amount, $user_id]);
 
-    // 4. 增加活动积分
+    // 4. Add points to campaign
     $new_current = $camp['Current_Points'] + $amount;
     $new_status = $camp['Status'];
     
-    // 检查是否达标
+    // Check whether the target is met
     if ($new_current >= $camp['Target_Points']) {
         $new_status = 'Completed';
     }
@@ -54,7 +54,7 @@ try {
     $stmtUpdateCamp = $pdo->prepare("UPDATE donation_campaign SET Current_Points = ?, Status = ? WHERE Campaign_ID = ?");
     $stmtUpdateCamp->execute([$new_current, $new_status, $campaign_id]);
 
-    // 5. 记录捐赠流水
+    // 5. Record donation transaction
     $stmtLog = $pdo->prepare("INSERT INTO donation_record (Campaign_ID, User_ID, Amount, Donation_Date) VALUES (?, ?, ?, NOW())");
     $stmtLog->execute([$campaign_id, $user_id, $amount]);
 

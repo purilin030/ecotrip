@@ -1,17 +1,17 @@
 <?php
-// 1. 开启 Session (如果还没开启)
+// 1. Start Session (if not already started)
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require '../database.php'; // 确保这里引入了数据库连接 $con
+require '../database.php'; // Ensure DB connection $con is included
 
-// 2. 检查是否有登录 User ID
+// 2. Check for logged-in User ID
 if (isset($_SESSION['user_id'])) {
     $current_user_id = $_SESSION['user_id'];
 
-    // 3. 从数据库查询 Role
-    // 即使 Session 里存了 Role，最好也从数据库查一次，以防管理员刚修改了权限但 Session 没更新
+    // 3. Query Role from database
+    // Even if Role is in Session, re-query DB to avoid stale permissions
     $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
     $auth_res = mysqli_query($con, $auth_sql);
     

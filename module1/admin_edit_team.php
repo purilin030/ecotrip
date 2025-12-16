@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'database.php'; // 注意：这里原代码是 require 'database.php'，如果 admin 文件在子目录，可能需要 require '../database.php'。我保持你原文件的写法。
+require 'database.php'; // Note: original code uses require 'database.php'; if admin file is in a subdir you may need require '../database.php'. Keeping original usage.
 
 // 1. Safety Check: Only Admin can access
 if (!isset($_SESSION['user_id'])) {
@@ -149,7 +149,7 @@ include '../header.php';
                         $mem_avatar = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&background=random&color=fff";
                         
                         if (!empty($member['Avatar'])) {
-                            // 强制统一使用 /ecotrip/avatars/ 路径，并使用 basename 避免路径重复
+                            // Enforce using /ecotrip/avatars/ path and use basename to avoid duplicate paths
                             $mem_avatar = "/ecotrip/avatars/" . basename($member['Avatar']);
                         }
                         ?>

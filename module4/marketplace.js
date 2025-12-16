@@ -1,5 +1,5 @@
 function redeemItem(rewardID, rewardName){
-    // 替换 confirm
+    // Replace confirm
     Swal.fire({
         title: 'Redeem this reward?',
         text: `Are you sure you want to spend points on ${rewardName}?`,
@@ -10,7 +10,7 @@ function redeemItem(rewardID, rewardName){
         confirmButtonText: 'Yes, redeem it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            // 用户点了 Yes，发送请求
+            // User clicked Yes, send request
             const formData = new FormData();
             formData.append('reward_id', rewardID);
 
@@ -21,7 +21,7 @@ function redeemItem(rewardID, rewardName){
             .then(response => response.json())
             .then(data => {
                 if(data.success){
-                    // 替换成功 alert
+                    // Replace success alert
                     Swal.fire({
                         title: 'Success!',
                         text: data.message,
@@ -31,7 +31,7 @@ function redeemItem(rewardID, rewardName){
                         location.reload(); 
                     });
                 } else {
-                    // 替换失败 alert
+                    // Replace failure alert
                     Swal.fire('Oops...', data.message, 'error');
                 }
             })
@@ -42,28 +42,28 @@ function redeemItem(rewardID, rewardName){
     });
 }
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. 获取元素
+    // 1. Get elements
     const searchInput = document.getElementById('searchReward');
     const typeFilter = document.getElementById('typeFilter');
     const priceFilter = document.getElementById('priceFilter');
     const cards = document.querySelectorAll('.reward-card');
 
-    // 2. 定义核心筛选函数
+    // 2. Define core filter function
     function filterRewards() {
         const searchValue = searchInput.value.toLowerCase();
         const typeValue = typeFilter.value;
         const priceValue = priceFilter.value;
 
         cards.forEach(card => {
-            // 获取卡片上的数据
-            const name = card.getAttribute('data-name'); // 已经是小写了
+            // Get data from card
+            const name = card.getAttribute('data-name'); // already lowercase
             const type = card.getAttribute('data-type');
             const points = parseInt(card.getAttribute('data-points'));
 
-            // A. 匹配搜索 (包含关键词)
+            // A. Match search (contains keyword)
             const matchSearch = name.includes(searchValue);
 
-            // B. 匹配类型 (如果是 'all' 或者类型完全一致)
+            // B. Match type (if 'all' or exact type match)
             const matchType = (typeValue === 'all' || type === typeValue);
 
             // C. 匹配价格范围

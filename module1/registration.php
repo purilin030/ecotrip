@@ -22,7 +22,7 @@ if (isset($_REQUEST['firstname'])) {
     $result = mysqli_query($con, $query);
     
     if ($result) {
-        // 注册成功，提示去 index.php 登录
+        // Registration successful, prompt user to go to index.php to log in
         echo "<div class='form'> 
         <h3>You are registered successfully.</h3> 
         <br/>Click here to <a href='index.php'>Login</a></div>";

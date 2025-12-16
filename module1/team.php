@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. 安全检查
+// 1. Security checks
 if (!isset($_SESSION['Firstname']) || !isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -12,7 +12,7 @@ if (isset($_SESSION['user_id'])) {
     $current_user_id = $_SESSION['user_id'];
 
     // 3. 从数据库查询 Role
-    // 即使 Session 里存了 Role，最好也从数据库查一次，以防管理员刚修改了权限但 Session 没更新
+    // Even if Role is in Session, re-query DB in case admin recently changed permissions
     $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
     $auth_res = mysqli_query($con, $auth_sql);
     
@@ -23,14 +23,14 @@ if (isset($_SESSION['user_id'])) {
             
             // 跳转到目标页面 (记得改成你实际的文件名)
             header("Location: /ecotrip/module1/user_list.php");
-            exit(); // 必须加 exit，阻止后续代码执行
+            exit(); // Must add exit to prevent further execution
         }
     }
 }
 
 $user_id = $_SESSION['user_id'];
 
-// 检查是否已有队伍
+// Check whether user already has a team
 $check_team_sql = "SELECT Team_ID FROM user WHERE User_ID = '$user_id'";
 $check_team_res = mysqli_query($con, $check_team_sql);
 $user_data = mysqli_fetch_assoc($check_team_res);
@@ -40,7 +40,7 @@ if ($user_data['Team_ID'] != NULL && $user_data['Team_ID'] != 0) {
     exit();
 }
 
-// 数据库查询：获取所有团队信息
+// DB query: fetch all team information
 $sql = "SELECT t.*, u.First_Name, u.Last_Name 
         FROM team t 
         LEFT JOIN user u ON t.Owner_ID = u.User_ID 
@@ -50,7 +50,7 @@ $result = mysqli_query($con, $sql);
 $page_title = "Join a Team - ecoTrip";
 include '../header.php'; 
 
-// 注意：这里移除了原本错误的 $points_sql 查询，因为要在循环里针对每个团队单独查
+// Note: removed previous incorrect $points_sql query, since we now query per-team inside the loop
 ?>
 
 <main class="flex-grow w-full px-4 sm:px-6 lg:px-8 py-12">
@@ -113,7 +113,7 @@ include '../header.php';
                                 <?php
                                     $tid = $row['Team_ID'];
 
-                                    // 1. 获取成员名字 (用于 Tooltip)
+                                    // 1. Get member names (for tooltip)
                                     $mem_sql = "SELECT First_Name FROM user WHERE Team_ID = '$tid' LIMIT 5";
                                     $mem_res = mysqli_query($con, $mem_sql);
                                     $members_names = [];
@@ -125,15 +125,15 @@ include '../header.php';
                                         $members_str .= ", ...";
                                     }
 
-                                    // 2. 【关键修改】计算该团队的总分 (Team Points)
-                                    // 逻辑：SUM(所有成员的 Point)
+                                    // 2. [Key change] Calculate total team points (Team Points)
+                                    // Logic: SUM(all members' Point)
                                     $pts_sql = "SELECT SUM(Point) as total FROM user WHERE Team_ID = '$tid'";
                                     $pts_res = mysqli_query($con, $pts_sql);
                                     $pts_data = mysqli_fetch_assoc($pts_res);
-                                    // 如果没有成员或积分为空，默认为 0
+                                    // If no members or points are null, default to 0
                                     $current_team_points = $pts_data['total'] ? $pts_data['total'] : 0;
                                     
-                                    // 准备数据用于 data 属性
+                                    // Prepare data for data attribute
                                     $initial = strtoupper(substr($row['Team_name'], 0, 1));
                                     $bio = !empty($row['Team_Bio']) ? $row['Team_Bio'] : 'No bio available.';
                                 ?>
@@ -188,7 +188,7 @@ include '../header.php';
 </footer>
 
 <?php
-// 以下是补充缺失的 Modal 和 Script 部分，以防万一
+// Below are supplemental Modal and Script sections, just in case
 ?>
 <div id="global-team-tooltip" class="fixed hidden z-[100] w-80 bg-white shadow-2xl border border-gray-200 rounded-xl p-5 pointer-events-none transition-opacity duration-200">
     <div class="flex items-center gap-3 mb-3 border-b border-gray-100 pb-3">

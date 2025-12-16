@@ -1,10 +1,10 @@
 <?php
-// 1. 确保 Session 开启
+// 1. Ensure session is started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 2. 只有在非公开页面才强制检查登录
+// 2. Enforce login check only on non-public pages
 $current_page = basename($_SERVER['PHP_SELF']);
 $public_pages = ['index.php', 'signup.php', 'home.php'];
 
@@ -21,11 +21,11 @@ $user_name_display = "Guest";
 $user_role_display = "Visitor";
 $role_badge_class = "bg-gray-100 text-gray-500";
 
-// 初始化角色
+// Initialize role
 $db_role = 0;
 
 if (isset($_SESSION['Firstname'])) {
-    // 默认备选：用名字生成头像
+    // Default fallback: generate avatar from name
     $display_avatar = "https://ui-avatars.com/api/?name=" . $_SESSION['Firstname'] . "+" . $_SESSION['Lastname'] . "&background=0D8ABC&color=fff&size=128";
     $user_name_display = $_SESSION['Firstname'] . " " . $_SESSION['Lastname'];
     $user_role_display = "Member";
@@ -39,16 +39,16 @@ if (isset($_SESSION['Firstname'])) {
             $h_row = mysqli_fetch_assoc($h_res);
 
             // =======================================================
-            // 🔴 修复重点：区分 Google 头像 (URL) 和本地上传头像 (File)
+            // 🔴 Key fix: distinguish Google avatar (URL) vs local uploaded avatar (File)
             // =======================================================
             if (!empty($h_row['Avatar'])) {
                 $db_avatar = $h_row['Avatar'];
 
-                // 检查 1：如果是 http 或 https 开头，说明是网络图片 (Google)，直接用
+                // Check 1: if it starts with http or https, it's a web image (Google), use it directly
                 if (strpos($db_avatar, 'http') === 0) {
                     $display_avatar = $db_avatar;
                 }
-                // 检查 2：如果是本地图片，先检查文件是否存在，防止破图
+                // Check 2: if it's a local image, verify file exists to avoid broken images
                 else {
                     $physical_path = $_SERVER['DOCUMENT_ROOT'] . $db_avatar;
                     if (file_exists($physical_path)) {
