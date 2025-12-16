@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
         if (mysqli_num_rows($check_result) > 0) {
             $error_msg = "This email is already registered. Please login.";
         } else {
-            // 注册
+            // Insert new user
             $hashed_password = md5($password);
             $query = "INSERT INTO `user` (First_Name, Last_Name, Email, Password, Register_Date, Role, Point, Account_Status) 
                       VALUES ('$firstname', '$lastname', '$email', '$hashed_password', '$trn_date', 0, 0, 'Active')";

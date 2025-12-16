@@ -14,11 +14,11 @@ $error_msg = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_otp = $_POST['otp'];
     
-    // 1. 检查是否过期
+    // 1. Check expiry
     if (time() > $_SESSION['temp_otp_expiry']) {
         $error_msg = "Code expired. Please login again.";
     } 
-    // 2. 比对验证码
+    // 2. Check OTP
     else if ($user_otp == $_SESSION['temp_otp']) {
         
         // ✅ Verification successful! Fetch official user data
@@ -27,20 +27,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $result = mysqli_query($con, $sql);
         $row = mysqli_fetch_assoc($result);
         
-        // 设置正式 Session
+        // Set official session variables
         $_SESSION['user_id']   = $row['User_ID'];
         $_SESSION['Firstname'] = $row['First_Name'];
         $_SESSION['Lastname']  = $row['Last_Name'];
         $_SESSION['Email']     = $row['Email'];
         $_SESSION['Avatar']    = $row['Avatar'];
         
-        // 清理垃圾 Session
+        // Clear temporary OTP session data
         unset($_SESSION['temp_otp']);
         unset($_SESSION['temp_otp_expiry']);
         unset($_SESSION['temp_user_id']);
         unset($_SESSION['temp_email']);
         
-        // 跳转首页
+        // Redirect to home page
         echo "<script>window.location.href = 'home.php';</script>";
         exit();
         

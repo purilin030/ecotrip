@@ -2,17 +2,17 @@
 session_start();
 require 'database.php';
 
-// 1. 检查是否登录
+// 1. Check Authentication
 if (!isset($_SESSION['Firstname'])) {
     header("Location: index.php");
     exit();
 }
 
-// 2. 接收数据
+// 2. Receive Data
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $team_name = trim($_POST['team_name']);
     
-    // 检查 Session 里的 user_id
+    // Check Session user_id
     if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
         $_SESSION['flash_error'] = "Session expired. Please logout and login again.";
         header("Location: team.php");
@@ -20,14 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $owner_id = $_SESSION['user_id']; 
 
-    // 3. 检查名字是否为空
+    // 3. Check name is not empty
     if (empty($team_name)) {
         $_SESSION['flash_error'] = "Team name cannot be empty.";
         header("Location: team.php");
         exit();
     }
 
-    // 4. 检查名字是否重复
+    // 4. Check name is not taken
     $safe_name = mysqli_real_escape_string($con, $team_name);
     $check_sql = "SELECT Team_ID FROM team WHERE Team_name = '$safe_name'";
     $check_res = mysqli_query($con, $check_sql);
@@ -38,10 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // 5. 生成 Team Code
+    // 5. Generate Team Code
     $team_code = strtoupper(substr(md5(time() . rand()), 0, 6));
 
-    // 6. 创建队伍 (注意：Total_members 初始设为 1)
+    // 6. Create team, Total_members is 1
     $insert_sql = "INSERT INTO team (Team_name, Team_code, Owner_ID, Total_members) 
                    VALUES ('$safe_name', '$team_code', '$owner_id', 1)";
     

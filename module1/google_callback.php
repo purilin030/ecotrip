@@ -81,7 +81,7 @@ if (isset($_GET['code'])) {
         
         // 3. Send email
         if (sendOTPEmail($email, $otp)) {
-            // 4. 跳转到统一的验证页面
+            // 4. Redirect to OTP verification page
             header("Location: otp_verify.php");
             exit();
         } else {
