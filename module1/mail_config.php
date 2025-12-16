@@ -15,8 +15,8 @@ function sendOTPEmail($toEmail, $otpCode) {
         $mail->SMTPAuth   = true;
         
         // 🔴 必填：你的 Gmail 和 16位应用密码
-        $mail->Username   = 'pangleeing@gmail.com'; 
-        $mail->Password   = 'iatt hkzd wwkm eqdn'; // 填入你的应用密码，不要有空格
+        $mail->Username   = 'utarecotrip2025@gmail.com'; 
+        $mail->Password   = 'hrtw bipe xmtd jqhj'; // 填入你的应用密码，不要有空格
         
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
