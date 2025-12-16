@@ -7,8 +7,8 @@ $client = new Google_Client();
 // ==========================================
 // 🔴 请把下面的内容换成你第一步里获取到的
 // ==========================================
-$clientID = '1001467190198-7tgn3spplpn728pf0ll7v4rfoe8go2hv.apps.googleusercontent.com';
-$clientSecret = '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';
+$clientID = '696175720006-s73l6g5sc6rdpg4plknm9b2h7v1qb2om.apps.googleusercontent.com';
+$clientSecret = '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';
 $redirectUri = 'http://localhost/ecotrip/module1/google_callback.php'; // 必须和后台填的一模一样
 
 $client->setClientId($clientID);
