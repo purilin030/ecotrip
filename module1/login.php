@@ -1,73 +1,136 @@
 <?php
-// 1. 开启 Session (必须在文件最第一行)
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-?>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>User Login</title>
-    <link rel="stylesheet" href="../css/login.css">
-</head>
+// 1. 数据库连接
+require_once('database.php');
 
-<body>
-    <?php
-    require('database.php');
+$error_msg = ""; // 初始化错误信息
 
-    if (isset($_POST['Firstname'])) {
-        // 防止 SQL 注入的处理
-        $firstname = stripslashes($_REQUEST['Firstname']);
-        $firstname = mysqli_real_escape_string($con, $firstname);
+// 2. 处理表单提交
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
 
-        $lastname = stripslashes($_REQUEST['Lastname']);
-        $lastname = mysqli_real_escape_string($con, $lastname);
+    // 清洗数据
+    $email = mysqli_real_escape_string($con, stripslashes($_POST['email']));
+    $password = mysqli_real_escape_string($con, stripslashes($_POST['password']));
 
-        $password = stripslashes($_REQUEST['password']);
-        $password = mysqli_real_escape_string($con, $password);
-
-        // 使用 MD5 加密密码进行比对
-        $query = "SELECT * FROM `user` WHERE `First_Name`='$firstname' AND `Last_Name`='$lastname' AND `Password`='" . md5($password) . "'";
+    // 后端验证 Email 格式
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_msg = "Invalid email format.";
+    } else {
+        // 格式正确，才去查数据库
+        $query = "SELECT * FROM `user` WHERE `Email`='$email' AND `Password`='" . md5($password) . "'";
         $result = mysqli_query($con, $query) or die(mysqli_error($con));
-        
-        $rows = mysqli_num_rows($result);
 
-        if ($rows == 1) {
-            // =======================================================
-            // 核心逻辑：从数据库抓取这一行数据
-            // =======================================================
+        if (mysqli_num_rows($result) == 1) {
             $row = mysqli_fetch_assoc($result);
 
             // 存入 Session
             $_SESSION['Firstname'] = $row['First_Name'];
-            $_SESSION['Lastname']  = $row['Last_Name'];
-            $_SESSION['Email']     = $row['Email']; 
-            
-            // 【关键】存入刚刚调试成功的 User_ID (例如 22)
-            $_SESSION['user_id']   = $row['User_ID']; 
+            $_SESSION['Lastname'] = $row['Last_Name'];
+            $_SESSION['Email'] = $row['Email'];
+            $_SESSION['user_id'] = $row['User_ID'];
 
-            // 跳转到首页
-            echo "<script>window.location.href='home.php';</script>";
+            // 登录成功跳转
+            echo "<script>
+                window.location.href = 'home.php';
+            </script>";
             exit();
         } else {
-            // 登录失败提示
-            echo "<div class='form'> 
-                  <h3>Username/password is incorrect.</h3> 
-                  <br/>Click here to <a href='index.php'>Login</a></div>";
+            $error_msg = "Incorrect email or password.";
         }
-    } else {
-    ?>
-        <div class="form">
-            <h1>User Log In</h1>
-            <form action="" method="post" name="login">
-                <input type="text" name="Firstname" placeholder="Firstname" required /><br>
-                <input type="text" name="Lastname" placeholder="Lastname" required /><br>
-                <input type="password" name="password" placeholder="Password" required /><br>
-                <input name="submit" type="submit" value="Login" />
-            </form>
-            <p>Not registered yet? <a href='signup.php'>Register Here</a></p>
+    }
+}
+?>
+
+<div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative z-10">
+
+    <div class="h-2 bg-gradient-to-r from-brand-500 to-green-600 w-full"></div>
+
+    <div class="px-8 py-10">
+
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-50 mb-4">
+                <i class="fa-solid fa-leaf text-brand-600 text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900">Welcome Back</h2>
+            <p class="text-sm text-gray-500 mt-1">Sign in to continue</p>
         </div>
-    <?php } ?>
-</body>
-</html>
+
+        <?php if (!empty($error_msg)): ?>
+            <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md animate-pulse">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fa-solid fa-circle-exclamation text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700 font-medium"><?php echo $error_msg; ?></p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <form action="" method="post" class="space-y-6">
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-envelope text-gray-400"></i>
+                    </div>
+                    <input type="email" name="email" id="email" required
+                        class="pl-10 block w-full rounded-lg border-gray-300 border bg-gray-50 py-2.5 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition duration-200 outline-none"
+                        placeholder="you@example.com">
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-1">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                </div>
+                <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-lock text-gray-400"></i>
+                    </div>
+                    <input type="password" name="password" id="password" required
+                        class="pl-10 block w-full rounded-lg border-gray-300 border bg-gray-50 py-2.5 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition duration-200 outline-none"
+                        placeholder="••••••••">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button type="submit" name="submit"
+                    class="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all duration-200">
+                    Sign In
+                </button>
+
+                <a href="google_login.php"
+                    class="w-full flex justify-center items-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all duration-200">
+                    <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                            fill="#4285F4" />
+                        <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#34A853" />
+                        <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.84z"
+                            fill="#FBBC05" />
+                        <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            fill="#EA4335" />
+                    </svg>
+                    Google
+                </a>
+            </div>
+
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-sm text-gray-500">
+                New to ecoTrip?
+                <a href="signup.php"
+                    class="font-semibold text-brand-600 hover:text-brand-500 hover:underline transition">
+                    Create an account
+                </a>
+            </p>
+        </div>
+    </div>
+</div>

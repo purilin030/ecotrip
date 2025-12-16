@@ -3,6 +3,7 @@
 $path_to_db = __DIR__ . '/../database.php';
 $path_to_header = __DIR__ . '/../header.php';
 
+
 // 检查数据库文件
 if (!file_exists($path_to_db)) {
     die("Error: Cannot find database.php at " . $path_to_db);
@@ -12,6 +13,25 @@ require_once $path_to_db;
 // 开启 Session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+if (isset($_SESSION['user_id'])) {
+    $current_user_id = $_SESSION['user_id'];
+
+    // 3. 从数据库查询 Role
+    // 即使 Session 里存了 Role，最好也从数据库查一次，以防管理员刚修改了权限但 Session 没更新
+    $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
+    $auth_res = mysqli_query($con, $auth_sql);
+    
+    if ($auth_row = mysqli_fetch_assoc($auth_res)) {
+        
+        // 4. 判断：如果 Role 等于 1 (Admin)
+        if ($auth_row['Role'] == 1) {
+            
+            // 跳转到目标页面 (记得改成你实际的文件名)
+            header("Location: /ecotrip/module3/submission_list.php");
+            exit(); // 必须加 exit，阻止后续代码执行
+        }
+    }
 }
 
 // 引入 Header

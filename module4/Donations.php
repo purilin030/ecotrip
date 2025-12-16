@@ -1,6 +1,25 @@
 <?php
 session_start();
 require '../database.php';
+if (isset($_SESSION['user_id'])) {
+    $current_user_id = $_SESSION['user_id'];
+
+    // 3. 从数据库查询 Role
+    // 即使 Session 里存了 Role，最好也从数据库查一次，以防管理员刚修改了权限但 Session 没更新
+    $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
+    $auth_res = mysqli_query($con, $auth_sql);
+    
+    if ($auth_row = mysqli_fetch_assoc($auth_res)) {
+        
+        // 4. 判断：如果 Role 等于 1 (Admin)
+        if ($auth_row['Role'] == 1) {
+            
+            // 跳转到目标页面 (记得改成你实际的文件名)
+            header("Location: /ecotrip/module4/ManageDonation.php");
+            exit(); // 必须加 exit，阻止后续代码执行
+        }
+    }
+}
 require '../header.php';
 require '../background.php';
 
@@ -143,6 +162,11 @@ $my_balance = $user['RedeemPoint'] ?? 0;
     }
 </script>
 
-<?php include '../footer.php'; ?>
+
 </body>
+<footer class="bg-white border-t border-gray-200 mt-auto">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-sm text-gray-400">&copy; 2025 ecoTrip Inc. All rights reserved.</p>
+    </div>
+</footer>
 </html>

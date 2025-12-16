@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主機： 127.0.0.1
--- 產生時間： 2025 年 12 月 11 日 02:50
+-- 產生時間： 2025-12-11 05:13:45
 -- 伺服器版本： 10.4.32-MariaDB
 -- PHP 版本： 8.2.12
 
@@ -179,17 +179,7 @@ CREATE TABLE `moderation` (
 --
 
 INSERT INTO `moderation` (`Moderation_ID`, `Submission_ID`, `User_ID`, `Action`, `Action_date`) VALUES
-(6, 20, 24, 'Approved', '2025-12-02'),
-(7, 22, 24, 'Approved', '2025-12-09'),
-(8, 23, 24, 'Approved', '2025-12-09'),
-(9, 21, 24, 'Approved', '2025-12-11'),
-(10, 24, 24, 'Approved', '2025-12-11'),
-(11, 24, 24, 'Approved', '2025-12-11'),
-(12, 24, 24, 'Denied', '2025-12-11'),
-(13, 24, 24, 'Approved', '2025-12-11'),
-(14, 24, 24, 'Approved', '2025-12-11'),
-(15, 24, 24, 'Approved', '2025-12-11'),
-(16, 24, 24, 'Approved', '2025-12-11');
+(6, 20, 24, 'Approved', '2025-12-02');
 
 -- --------------------------------------------------------
 
@@ -205,16 +195,6 @@ CREATE TABLE `pointsledger` (
   `Submission_ID` int(10) NOT NULL,
   `Team_ID` int(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- 傾印資料表的資料 `pointsledger`
---
-
-INSERT INTO `pointsledger` (`LedgeID`, `Points_Earned`, `Earned_Date`, `User_ID`, `Submission_ID`, `Team_ID`) VALUES
-(1, 200, '2025-12-09', 29, 22, NULL),
-(2, 150, '2025-12-09', 29, 23, NULL),
-(3, 200, '2025-12-11', 24, 21, 9),
-(5, 150, '2025-12-11', 24, 24, 9);
 
 -- --------------------------------------------------------
 
@@ -305,10 +285,7 @@ CREATE TABLE `submissions` (
 
 INSERT INTO `submissions` (`Submission_ID`, `Challenge_ID`, `User_ID`, `Team_ID`, `Caption`, `Photo`, `image_hash`, `Submission_date`, `Status`, `Verification_note`, `QR_Code`) VALUES
 (20, 7, 24, 9, 'ssss', '../uploads/1764655698_24_Screenshot20251201211242.png', '15c6b8d15f57abb0cb31babf0d13969081b4435ec7545577e4ce212f91a213f1', '2025-12-02', 'Approved', '', '../qr_code/qr_20_1764655706.png'),
-(21, 1, 24, 9, 'ggfgf', '../uploads/1764655736_24_Screenshot20251202124239.png', '892d200e000e8a97c23fcd9a135893b50e9930e9d77a648a0f2a3f42117f433b', '2025-12-02', 'Approved', '', '../qr_code/qr_21_1765415063.png'),
-(22, 1, 29, NULL, 'hhhhh', '../uploads/1765257640_29_Mygo.png', '6285d8814090ff50a3f69d145533a97e7843bee3d5d1bb566e27e112f55947e8', '2025-12-09', 'Approved', 'yyyyy', '../qr_code/qr_22_1765257693.png'),
-(23, 20, 29, NULL, 'hhhhhhhh', '../uploads/1765261392_29_Screenshot20251208221809.png', '3b6e7914e60f72446f4c8278b9c39983da5925abe056de4a9c04a4688ea95c3a', '2025-12-09', 'Approved', 'hhhhhhyh', '../qr_code/qr_23_1765261492.png'),
-(24, 20, 24, 9, 'ffff', '../uploads/1765415549_24_1724423451870.jpg', '0cfa646592507b933ac5830bd397dc139e306f8a8e5fa332fe3f46549a10a1c1', '2025-12-11', 'Approved', '', '../qr_code/qr_24_1765417148.png');
+(21, 1, 24, 9, 'ggfgf', '../uploads/1764655736_24_Screenshot20251202124239.png', '892d200e000e8a97c23fcd9a135893b50e9930e9d77a648a0f2a3f42117f433b', '2025-12-02', 'Pending', '', '');
 
 -- --------------------------------------------------------
 
@@ -330,8 +307,8 @@ CREATE TABLE `team` (
 --
 
 INSERT INTO `team` (`Team_ID`, `Owner_ID`, `Team_code`, `Team_name`, `Team_Bio`, `Total_members`) VALUES
-(9, 24, '0B6161', 'Banana Team', 'We love Banana! Come and Join us!', 2),
-(10, 28, 'A56021', 'Watermelon Team', 'Watermelon is the best! Join us if you agree!', 1),
+(9, 27, '0B6161', 'Banana Team', 'We love Banana! Come and Join us!', 1),
+(10, 22, 'A56021', 'Watermelon Team', 'Watermelon is the best! Join us if you agree!', 2),
 (11, 30, '3DD714', 'Ave mujica', '一辈子', 1);
 
 -- --------------------------------------------------------
@@ -346,7 +323,7 @@ CREATE TABLE `user` (
   `Last_Name` text NOT NULL,
   `Caption` text DEFAULT NULL COMMENT '(OPTIONAL)',
   `User_DOB` text NOT NULL,
-  `Avatar` varchar(255) NOT NULL,
+  `Avatar` varchar(500) NOT NULL,
   `Email` varchar(255) NOT NULL,
   `Phone_num` int(20) NOT NULL,
   `Team_ID` int(10) DEFAULT NULL,
@@ -364,12 +341,12 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`User_ID`, `First_Name`, `Last_Name`, `Caption`, `User_DOB`, `Avatar`, `Email`, `Phone_num`, `Team_ID`, `Point`, `RedeemPoint`, `Password`, `Register_Date`, `Role`, `Account_Status`) VALUES
 (15, 'John', 'Sam', NULL, '', '', 'jiunhong1234@gmail.c', 0, NULL, 210, 0, '827ccb0eea8a706c4c34a16891f84e7b', '2025-11-20 09:37:58', 0, 'Active'),
-(22, 'Baba', 'Lim', NULL, '', '', 'bbl@gmail.com', 0, NULL, 100, 0, '202cb962ac59075b964b07152d234b70', '2025-11-27 02:50:28', 0, 'Active'),
-(24, 'Wong', 'Jiun Hong', '', '2005-07-29', '/ecotrip/avatars/20251202_070755_3016.png', 'jiunhong222@gmail.com', 123456789, 9, 3862, 350, '202cb962ac59075b964b07152d234b70', '2025-11-27 03:24:51', 1, 'Active'),
+(22, 'Baba', 'Lim', NULL, '', '', 'bbl@gmail.com', 0, 10, 100, 0, '202cb962ac59075b964b07152d234b70', '2025-11-27 02:50:28', 2, 'Active'),
+(24, 'Wong', 'Jiun Hong', '', '2005-07-29', '/ecotrip/avatars/20251211_023536_3945.jpg', 'jiunhong222@gmail.com', 123456789, NULL, 3512, 0, '202cb962ac59075b964b07152d234b70', '2025-11-27 03:24:51', 1, 'Active'),
 (26, 'Banana', 'Guy', '', '', 'uploads/20251130_102923_1611.jpg', 'bnnguy@gmail.com', 0, NULL, 867, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:27:02', 0, 'Active'),
 (27, 'Phang', 'Zhen Thong', '', '', 'uploads/20251130_105705_4579.jpg', 'pzt@gmail.com', 0, 9, 4567, 3567, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:50:09', 1, 'Active'),
 (28, 'Chong', 'Yung Onn', NULL, '', '', 'cyo@gmail.com', 0, 10, 521, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:50:23', 0, 'Active'),
-(29, 'Young', 'Luo Siong', '', '', '../avatars/20251201_163745_7662.png', 'yls@gmail.com', 0, NULL, 474, 350, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:50:35', 0, 'Active'),
+(29, 'Young', 'Luo Siong', '', '', '/ecotrip/avatars/20251211_025305_3108.jpg', 'yls@gmail.com', 0, NULL, 124, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:50:35', 0, 'Active'),
 (30, 'Ali', 'Baba', NULL, '', '', 'abb@gmail.com', 0, 11, 241, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:51:28', 0, 'Active');
 
 -- --------------------------------------------------------
@@ -441,12 +418,6 @@ ALTER TABLE `pointsledger`
   ADD KEY `User_ID` (`User_ID`);
 
 --
--- 資料表索引 `reward`
---
-ALTER TABLE `reward`
-  ADD PRIMARY KEY (`Reward_ID`);
-
---
 -- 資料表索引 `submissions`
 --
 ALTER TABLE `submissions`
@@ -515,25 +486,19 @@ ALTER TABLE `donation_record`
 -- 使用資料表自動遞增(AUTO_INCREMENT) `moderation`
 --
 ALTER TABLE `moderation`
-  MODIFY `Moderation_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `Moderation_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `pointsledger`
 --
 ALTER TABLE `pointsledger`
-  MODIFY `LedgeID` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- 使用資料表自動遞增(AUTO_INCREMENT) `reward`
---
-ALTER TABLE `reward`
-  MODIFY `Reward_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `LedgeID` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `submissions`
 --
 ALTER TABLE `submissions`
-  MODIFY `Submission_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `Submission_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- 使用資料表自動遞增(AUTO_INCREMENT) `team`

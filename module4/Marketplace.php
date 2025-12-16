@@ -7,8 +7,31 @@ if (session_status() === PHP_SESSION_NONE) {
 // 2. 引入数据库连接 (提供 $pdo)
 
 require '../database.php';
+
+if (isset($_SESSION['user_id'])) {
+    $current_user_id = $_SESSION['user_id'];
+
+    // 3. 从数据库查询 Role
+    // 即使 Session 里存了 Role，最好也从数据库查一次，以防管理员刚修改了权限但 Session 没更新
+    $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
+    $auth_res = mysqli_query($con, $auth_sql);
+    
+    if ($auth_row = mysqli_fetch_assoc($auth_res)) {
+        
+        // 4. 判断：如果 Role 等于 1 (Admin)
+        if ($auth_row['Role'] == 1) {
+            
+            // 跳转到目标页面 (记得改成你实际的文件名)
+            header("Location: /ecotrip/module4/Redeem-Record.php");
+            exit(); // 必须加 exit，阻止后续代码执行
+        }
+    }
+}
+
 include '../header.php';
 include '../background.php'; 
+
+
 
 // 3. 设置页面标题 (header.php 会用到这个变量)
 $page_title = "Rewards Marketplace";

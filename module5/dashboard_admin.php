@@ -4,7 +4,7 @@ require '../database.php';
 
 // 1. Security Check
 if (!isset($_SESSION['Firstname']) || !isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: /ecotrip/module1/index.php");
     exit();
 }
 
