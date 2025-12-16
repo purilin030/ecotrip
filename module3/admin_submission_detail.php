@@ -14,17 +14,12 @@ if (file_exists($path_to_header)) {
     echo '<!DOCTYPE html><html lang="en"><head><script src="https://cdn.tailwindcss.com"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"></head><body class="bg-gray-50">';
 }
 
-<<<<<<< HEAD
 // Permission check (simple example)
-=======
-
->>>>>>> 24572a2cb30f0e126bdfbbef39479ddb51663c67
 if (!isset($_SESSION['user_id'])) {
     // header("Location: ../index.php"); 
     // exit(); 
 }
 
-<<<<<<< HEAD
 // Get ID
 $submission_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 // Get whether in edit mode
@@ -32,14 +27,6 @@ $edit_mode = isset($_GET['edit']) && $_GET['edit'] == '1';
 
 // Query data
 // Note: u.Avatar is already queried here, so we can use it directly
-=======
-// get ID
-$submission_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
-$edit_mode = isset($_GET['edit']) && $_GET['edit'] == '1';
-
-// check data
->>>>>>> 24572a2cb30f0e126bdfbbef39479ddb51663c67
 $sql = "SELECT s.*, c.Title as Challenge_Title, c.Points, u.First_Name, u.Last_Name, u.Avatar 
         FROM submissions s 
         JOIN challenge c ON s.Challenge_ID = c.Challenge_ID
@@ -53,15 +40,9 @@ $data = $stmt->get_result()->fetch_assoc();
 if (!$data)
     die("<div class='p-10 text-center text-red-500'>Submission not found.</div>");
 
-<<<<<<< HEAD
 // Determine current status
 $is_pending = (strtolower($data['Status']) == 'pending');
 // Decide whether to show the form
-=======
-
-$is_pending = (strtolower($data['Status']) == 'pending');
-// Determining whether to display the form
->>>>>>> 24572a2cb30f0e126bdfbbef39479ddb51663c67
 $show_form = $is_pending || $edit_mode;
 ?>
 
@@ -232,40 +213,24 @@ document.addEventListener('DOMContentLoaded', function() {
     
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
-<<<<<<< HEAD
             const submitter = e.submitter; // Get the button that triggered the submit
             if (!submitter) return;
 
             // 1. Create a hidden input to pass the clicked button's value (approve/deny)
             // When disabled, a button's value will not be POSTed
-=======
-            const submitter = e.submitter; // Obtain the button that triggers the submission
-            if (!submitter) return;
-
-            // Create a hidden input field to pass the value of the clicked button (approve/deny).
-            // Because once the button is disabled, its value will not be submitted via the POST request.
->>>>>>> 24572a2cb30f0e126bdfbbef39479ddb51663c67
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = submitter.name;
             hiddenInput.value = submitter.value;
             this.appendChild(hiddenInput);
 
-<<<<<<< HEAD
             // 2. Visual feedback: disable all submit buttons
-=======
-            // prohibit all submit button
->>>>>>> 24572a2cb30f0e126bdfbbef39479ddb51663c67
             const buttons = this.querySelectorAll('button[type="submit"]');
             buttons.forEach(btn => {
                 btn.disabled = true;
                 btn.classList.add('opacity-50', 'cursor-not-allowed');
                 
-<<<<<<< HEAD
                 // Add Loading text to the clicked button
-=======
-                // Add loading text to the clicked button
->>>>>>> 24572a2cb30f0e126bdfbbef39479ddb51663c67
                 if (btn === submitter) {
                     const originalText = btn.innerText;
                     btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Processing...';
