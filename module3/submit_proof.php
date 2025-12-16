@@ -24,12 +24,12 @@ if (isset($_SESSION['user_id'])) {
     
     if ($auth_row = mysqli_fetch_assoc($auth_res)) {
         
-        // 4. 判断：如果 Role 等于 1 (Admin)
+        
         if ($auth_row['Role'] == 1) {
             
-            // 跳转到目标页面 (记得改成你实际的文件名)
+            
             header("Location: /ecotrip/module3/submission_list.php");
-            exit(); // 必须加 exit，阻止后续代码执行
+            exit();
         }
     }
 }
