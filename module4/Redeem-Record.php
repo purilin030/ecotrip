@@ -216,26 +216,31 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         function cancelOrder(id) {
-            Swal.fire({
-                title: 'Cancel Request?',
-                text: "Are you sure? Points will be refunded.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, cancel it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // 这里你需要创建一个 cancel_redemption.php 来处理退款逻辑
-                    // 示例 fetch 请求：
-                    /*
-                    fetch('cancel_redemption.php', { method: 'POST', body: JSON.stringify({id: id}) })
-                    .then(...)
-                    */
-                    Swal.fire('Info', 'Please implement cancel_redemption.php backend logic.', 'info');
-                }
-            })
-        }
+  Swal.fire({
+    title: 'Cancel Request?',
+    text: "Are you sure? Points will be refunded.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, cancel it!'
+  }).then(async (result) => {
+    if (!result.isConfirmed) return;
+
+    const fd = new FormData();
+    fd.append('id', id);
+
+    const res = await fetch('cancel_redemption.php', { method: 'POST', body: fd });
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire('Cancelled', data.message, 'success').then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+  });
+}
+
     </script>
     
     <?php include '../footer.php'; ?>
