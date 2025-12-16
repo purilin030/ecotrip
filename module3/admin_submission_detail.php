@@ -116,15 +116,9 @@ $show_form = $is_pending || $edit_mode;
                         $default_avatar = "https://ui-avatars.com/api/?name=" . urlencode($fullName) . "&background=random&color=fff&size=64";
 
                         $phys_path = $_SERVER['DOCUMENT_ROOT'] . $data['Avatar']; 
-                        
-<<<<<<< HEAD
-                        if (!empty($data['Avatar']) && file_exists($phys_path)) { // 改成 $data
+                        if (!empty($data['Avatar']) && file_exists($phys_path)) {
                             // DB already stores /ecotrip/avatars/...; use it directly
-                            $display_avatar = $data['Avatar']; // 改成 $data
-=======
-                        if (!empty($data['Avatar']) && file_exists($phys_path)) { 
-                            $display_avatar = $data['Avatar']; 
->>>>>>> 24572a2cb30f0e126bdfbbef39479ddb51663c67
+                            $display_avatar = $data['Avatar'];
                         } else {
                             $display_avatar = $default_avatar;
                         }
