@@ -1,38 +1,52 @@
 <?php
-// 1. 数据库连接
+// 确保 Session 开启（虽然 index.php 开过了，加个保险）
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once('database.php');
+require_once('mail_config.php'); // 引入发邮件功能 (确保你创建了这个文件)
 
-$error_msg = ""; // 初始化错误信息
+$error_msg = ""; 
 
-// 2. 处理表单提交
+// 处理表单提交
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
 
-    // 清洗数据
     $email = mysqli_real_escape_string($con, stripslashes($_POST['email']));
     $password = mysqli_real_escape_string($con, stripslashes($_POST['password']));
 
-    // 后端验证 Email 格式
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_msg = "Invalid email format.";
     } else {
-        // 格式正确，才去查数据库
+        // 验证账号密码
         $query = "SELECT * FROM `user` WHERE `Email`='$email' AND `Password`='" . md5($password) . "'";
         $result = mysqli_query($con, $query) or die(mysqli_error($con));
 
         if (mysqli_num_rows($result) == 1) {
             $row = mysqli_fetch_assoc($result);
 
-            // 存入 Session
-            $_SESSION['Firstname'] = $row['First_Name'];
-            $_SESSION['Lastname'] = $row['Last_Name'];
-            $_SESSION['Email'] = $row['Email'];
-            $_SESSION['user_id'] = $row['User_ID'];
+            // =================================================
+            // 🛑 核心修改：密码正确，不直接登录，改为发送 OTP
+            // =================================================
+            
+            // 1. 生成 6 位随机验证码
+            $otp = rand(100000, 999999);
+            
+            // 2. 存入临时 Session (5分钟有效)
+            $_SESSION['temp_otp'] = $otp;
+            $_SESSION['temp_otp_expiry'] = time() + 300; 
+            $_SESSION['temp_user_id'] = $row['User_ID']; // 记住是谁
+            $_SESSION['temp_email'] = $row['Email'];     // 用于显示
+            
+            // 3. 发送邮件
+            if (sendOTPEmail($email, $otp)) {
+                // 发送成功，跳转到输入验证码页面
+                echo "<script>window.location.href = 'otp_verify.php';</script>";
+                exit();
+            } else {
+                $error_msg = "Failed to send verification email. Please try again.";
+            }
 
-            // 登录成功跳转
-            echo "<script>
-                window.location.href = 'home.php';
-            </script>";
-            exit();
         } else {
             $error_msg = "Incorrect email or password.";
         }
