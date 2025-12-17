@@ -160,7 +160,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fa-solid fa-lock text-gray-400"></i>
                         </div>
-                        <input type="password" name="password" required 
+                        <input type="password" name="password" required minlength="8"
                                class="pl-10 block w-full rounded-lg border-gray-300 border bg-gray-50 py-2.5 text-gray-900 focus:bg-white focus:border-brand-500 focus:ring-brand-500 sm:text-sm outline-none transition" 
                                placeholder="••••••••">
                     </div>
