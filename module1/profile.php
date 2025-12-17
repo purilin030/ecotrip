@@ -63,7 +63,8 @@ include '../header.php';
                 <div class="flex flex-col items-center mb-8 border-b border-gray-100 pb-6">
                     <div
                         class="h-32 w-32 rounded-full bg-gray-200 overflow-hidden border-4 border-brand-100 shadow-md group relative">
-                        <img src="<?php echo $final_avatar; ?>" alt="User Avatar" class="h-full w-full object-cover">
+                        <img src="<?php echo $display_avatar; ?>" alt="User Avatar" referrerpolicy="no-referrer"
+                            class="h-full w-full object-cover">
                     </div>
                     <h3 class="mt-4 text-xl font-bold text-gray-900">
                         <?php echo $user_info['First_Name'] . " " . $user_info['Last_Name']; ?>
