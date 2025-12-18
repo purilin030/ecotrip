@@ -248,7 +248,6 @@ if (!empty($my_team_id)) {
                         <canvas id="userTopChallengesChart"></canvas>
                     </div>
                 </div>
-                
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col">
                     <div class="mb-4">
                         <h3 class="text-lg font-bold text-gray-800">Consistency Score</h3>
