@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Dump date: 2025-12-16 13:14:14
+-- Generation Time: Dec 18, 2025 at 05:23 AM
 -- Server version: 10.4.32-MariaDB
--- PHP version: 8.2.12
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Structure of table `category`
+-- Table structure for table `category`
 --
 
 CREATE TABLE `category` (
@@ -47,7 +47,7 @@ INSERT INTO `category` (`CategoryID`, `CategoryName`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structure of table `challenge`
+-- Table structure for table `challenge`
 --
 
 CREATE TABLE `challenge` (
@@ -73,8 +73,8 @@ CREATE TABLE `challenge` (
 INSERT INTO `challenge` (`Challenge_ID`, `Category_ID`, `City_ID`, `Created_by`, `Title`, `Detailed_Description`, `preview_description`, `Difficulty`, `Points`, `Start_date`, `End_date`, `photo_upload`, `status`) VALUES
 (1, 1, 1, 24, 'No-Power Friday', 'Challenge Overview:\r\nTake a break from the digital world and help the grid! We are challenging you to turn off all non-essential lights and electronics for 4 hours this Friday evening.\r\n\r\nRules &amp; Requirements:\r\n1. Duration: You must maintain the &quot;power down&quot; state for at least 4 continuous hours between 6:00 PM and 11:00 PM.\r\n2. Allowed Devices: Fridges and medical equipment may remain on. Phones should be on airplane mode or powered off.\r\n3. Proof: Take a timestamped photo of your dark living room or your family playing a board game by candlelight.\r\n\r\nAdditional Notice:\r\n- Candles are encouraged for atmosphere but please practice fire safety.\r\n- This is a great opportunity to read a physical book or meditate!', 'Disconnect to reconnect! Spend your Friday evening without using non-essential electricity for 4 hours.', 'Easy', 200, '2025-12-05', '2025-12-05', '1764651633_692e72719fe84.jpeg', 'Active'),
 (2, 2, 6, 24, 'Zero Waste Lunch', 'Challenge Overview:\r\nDid you know the average person generates 4.4lbs of waste daily? Today, your mission is to have a completely zero-waste lunch. No plastic wrap, no disposable forks, and no plastic bags.\r\n\r\nRules &amp; Requirements:\r\n1. Containers: Use glass, metal, or durable plastic tupperware.\r\n2. Cutlery: Bring your own fork/spoon or eat finger foods.\r\n3. Food Scraps: Any organic leftovers must be composted or finished (zero food waste!).\r\n\r\nHow to Claim Points:\r\n- Upload a photo of your packed lunch showing your reusable setup.\r\n- Self-declaration that no trash was thrown in the bin after the meal.', 'Say no to single-use plastics. Pack a lunch using only reusable containers and cutlery.', 'Easy', 150, '2025-12-03', '2025-12-31', '1764651670_692e729655a7d.webp', 'Active'),
-(3, 3, 2, 24, 'Green Commute Challenge', 'Challenge Overview:\r\nReduce carbon emissions by changing how you move. For this challenge, private cars and ride-hailing services (Grab/Uber) are off-limits for your daily commute.\r\n\r\nRules &amp; Requirements:\r\n1. Eligible Methods: Cycling, walking, bus, MRT/LRT, or carpooling (3+ people in one car).\r\n2. Minimum Distance: The commute must be at least 2km one way.\r\n3. Safety: If cycling, helmets are mandatory. Obey all traffic laws.\r\n\r\nProof of Completion:\r\n- Submit a screenshot of your travel route from a fitness app (Strava, Garmin) or a photo of your public transport ticket/card usage.', 'Ditch the car! Cycle, walk, or take public transport to work/school for a whole week.', 'Medium', 300, '2025-12-10', '2025-12-17', '1764651699_692e72b30c420.jpg', 'Active'),
-(4, 4, 3, 24, 'E-Waste Rescue', 'Challenge Overview:\r\nElectronic waste is toxic to our landfills. We are looking for heroes to hunt down old electronics in their drawers and ensure they are recycled responsibly.\r\n\r\nAccepted Items:\r\n- Old mobile phones and tablets.\r\n- Power banks and batteries.\r\n- Charging cables and wires.\r\n- Laptops (Hard drives must be wiped).\r\n\r\nRules &amp; Requirements:\r\n1. Items must be dropped off at an official E-Waste Collection Center (check the map in the app).\r\n2. Do not place items in general recycling bins.\r\n\r\nProof Required:\r\n- Take a selfie at the collection bin depositing your items.', 'Don&#039;t bin it! Find your old cables, batteries, and phones and drop them at a certified collection center.', 'Medium', 500, '2025-12-15', '2025-12-30', '1764651718_692e72c6d093a.png', 'Active'),
+(3, 3, 2, 53, 'Green Commute Challenge', 'Challenge Overview:\r\nReduce carbon emissions by changing how you move. For this challenge, private cars and ride-hailing services (Grab/Uber) are off-limits for your daily commute.\r\n\r\nRules &amp;amp; Requirements:\r\n1. Eligible Methods: Cycling, walking, bus, MRT/LRT, or carpooling (3+ people in one car).\r\n2. Minimum Distance: The commute must be at least 2km one way.\r\n3. Safety: If cycling, helmets are mandatory. Obey all traffic laws.\r\n\r\nProof of Completion:\r\n- Submit a screenshot of your travel route from a fitness app (Strava, Garmin) or a photo of your public transport ticket/card usage.', 'Ditch the car! Cycle, walk, or take public transport to work/school for a whole week.', 'Medium', 300, '2025-12-18', '2025-12-19', '1764651699_692e72b30c420.jpg', 'Active'),
+(4, 4, 3, 53, 'E-Waste Rescue', 'Challenge Overview:\r\nElectronic waste is toxic to our landfills. We are looking for heroes to hunt down old electronics in their drawers and ensure they are recycled responsibly.\r\n\r\nAccepted Items:\r\n- Old mobile phones and tablets.\r\n- Power banks and batteries.\r\n- Charging cables and wires.\r\n- Laptops (Hard drives must be wiped).\r\n\r\nRules &amp;amp; Requirements:\r\n1. Items must be dropped off at an official E-Waste Collection Center (check the map in the app).\r\n2. Do not place items in general recycling bins.\r\n\r\nProof Required:\r\n- Take a selfie at the collection bin depositing your items.', 'Don&amp;#039;t bin it! Find your old cables, batteries, and phones and drop them at a certified collection center.', 'Medium', 500, '2025-12-18', '2025-12-24', '1764651718_692e72c6d093a.png', 'Active'),
 (5, 5, 4, 24, 'Local Hero', 'Challenge Overview:\r\nImported food has a high carbon footprint due to transportation. Be a Local Hero by shopping at your local wet market or farmers&#039; market instead of the supermarket.\r\n\r\nRules &amp; Requirements:\r\n1. Purchase at least 3 types of vegetables or fruits grown in Malaysia.\r\n2. Bring your own reusable grocery bag (no plastic bags allowed).\r\n\r\nAdditional Notice:\r\n- Chat with the vendors! Ask them where their produce comes from.\r\n- Wash all produce thoroughly before consumption.\r\n\r\nProof:\r\n- Photo of your haul in a reusable bag at the market.', 'Support local farmers and reduce logistics emissions by buying locally grown produce.', 'Easy', 250, '2026-01-01', '2026-01-07', '1764651736_692e72d82ccb6.png', 'Active'),
 (6, 6, 5, 24, 'Tree Planting Day', 'Challenge Overview:\r\nThis is a high-impact event! We are aiming to plant 500 saplings in Shah Alam to help cool the city and increase biodiversity. This requires physical effort and teamwork.\r\n\r\nEvent Details:\r\n- Time: 8:00 AM - 12:00 PM\r\n- Venue: Shah Alam Lake Gardens (Meeting point: Main Entrance)\r\n- Attire: Sports shoes, long pants, and a hat.\r\n\r\nRules &amp; Requirements:\r\n1. Registration is mandatory via the external Google Form (Link below).\r\n2. Participants must stay for the full duration of the planting session.\r\n3. Tools and gloves will be provided.\r\n\r\nSafety Notice:\r\n- Stay hydrated. Water stations are provided.\r\n- Be careful when handling shovels and hoes.', 'Get your hands dirty! Join us for a community tree planting event at the city park.', 'Hard', 1000, '2025-12-20', '2025-12-20', '1764651759_692e72ef9e348.jpeg', 'Active'),
 (7, 5, 3, 24, 'Sustainable Fashionista', 'Challenge Overview:\r\nFast fashion is a major polluter. This week, we challenge you to ignore the malls and find a treasure at a thrift store, second-hand shop, or bundle shop in Johor Bahru.\r\n\r\nRules &amp; Requirements:\r\n1. Purchase at least one item of clothing from a second-hand source.\r\n2. The item must be intended for your own use or as a gift.\r\n3. Buying from online thrift stores (like Carousell) is allowed if the seller is local.\r\n\r\nAdditional Notice:\r\n- Wash all second-hand clothes thoroughly before wearing.\r\n- Try to avoid synthetic fibers if possible to reduce microplastic shedding.\r\n\r\nProof of Submission:\r\n- Upload a photo of your &quot;new&quot; outfit and the receipt or shop front.', 'Style doesn&#039;t need to cost the Earth. Buy a second-hand outfit instead of new fast fashion.', 'Easy', 250, '2026-01-10', '2026-01-17', '1764651776_692e730050ab8.jpeg', 'Active'),
@@ -88,12 +88,13 @@ INSERT INTO `challenge` (`Challenge_ID`, `Category_ID`, `City_ID`, `Created_by`,
 (20, 3, 3, 24, 'Car Free Day', 'Challenge Overview: \r\n· Reduce your carbon footprint and traffic congestion by leaving your private car at home for a full day. Experience your city through walking, cycling, or public transit.\r\n\r\nRules &amp; Requirements:\r\n· Do not use a private car or ride-hailing app (Grab/Uber) for your primary commute.\r\n· You must use alternative methods: Walk, Bicycle, Bus, or Train/MRT.\r\n· The challenge applies to your travel between 7:00 AM and 7:00 PM.\r\n\r\nAdditional Notice:\r\n· Wear comfortable shoes and stay hydrated if walking or cycling.\r\n· Check the weather forecast before starting your journey.\r\n\r\nProof of Submission:\r\n· A selfie on the bus/train or a screenshot of your step count/cycling route from a fitness app.', 'Ditch your car', 'Easy', 150, '2026-08-01', '2026-08-08', '1764652099_692e74437ae01.avif', 'Active'),
 (21, 4, 5, 24, 'E-Waste Collection', 'Bring old phones and laptops.', 'Recycle old electronics', 'Hard', 500, '2025-09-15', '2025-09-20', 'ewaste.jpg', 'Draft'),
 (22, 4, 5, 24, 'Copy of E-Waste Collection', 'Bring old phones and laptops.', 'Recycle old electronics', 'Hard', 500, '2026-01-04', '2026-01-04', 'ewaste.jpg', 'Draft'),
-(24, 2, 5, 24, 'This is a test', 'This is only a test', 'This is only a test', 'Medium', 34, '2025-12-17', '2025-12-24', '1765251118_6937982e0173a.png', 'Inactive');
+(25, 6, 4, 57, 'Nature Walk', 'This is a test', 'This is a test', 'Medium', 300, '2025-12-18', '2025-12-24', '1766029075_69437713bc669.jpg', 'Active'),
+(26, 6, 4, 57, 'Copy of Nature Walk', 'This is a test', 'This is a test', 'Medium', 300, '2026-01-18', '2026-01-24', '1766029075_69437713bc669.jpg', 'Draft');
 
 -- --------------------------------------------------------
 
 --
--- Structure of table `city`
+-- Table structure for table `city`
 --
 
 CREATE TABLE `city` (
@@ -117,15 +118,15 @@ INSERT INTO `city` (`CityID`, `CityName`, `State`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structure of table `donation_campaign`
+-- Table structure for table `donation_campaign`
 --
 
 CREATE TABLE `donation_campaign` (
   `Campaign_ID` int(11) NOT NULL,
   `Title` varchar(255) NOT NULL,
   `Description` text NOT NULL,
-  `Target_Points` int(11) NOT NULL COMMENT 'Target total points',
-  `Current_Points` int(11) NOT NULL DEFAULT 0 COMMENT 'Current points collected',
+  `Target_Points` int(11) NOT NULL COMMENT '目标总积分',
+  `Current_Points` int(11) NOT NULL DEFAULT 0 COMMENT '当前已筹集积分',
   `Image` varchar(255) DEFAULT NULL,
   `Status` enum('Active','Completed','Closed') NOT NULL DEFAULT 'Active',
   `Created_At` datetime DEFAULT current_timestamp()
@@ -136,20 +137,20 @@ CREATE TABLE `donation_campaign` (
 --
 
 INSERT INTO `donation_campaign` (`Campaign_ID`, `Title`, `Description`, `Target_Points`, `Current_Points`, `Image`, `Status`, `Created_At`) VALUES
-(1, 'Build a Stray Dog Shelter', 'Help us build a warm home for 50 stray dogs in Ipoh.', 50000, 991, 'uploads/DogHouse.jpeg', 'Active', '2025-12-11 09:12:05'),
+(1, 'Build a Stray Dog Shelter', 'Help us build a warm home for 50 stray dogs in Ipoh.', 50000, 22315, 'uploads/1766024343_donation_Image_20251218081723_952_17.png', 'Active', '2025-12-11 09:12:05'),
 (2, 'Solar Street Lights for Village A', 'Install 10 solar-powered lights for safer roads at night.', 30000, 0, 'uploads/solarLight.jpg', 'Active', '2025-12-11 09:12:05');
 
 -- --------------------------------------------------------
 
 --
--- Structure of table `donation_record`
+-- Table structure for table `donation_record`
 --
 
 CREATE TABLE `donation_record` (
   `Record_ID` int(11) NOT NULL,
   `Campaign_ID` int(11) NOT NULL,
   `User_ID` int(11) NOT NULL,
-  `Amount` int(11) NOT NULL COMMENT 'Donation points',
+  `Amount` int(11) NOT NULL COMMENT '捐赠分数',
   `Donation_Date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -158,12 +159,13 @@ CREATE TABLE `donation_record` (
 --
 
 INSERT INTO `donation_record` (`Record_ID`, `Campaign_ID`, `User_ID`, `Amount`, `Donation_Date`) VALUES
-(1, 1, 27, 991, '2025-12-11 09:34:48');
+(1, 1, 27, 991, '2025-12-11 09:34:48'),
+(2, 1, 55, 21324, '2025-12-18 11:01:38');
 
 -- --------------------------------------------------------
 
 --
--- Structure of table `moderation`
+-- Table structure for table `moderation`
 --
 
 CREATE TABLE `moderation` (
@@ -179,12 +181,17 @@ CREATE TABLE `moderation` (
 --
 
 INSERT INTO `moderation` (`Moderation_ID`, `Submission_ID`, `User_ID`, `Action`, `Action_date`) VALUES
-(6, 20, 24, 'Approved', '2025-12-02');
+(6, 20, 24, 'Approved', '2025-12-02'),
+(7, 22, 53, 'Approved', '2025-12-18'),
+(8, 24, 57, 'Approved', '2025-12-18'),
+(9, 23, 57, 'Approved', '2025-12-18'),
+(10, 23, 57, 'Denied', '2025-12-18'),
+(11, 23, 57, 'Approved', '2025-12-18');
 
 -- --------------------------------------------------------
 
 --
--- Structure of table `pointsledger`
+-- Table structure for table `pointsledger`
 --
 
 CREATE TABLE `pointsledger` (
@@ -196,10 +203,19 @@ CREATE TABLE `pointsledger` (
   `Team_ID` int(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `pointsledger`
+--
+
+INSERT INTO `pointsledger` (`LedgeID`, `Points_Earned`, `Earned_Date`, `User_ID`, `Submission_ID`, `Team_ID`) VALUES
+(1, 200, '2025-12-18', 54, 22, NULL),
+(2, 300, '2025-12-18', 55, 24, NULL),
+(4, 150, '2025-12-18', 55, 23, NULL);
+
 -- --------------------------------------------------------
 
 --
--- Structure of table `redeemrecord`
+-- Table structure for table `redeemrecord`
 --
 
 CREATE TABLE `redeemrecord` (
@@ -220,11 +236,6 @@ CREATE TABLE `redeemrecord` (
 --
 
 INSERT INTO `redeemrecord` (`Reward_ID`, `RedeemRecord_ID`, `Reward_Name`, `Redeem_Quantity`, `Redeem_By`, `Redeem_Date`, `Status`, `DeliveryDate`, `Proof_Photo`, `Admin_Note`) VALUES
-(1, 1, 'Grocer Voucher', 1, 18, '2025-11-27', '', '2025-12-03 08:49:28', NULL, NULL),
-(1, 2, 'Grocer Voucher', 1, 18, '2025-11-27', '', '2025-12-03 08:49:28', NULL, NULL),
-(1, 3, 'Grocer Voucher', 1, 21, '2025-12-02', '', '2025-12-03 08:49:28', NULL, NULL),
-(1, 4, 'Grocer Voucher', 1, 21, '2025-12-02', '', '2025-12-03 08:49:28', NULL, NULL),
-(2, 5, 'Tree Planting Cert', 1, 21, '2025-12-02', '', '2025-12-03 08:49:28', NULL, NULL),
 (1, 6, 'Grocer Voucher', 1, 22, '2025-12-03', 'Delivered', '2025-12-03 09:01:05', NULL, 'ECO-123-456'),
 (2, 7, 'Tree Planting Cert', 1, 22, '2025-12-03', 'Delivered', '2025-12-03 09:01:10', NULL, 'ECO-123-456'),
 (1, 8, 'Grocer Voucher', 1, 22, '2025-12-03', 'Delivered', '2025-12-03 13:53:37', NULL, NULL),
@@ -233,13 +244,29 @@ INSERT INTO `redeemrecord` (`Reward_ID`, `RedeemRecord_ID`, `Reward_Name`, `Rede
 (2, 11, 'Tree Planting Cert', 1, 22, '2025-12-03', 'Delivered', '2025-12-03 14:15:29', NULL, 'Auto-Generated by System'),
 (2, 12, 'Tree Planting Cert', 1, 22, '2025-12-03', 'Delivered', '2025-12-03 14:16:33', NULL, 'Auto-Generated by System'),
 (2, 13, 'Tree Planting Cert', 1, 22, '2025-12-03', 'Pending', '2025-12-03 14:23:17', NULL, NULL),
-(1, 18, 'Grocer Voucher', 1, 31, '2025-12-16', 'Pending', '2025-12-16 19:47:21', NULL, NULL),
-(2, 19, 'Tree Planting Cert', 1, 31, '2025-12-16', 'Pending', '2025-12-16 19:47:23', NULL, NULL);
+(2, 14, 'Tree Planting Cert', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 10:27:23', NULL, 'Auto-Generated Code'),
+(2, 15, 'Tree Planting Cert', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 10:27:25', NULL, 'Auto-Generated Code'),
+(2, 16, 'Tree Planting Cert', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 10:27:27', NULL, 'Auto-Generated Code'),
+(3, 17, 'Wong', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 10:27:29', NULL, 'Auto-Generated Code'),
+(4, 18, 'Wong', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 10:27:31', NULL, 'Auto-Generated Code'),
+(3, 31, 'Wong', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 10:28:52', NULL, 'Auto-Generated Code'),
+(4, 32, 'Wong', 1, 55, '2025-12-23', 'Delivered', '2025-12-18 10:28:54', 'uploads/proof_1766024956_32.png', 'Shipped via Courier'),
+(2, 35, 'Tree Planting Cert', 1, 55, '2025-12-27', 'Delivered', '2025-12-18 10:44:15', 'uploads/proof_1766025893_35.jpg', 'Shipped via Courier'),
+(2, 36, 'Tree Planting Cert', 1, 55, '2025-12-15', 'Delivered', '2025-12-18 10:44:18', 'uploads/proof_1766026284_36.jpg', 'Shipped via Courier'),
+(4, 37, 'Wong', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 10:44:20', 'uploads/proof_1766026345_37.jpg', 'Shipped via Courier'),
+(3, 38, 'Wong', 1, 55, '2025-12-16', 'Delivered', '2025-12-18 10:50:54', NULL, 'Auto-Generated Code'),
+(2, 39, 'Tree Planting Cert', 1, 55, '2025-12-07', 'Delivered', '2025-12-18 10:59:21', 'uploads/proof_1766026797_39.png', 'Shipped via Courier'),
+(7, 40, 'virtual', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 11:11:26', NULL, 'Auto-Generated Code'),
+(7, 41, 'virtual', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 11:11:28', NULL, 'Auto-Generated Code'),
+(8, 42, 'Physical', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 11:11:30', 'uploads/proof_1766027518_42.jpg', 'Shipped via Courier'),
+(8, 43, 'Physical', 1, 55, '2025-12-18', 'Delivered', '2025-12-18 11:11:31', 'uploads/proof_1766027525_43.jpg', 'Shipped via Courier'),
+(7, 44, 'virtual', 1, 56, '2025-12-18', 'Delivered', '2025-12-18 11:55:00', NULL, 'Auto-Generated Code'),
+(8, 45, 'Physical', 1, 56, '2025-12-18', 'Delivered', '2025-12-18 11:55:05', 'uploads/proof_1766030146_45.jpg', 'Shipped via Courier');
 
 -- --------------------------------------------------------
 
 --
--- Structure of table `reward`
+-- Table structure for table `reward`
 --
 
 CREATE TABLE `reward` (
@@ -258,13 +285,18 @@ CREATE TABLE `reward` (
 --
 
 INSERT INTO `reward` (`Reward_ID`, `Reward_name`, `Reward_Photo`, `Points_Required`, `Stock`, `Type`, `Description`, `Status`) VALUES
-(1, 'Grocer Voucher', '', 20, 92, 'Virtual', 'Voucher to buy grocer', 'Active'),
-(2, 'Tree Planting Cert', '', 1000, 993, 'Physical', 'We Plant A tree using your name', 'Active');
+(1, 'Grocer Voucher', '', 20, 0, 'Virtual', 'Voucher to buy grocer', 'Active'),
+(2, 'Tree Planting Cert', '', 1000, 988, 'Physical', 'We Plant A tree using your name', 'Active'),
+(3, 'Wong', 'uploads/1766024696_updated_Image_20251218081723_952_17.png', 121, 17, 'Virtual', '213', 'Active'),
+(4, 'Wong', 'uploads/1766024748_updated_images (1).jpg', 121, 121, 'Physical', '213', 'Active'),
+(7, 'virtual', 'uploads/1766027455_proof_1765427369_0.jpg', 12, 9, 'Virtual', '12', 'Inactive'),
+(8, 'Physical', 'uploads/1766027468_parcel.jpeg', 12, 9, 'Physical', '12', 'Inactive'),
+(9, '1312', 'uploads/1766030224_updated_images (1).jpg', 123, 123, 'Virtual', 'asasd', 'Inactive');
 
 -- --------------------------------------------------------
 
 --
--- Structure of table `submissions`
+-- Table structure for table `submissions`
 --
 
 CREATE TABLE `submissions` (
@@ -287,12 +319,15 @@ CREATE TABLE `submissions` (
 
 INSERT INTO `submissions` (`Submission_ID`, `Challenge_ID`, `User_ID`, `Team_ID`, `Caption`, `Photo`, `image_hash`, `Submission_date`, `Status`, `Verification_note`, `QR_Code`) VALUES
 (20, 7, 24, 9, 'ssss', '../uploads/1764655698_24_Screenshot20251201211242.png', '15c6b8d15f57abb0cb31babf0d13969081b4435ec7545577e4ce212f91a213f1', '2025-12-02', 'Approved', '', '../qr_code/qr_20_1764655706.png'),
-(21, 1, 24, 9, 'ggfgf', '../uploads/1764655736_24_Screenshot20251202124239.png', '892d200e000e8a97c23fcd9a135893b50e9930e9d77a648a0f2a3f42117f433b', '2025-12-02', 'Pending', '', '');
+(21, 1, 24, 9, 'ggfgf', '../uploads/1764655736_24_Screenshot20251202124239.png', '892d200e000e8a97c23fcd9a135893b50e9930e9d77a648a0f2a3f42117f433b', '2025-12-02', 'Pending', '', ''),
+(22, 1, 54, NULL, '123', '../uploads/1766021000_54_Image2025121808154495117.png', 'f73cfff8d5fd75a4da3477b840df89863b28064c149910e031bf09c6052dea40', '2025-12-18', 'Approved', '', '../qr_code/qr_22_1766021012.png'),
+(23, 20, 55, NULL, 'hhhhhhh', '../uploads/1766029569_55_Image2025121808172395217.png', '796260faa48d726d92976821dedb83b9e40075e4b59cc8492afc251c51f1163b', '2025-12-18', 'Approved', '', '../qr_code/qr_23_1766029961.png'),
+(24, 19, 55, NULL, 'hhhh', '../uploads/1766029635_55_naturalwalk.jpg', '2485c0666f87048c3aaf831b8e942abb917a2841b50a993c72236baf7a6fd120', '2025-12-18', 'Approved', 'gooog', '../qr_code/qr_24_1766029702.png');
 
 -- --------------------------------------------------------
 
 --
--- Structure of table `team`
+-- Table structure for table `team`
 --
 
 CREATE TABLE `team` (
@@ -310,13 +345,12 @@ CREATE TABLE `team` (
 
 INSERT INTO `team` (`Team_ID`, `Owner_ID`, `Team_code`, `Team_name`, `Team_Bio`, `Total_members`) VALUES
 (9, 27, '0B6161', 'Banana Team', 'We love Banana! Come and Join us!', 1),
-(10, 22, 'A56021', 'Watermelon Team', 'Watermelon is the best! Join us if you agree!', 2),
-(11, 30, '3DD714', 'Ave mujica', '一辈子', 1);
+(10, 28, 'A56021', 'Watermelon Team', 'Watermelon is the best! Join us if you agree!', 2);
 
 -- --------------------------------------------------------
 
 --
--- Structure of table `user`
+-- Table structure for table `user`
 --
 
 CREATE TABLE `user` (
@@ -342,20 +376,25 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`User_ID`, `First_Name`, `Last_Name`, `Caption`, `User_DOB`, `Avatar`, `Email`, `Phone_num`, `Team_ID`, `Point`, `RedeemPoint`, `Password`, `Register_Date`, `Role`, `Account_Status`) VALUES
-(15, 'John', 'Sam', NULL, '', '', 'jiunhong1234@gmail.c', 0, NULL, 210, 0, '827ccb0eea8a706c4c34a16891f84e7b', '2025-11-20 09:37:58', 0, 'Active'),
-(22, 'Baba', 'Lim', NULL, '', '', 'bbl@gmail.com', 0, 10, 100, 0, '202cb962ac59075b964b07152d234b70', '2025-11-27 02:50:28', 2, 'Active'),
+(22, 'Baba', 'Lim', NULL, '', '', 'bbl@gmail.com', 0, 10, 100, 0, '202cb962ac59075b964b07152d234b70', '2025-11-27 02:50:28', 0, 'Active'),
 (24, 'Wong', 'Jiun Hong', '', '2005-07-29', '/ecotrip/avatars/20251211_023536_3945.jpg', 'jiunhong222@gmail.com', 123456789, NULL, 3512, 0, '202cb962ac59075b964b07152d234b70', '2025-11-27 03:24:51', 1, 'Active'),
 (26, 'Banana', 'Guy', '', '', 'uploads/20251130_102923_1611.jpg', 'bnnguy@gmail.com', 0, NULL, 867, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:27:02', 0, 'Active'),
 (27, 'Phang', 'Zhen Thong', '', '', 'uploads/20251130_105705_4579.jpg', 'pzt@gmail.com', 0, 9, 4567, 3567, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:50:09', 1, 'Active'),
-(28, 'Chong', 'Yung Onn', NULL, '', '', 'cyo@gmail.com', 0, 10, 521, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:50:23', 0, 'Active'),
+(28, 'Chong', 'Yung Onn', NULL, '', '', 'cyo@gmail.com', 0, 10, 521, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:50:23', 2, 'Active'),
 (29, 'Young', 'Luo Siong', '', '', '/ecotrip/avatars/20251211_025305_3108.jpg', 'yls@gmail.com', 0, NULL, 124, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:50:35', 0, 'Active'),
-(30, 'Ali', 'Baba', NULL, '', '', 'abb@gmail.com', 0, 11, 241, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:51:28', 0, 'Active'),
-(31, 'Phang', 'Zhen Thong', NULL, '', 'https://lh3.googleusercontent.com/a/ACg8ocLAzJ4Nj7YxAfbjbwvyVubPj4nGgsyBm1seIvqf_5k-hjsACA=s96-c', '9e6b236ca8@gmail.com', 0, NULL, 0, 98980, '801533a8a8582817b8cc72caad9a4545', '2025-12-16 12:41:49', 0, 'Active');
+(30, 'Ali', 'Baba', NULL, '', '', 'abb@gmail.com', 0, NULL, 241, 0, '202cb962ac59075b964b07152d234b70', '2025-11-30 10:51:28', 0, 'Active'),
+(31, 'Aww', 'daxc', NULL, '2025-12-04', '', 'aha@gmail.com', 123551351, NULL, 0, 0, '202cb962ac59075b964b07152d234b70', '2025-12-15 10:09:14', 0, 'Active'),
+(32, 'ohh', 'ahh', NULL, '', '', 'oh123@gmail.com', 0, NULL, 0, 0, '202cb962ac59075b964b07152d234b70', '2025-12-15 10:14:35', 0, 'Active'),
+(33, 'asdw', 'qweasd', NULL, '', '', 'qweraws@gmail.com', 0, NULL, 0, 0, '202cb962ac59075b964b07152d234b70', '2025-12-15 10:21:00', 0, 'Active'),
+(34, 'qwe', '123', NULL, '', '', 'aewq@gmail.com', 0, NULL, 0, 0, '81dc9bdb52d04dc20036dbd8313ed055', '2025-12-15 10:21:16', 0, 'Active'),
+(55, 'JIUN HONG', 'WONG', NULL, '2025-12-11', 'https://lh3.googleusercontent.com/a/ACg8ocKbIPNWLTds_EPKAZUVawBNngUIlzhxWpMkNjd-uwDjaqcJMQ=s96-c', 'jiunhong9113@1utar.my', 23456789, NULL, 450, 150, 'c237fdde9c079814cc7a31acd71d8714', '2025-12-18 02:32:37', 0, 'Active'),
+(56, 'owo', '布丁', NULL, '', 'https://lh3.googleusercontent.com/a/ACg8ocKPYspu4MUT2jNFMxVA8f7tV-KImwdahVu1aja12RIcKoNex1Ri=s96-c', 'pangleeing@gmail.com', 0, NULL, 0, 60, '0b96c6f10a3d189336233d4f51dcfc56', '2025-12-18 02:42:45', 2, 'Active'),
+(57, 'Kelvin', 'Wong', '', '2025-12-02', '/ecotrip/avatars/20251218_042950_7719.jpg', 'jiunhong9113@hotmail.com', 12356735, NULL, 0, 0, '25f9e794323b453885f5181f1b624d0b', '2025-12-18 04:28:35', 1, 'Active');
 
 -- --------------------------------------------------------
 
 --
--- Structure of table `verification_token`
+-- Table structure for table `verification_token`
 --
 
 CREATE TABLE `verification_token` (
@@ -365,7 +404,7 @@ CREATE TABLE `verification_token` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping indexes for tables
+-- Indexes for dumped tables
 --
 
 --
@@ -375,7 +414,7 @@ ALTER TABLE `category`
   ADD PRIMARY KEY (`CategoryID`);
 
 --
--- 表的索引 `challenge`
+-- Indexes for table `challenge`
 --
 ALTER TABLE `challenge`
   ADD PRIMARY KEY (`Challenge_ID`),
@@ -384,19 +423,19 @@ ALTER TABLE `challenge`
   ADD KEY `City_ID` (`City_ID`);
 
 --
--- 表的索引 `city`
+-- Indexes for table `city`
 --
 ALTER TABLE `city`
   ADD PRIMARY KEY (`CityID`);
 
 --
--- 表的索引 `donation_campaign`
+-- Indexes for table `donation_campaign`
 --
 ALTER TABLE `donation_campaign`
   ADD PRIMARY KEY (`Campaign_ID`);
 
 --
--- 表的索引 `donation_record`
+-- Indexes for table `donation_record`
 --
 ALTER TABLE `donation_record`
   ADD PRIMARY KEY (`Record_ID`),
@@ -404,7 +443,7 @@ ALTER TABLE `donation_record`
   ADD KEY `User_ID` (`User_ID`);
 
 --
--- 表的索引 `moderation`
+-- Indexes for table `moderation`
 --
 ALTER TABLE `moderation`
   ADD PRIMARY KEY (`Moderation_ID`),
@@ -412,7 +451,7 @@ ALTER TABLE `moderation`
   ADD KEY `moderation_ibfk_2` (`User_ID`);
 
 --
--- 表的索引 `pointsledger`
+-- Indexes for table `pointsledger`
 --
 ALTER TABLE `pointsledger`
   ADD PRIMARY KEY (`LedgeID`),
@@ -421,13 +460,19 @@ ALTER TABLE `pointsledger`
   ADD KEY `User_ID` (`User_ID`);
 
 --
--- 表的索引 `redeemrecord`
+-- Indexes for table `redeemrecord`
 --
 ALTER TABLE `redeemrecord`
   ADD PRIMARY KEY (`RedeemRecord_ID`);
 
 --
--- 表的索引 `submissions`
+-- Indexes for table `reward`
+--
+ALTER TABLE `reward`
+  ADD PRIMARY KEY (`Reward_ID`);
+
+--
+-- Indexes for table `submissions`
 --
 ALTER TABLE `submissions`
   ADD PRIMARY KEY (`Submission_ID`),
@@ -436,14 +481,14 @@ ALTER TABLE `submissions`
   ADD KEY `Team_ID` (`Team_ID`);
 
 --
--- 表的索引 `team`
+-- Indexes for table `team`
 --
 ALTER TABLE `team`
   ADD PRIMARY KEY (`Team_ID`),
   ADD UNIQUE KEY `owner_id_unique` (`Owner_ID`);
 
 --
--- 表的索引 `user`
+-- Indexes for table `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`User_ID`),
@@ -451,94 +496,100 @@ ALTER TABLE `user`
   ADD KEY `user_ibfk_1` (`Team_ID`);
 
 --
--- 表的索引 `verification_token`
+-- Indexes for table `verification_token`
 --
 ALTER TABLE `verification_token`
   ADD PRIMARY KEY (`Token_ID`),
   ADD KEY `User_ID` (`User_ID`);
 
 --
--- Use AUTO_INCREMENT on exported tables
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- 使用表AUTO_INCREMENT `category`
+-- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
   MODIFY `CategoryID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- 使用表AUTO_INCREMENT `challenge`
+-- AUTO_INCREMENT for table `challenge`
 --
 ALTER TABLE `challenge`
-  MODIFY `Challenge_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `Challenge_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
--- 使用表AUTO_INCREMENT `city`
+-- AUTO_INCREMENT for table `city`
 --
 ALTER TABLE `city`
   MODIFY `CityID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- 使用表AUTO_INCREMENT `donation_campaign`
+-- AUTO_INCREMENT for table `donation_campaign`
 --
 ALTER TABLE `donation_campaign`
   MODIFY `Campaign_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- 使用表AUTO_INCREMENT `donation_record`
+-- AUTO_INCREMENT for table `donation_record`
 --
 ALTER TABLE `donation_record`
-  MODIFY `Record_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `Record_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- 使用表AUTO_INCREMENT `moderation`
+-- AUTO_INCREMENT for table `moderation`
 --
 ALTER TABLE `moderation`
-  MODIFY `Moderation_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `Moderation_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- 使用表AUTO_INCREMENT `pointsledger`
+-- AUTO_INCREMENT for table `pointsledger`
 --
 ALTER TABLE `pointsledger`
-  MODIFY `LedgeID` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `LedgeID` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- 使用表AUTO_INCREMENT `redeemrecord`
+-- AUTO_INCREMENT for table `redeemrecord`
 --
 ALTER TABLE `redeemrecord`
-  MODIFY `RedeemRecord_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `RedeemRecord_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
--- 使用表AUTO_INCREMENT `submissions`
+-- AUTO_INCREMENT for table `reward`
+--
+ALTER TABLE `reward`
+  MODIFY `Reward_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `submissions`
 --
 ALTER TABLE `submissions`
-  MODIFY `Submission_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `Submission_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
--- 使用表AUTO_INCREMENT `team`
+-- AUTO_INCREMENT for table `team`
 --
 ALTER TABLE `team`
-  MODIFY `Team_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Team_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
--- 使用表AUTO_INCREMENT `user`
+-- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `User_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `User_ID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
--- 使用表AUTO_INCREMENT `verification_token`
+-- AUTO_INCREMENT for table `verification_token`
 --
 ALTER TABLE `verification_token`
   MODIFY `Token_ID` int(10) NOT NULL AUTO_INCREMENT;
 
 --
--- 限制导出的表
+-- Constraints for dumped tables
 --
 
 --
--- 限制表 `challenge`
+-- Constraints for table `challenge`
 --
 ALTER TABLE `challenge`
   ADD CONSTRAINT `challenge_ibfk_1` FOREIGN KEY (`City_ID`) REFERENCES `city` (`CityID`) ON UPDATE CASCADE,
@@ -546,21 +597,21 @@ ALTER TABLE `challenge`
   ADD CONSTRAINT `challenge_ibfk_3` FOREIGN KEY (`Created_by`) REFERENCES `user` (`User_ID`) ON UPDATE CASCADE;
 
 --
--- 限制表 `donation_record`
+-- Constraints for table `donation_record`
 --
 ALTER TABLE `donation_record`
   ADD CONSTRAINT `donation_record_ibfk_1` FOREIGN KEY (`Campaign_ID`) REFERENCES `donation_campaign` (`Campaign_ID`),
   ADD CONSTRAINT `donation_record_ibfk_2` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`);
 
 --
--- 限制表 `moderation`
+-- Constraints for table `moderation`
 --
 ALTER TABLE `moderation`
   ADD CONSTRAINT `moderation_ibfk_1` FOREIGN KEY (`Submission_ID`) REFERENCES `submissions` (`Submission_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `moderation_ibfk_2` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- 限制表 `pointsledger`
+-- Constraints for table `pointsledger`
 --
 ALTER TABLE `pointsledger`
   ADD CONSTRAINT `pointsledger_ibfk_4` FOREIGN KEY (`Submission_ID`) REFERENCES `submissions` (`Submission_ID`),
@@ -568,7 +619,7 @@ ALTER TABLE `pointsledger`
   ADD CONSTRAINT `pointsledger_ibfk_6` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`);
 
 --
--- 限制表 `submissions`
+-- Constraints for table `submissions`
 --
 ALTER TABLE `submissions`
   ADD CONSTRAINT `submissions_ibfk_4` FOREIGN KEY (`Challenge_ID`) REFERENCES `challenge` (`Challenge_ID`) ON UPDATE CASCADE,
@@ -576,19 +627,19 @@ ALTER TABLE `submissions`
   ADD CONSTRAINT `submissions_ibfk_6` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`) ON UPDATE CASCADE;
 
 --
--- 限制表 `team`
+-- Constraints for table `team`
 --
 ALTER TABLE `team`
   ADD CONSTRAINT `team_ibfk_1` FOREIGN KEY (`Owner_ID`) REFERENCES `user` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- 限制表 `user`
+-- Constraints for table `user`
 --
 ALTER TABLE `user`
   ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`Team_ID`) REFERENCES `team` (`Team_ID`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- 限制表 `verification_token`
+-- Constraints for table `verification_token`
 --
 ALTER TABLE `verification_token`
   ADD CONSTRAINT `verification_token_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `user` (`User_ID`);
@@ -597,4 +648,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-

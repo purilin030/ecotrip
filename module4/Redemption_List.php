@@ -11,7 +11,6 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 
-
 // Re-verify DB permissions (guard against forged Sessions)
 $stmtAuth = $pdo->prepare("SELECT Role FROM user WHERE User_ID = ?");
 $stmtAuth->execute([$_SESSION['user_id']]);
@@ -196,6 +195,7 @@ require '../background.php';
                     Delivered
                 </button>
             </div>
+            
         </form>
     </div>
 
