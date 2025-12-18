@@ -1,17 +1,15 @@
 <?php
-// 1. Database Connection
+// 1. Database & Logic
 include("../database.php");
-require '../header.php';
-
-
-// 2. Fetch Categories & Cities
 include("get_categories.php");
 include("get_cities.php");
-include("../background.php")
+
+// Note: Do NOT require header here. We do it inside the body.
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +21,7 @@ include("../background.php")
 
 <body>
     
+    <?php require '../header.php'; ?>
 
     <div class="main-content">
         <div class="page-header">
@@ -117,7 +116,7 @@ include("../background.php")
             <input type="hidden" name="action" value="create">
 
             <div class="grid-item-buttons">
-                <button type="reset" class="cancel-btn">Cancel</button>
+                <a href="manage_challenge.php" class="cancel-btn" style="text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center;">Cancel</a>
                 <button type="submit" class="create-btn">
                     <i class="fa-solid fa-plus"></i> Create Challenge
                 </button>
@@ -132,5 +131,7 @@ include("../background.php")
     </footer>
 
     <script src="../js/create_challenge.js"></script>
+    
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php'; ?>
 </body>
 </html>

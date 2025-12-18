@@ -200,10 +200,9 @@ $city_result = $con->query($city_sql);
                 value="<?php echo htmlspecialchars($challenge['photo_upload']); ?>">
 
             <div class="grid-item-buttons">
-                <a href="manage_challenge.php" class="cancel-btn"
-                    style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Cancel</a>
-                <button type="submit" class="save-btn">
-                    <i class="fa-solid fa-floppy-disk"></i> Update Challenge
+                <button type="reset" class="cancel-btn">Cancel</button>
+                <button type="submit" class="create-btn">
+                    <i class="fa-solid fa-plus"></i> Edit Challenge
                 </button>
             </div>
         </form>
@@ -252,6 +251,7 @@ $city_result = $con->query($city_sql);
             // to allow submission if a hidden input "existing_photo" has a value.
         });
     </script>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php'; ?>
 </body>
 
 </html>
