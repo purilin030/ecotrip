@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once('database.php');
 require_once('mail_config.php'); // Include mail functionality (ensure this file exists)
 
-$error_msg = ""; 
+$error_msg = "";
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
@@ -28,6 +28,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
             // =================================================
             // 🛑 Core change: when password is correct, do not login directly; send OTP instead
             // =================================================
+<<<<<<< HEAD
+
+            // 1. 生成 6 位随机验证码
+            $otp = rand(100000, 999999);
+
+            // 2. 存入临时 Session (5分钟有效)
+            $_SESSION['temp_otp'] = $otp;
+            $_SESSION['temp_otp_expiry'] = time() + 300;
+            $_SESSION['temp_user_id'] = $row['User_ID']; // 记住是谁
+            $_SESSION['temp_email'] = $row['Email'];     // 用于显示
+
+            // 3. 发送邮件
+=======
             
             // 1. Generate a 6-digit random OTP
             $otp = rand(100000, 999999);
@@ -39,6 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
             $_SESSION['temp_email'] = $row['Email'];     // For display
             
             // 3. Send OTP email
+>>>>>>> 5b4ba5a68a18ffe52bf42e96696a1f8c5b1cb7fe
             if (sendOTPEmail($email, $otp)) {
                 // Send success: redirect to OTP input page
                 echo "<script>window.location.href = 'otp_verify.php';</script>";
@@ -145,6 +159,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
                     Create an account
                 </a>
             </p>
+        </div>
+
+        <div class="space-y-4">
+
+
+            <div>
+                <div class="mt-3 flex justify-end">
+                    <a href="forgot_password.php"
+                        class="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">
+                        Forgot Password?
+                    </a>
+                </div>
+
+            </div>
+
+
         </div>
     </div>
 </div>
