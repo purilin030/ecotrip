@@ -200,7 +200,7 @@ $city_result = $con->query($city_sql);
                 value="<?php echo htmlspecialchars($challenge['photo_upload']); ?>">
 
             <div class="grid-item-buttons">
-                <button type="reset" class="cancel-btn">Cancel</button>
+                <button type="button" class="cancel-btn" onclick="window.location.href='manage_challenge.php'">Cancel</button>
                 <button type="submit" class="create-btn">
                     <i class="fa-solid fa-plus"></i> Edit Challenge
                 </button>
