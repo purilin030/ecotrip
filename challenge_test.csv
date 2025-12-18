@@ -1,0 +1,11 @@
+Title,Category,Points,Preview_Description,City,Difficulty,Start_Date,End_Date,Status,Detailed_Description,Photo_Upload
+Coastal Clean Hike,Nature,400,Clean the coastline while hiking.,Penang,Medium,2025-12-25,2026-01-05,Active,Detailed text here,coast.jpg
+Urban Cycling,Transportation,200,Cycle to work for 3 days.,Kuala Lumpur,Easy,2026-01-01,2026-01-07,Active,Detailed text here,bike.jpg
+Compost Master,Waste Reduction,600,Start a bin.,Shah Alam,Hard,2026-01-10,2026-02-10,Active,Detailed text here,compost.jpg
+Veggie Week,Shopping,300,Eat only local veg.,Ipoh,Medium,2026-01-05,2026-01-12,Active,Detailed text here,veg.jpg
+Rainwater Harvest,Energy Saving,700,Collect rain for plants.,Johor Bahru,Hard,2026-02-01,2026-02-28,Active,Detailed text here,rain.jpg
+Plastic Free July,Recycling,500,No plastic for a month.,Global,Medium,2026-07-01,2026-07-31,Draft,Detailed text here,plastic.jpg
+Morning Yoga,Nature,150,Yoga in the park.,Penang,Easy,2025-12-22,2025-12-22,Active,Detailed text here,yoga.jpg
+Invalid Category Test,SpaceTravel,100,Wrong category name.,Penang,Easy,2025-12-22,2025-12-22,Active,Error row,test.jpg
+Invalid City Test,Nature,100,City does not exist.,MarsCity,Easy,2025-12-22,2025-12-22,Active,Error row,test.jpg
+Missing Data Test,,500,Missing category field.,Kuala Lumpur,Medium,2026-01-01,2026-01-07,Active,Error row,test.jpg     
