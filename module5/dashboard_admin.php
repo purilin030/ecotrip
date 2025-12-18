@@ -241,7 +241,16 @@ if (mysqli_num_rows($table_check) > 0) {
                             <?php foreach ($low_stock_items as $item): ?>
                                 <div class="flex items-center justify-between p-2 hover:bg-red-50 rounded-lg transition">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded bg-gray-100 overflow-hidden"><img src="<?php echo !empty($item['Reward_Photo']) ? $item['Reward_Photo'] : 'https://placehold.co/100'; ?>" class="w-full h-full object-cover"></div>
+                                        <div class="w-8 h-8 rounded bg-gray-100 overflow-hidden">
+    <?php 
+        $img_src = !empty($item['Reward_Photo']) ? $item['Reward_Photo'] : 'https://placehold.co/100';
+        
+        if (strpos($img_src, 'http') !== 0) {
+            $img_src = '../module4/' . $img_src;
+        }
+    ?>
+    <img src="<?php echo $img_src; ?>" class="w-full h-full object-cover">
+</div>
                                         <span class="text-sm font-medium text-gray-700"><?php echo htmlspecialchars($item['Reward_name']); ?></span>
                                     </div>
                                     <span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full">Only <?php echo $item['Stock']; ?> left</span>
