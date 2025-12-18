@@ -4,18 +4,18 @@ require '../database.php';
 require '../header.php';
 require '../background.php';
 
-// 1. 检查登录
+// 1. Check login
 if(!isset($_SESSION['user_id'])){
     echo "<script>window.location.href='../module1/login.php';</script>"; 
     exit;
 }
 $user_id = $_SESSION['user_id'];
 
-// === 2. 接收筛选参数 ===
+// === 2. Receive filter parameters ===
 $filter_status = isset($_GET['status']) ? $_GET['status'] : 'all';
 $search_query = isset($_GET['q']) ? trim($_GET['q']) : '';
 
-// === 3. 构建动态 SQL ===
+// === 3. Build dynamic SQL ===
 $sql = "SELECT r.*, rw.Reward_Photo
         FROM redeemrecord r 
         LEFT JOIN reward rw ON r.Reward_ID = rw.Reward_ID 
@@ -23,13 +23,13 @@ $sql = "SELECT r.*, rw.Reward_Photo
 
 $params = [$user_id];
 
-// 筛选状态
+// Filter by status
 if ($filter_status !== 'all') {
     $sql .= " AND r.Status = ?";
     $params[] = $filter_status;
 }
 
-// 搜索关键词
+// Search keywords
 if (!empty($search_query)) {
     $sql .= " AND r.Reward_Name LIKE ?";
     $params[] = "%" . $search_query . "%";
@@ -102,7 +102,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php foreach($rows as $row): ?>
                         <?php 
                             $status = $row['Status']; 
-                            // 状态样式配置
+                            // Status style configuration
                             if ($status == 'Delivered') {
                                 $statusBadge = '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200"><i class="fa-solid fa-check mr-1.5"></i> Delivered</span>';
                                 $cardClass = 'border-l-4 border-l-green-500'; 
@@ -111,7 +111,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 $cardClass = 'border-l-4 border-l-yellow-400'; 
                             }
                             
-                            // 图片处理
+                            // Image handling
                             $imgSrc = !empty($row['Reward_Photo']) ? $row['Reward_Photo'] : "https://placehold.co/100x100?text=No+Img";
                         ?>
                         
@@ -216,26 +216,31 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         function cancelOrder(id) {
-            Swal.fire({
-                title: 'Cancel Request?',
-                text: "Are you sure? Points will be refunded.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, cancel it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // 这里你需要创建一个 cancel_redemption.php 来处理退款逻辑
-                    // 示例 fetch 请求：
-                    /*
-                    fetch('cancel_redemption.php', { method: 'POST', body: JSON.stringify({id: id}) })
-                    .then(...)
-                    */
-                    Swal.fire('Info', 'Please implement cancel_redemption.php backend logic.', 'info');
-                }
-            })
-        }
+  Swal.fire({
+    title: 'Cancel Request?',
+    text: "Are you sure? Points will be refunded.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, cancel it!'
+  }).then(async (result) => {
+    if (!result.isConfirmed) return;
+
+    const fd = new FormData();
+    fd.append('id', id);
+
+    const res = await fetch('cancel_redemption.php', { method: 'POST', body: fd });
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire('Cancelled', data.message, 'success').then(() => location.reload());
+    } else {
+      Swal.fire('Error', data.message, 'error');
+    }
+  });
+}
+
     </script>
     
     <?php include '../footer.php'; ?>

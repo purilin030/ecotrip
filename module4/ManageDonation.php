@@ -1,17 +1,17 @@
 <?php
 session_start();
 require '../database.php';
-require '../background.php'; // 你的背景特效
+require '../background.php'; // your background effects
 
-// --- 1. 后端处理逻辑 ---
+// --- 1. Backend processing logic ---
 
-// A. 添加新活动 (Add Campaign)
+// A. Add new campaign (Add Campaign)
 if (isset($_POST['add_campaign'])) {
     $title = $_POST['title'];
     $desc = $_POST['description'];
     $target = $_POST['target_points'];
     
-    // 图片上传逻辑
+    // Image upload logic
     $imagePath = null;
     if (!empty($_FILES['image']['name'])) {
         $targetDir = "uploads/";
@@ -29,7 +29,7 @@ if (isset($_POST['add_campaign'])) {
     header("Location: manage_donation.php?msg=added"); exit;
 }
 
-// B. 编辑活动 (Edit Campaign - Update Photo & State)
+// B. Edit campaign (Edit Campaign - Update Photo & State)
 if (isset($_POST['edit_campaign'])) {
     $id = $_POST['edit_id'];
     $title = $_POST['edit_title'];
@@ -37,11 +37,11 @@ if (isset($_POST['edit_campaign'])) {
     $target = $_POST['edit_target'];
     $status = $_POST['edit_status'];
     
-    // 动态构建 SQL
+    // Dynamically build SQL
     $sql = "UPDATE donation_campaign SET Title=?, Description=?, Target_Points=?, Status=?";
     $params = [$title, $desc, $target, $status];
 
-    // 如果上传了新图片，则更新图片字段
+    // If a new image was uploaded, update the image field
     if (!empty($_FILES['edit_image']['name'])) {
         $targetDir = "uploads/";
         $fileName = time() . "_donation_" . basename($_FILES['edit_image']['name']);
@@ -60,15 +60,15 @@ if (isset($_POST['edit_campaign'])) {
     header("Location: manage_donation.php?msg=updated"); exit;
 }
 
-// C. 删除活动 (可选)
+// C. Delete campaign (optional)
 if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
-    // 简单删除，实际项目中可能需要检查是否有捐赠记录
+    // Simple deletion; in a real project you may need to check for donation records
     $pdo->prepare("DELETE FROM donation_campaign WHERE Campaign_ID = ?")->execute([$id]);
     header("Location: manage_donation.php?msg=deleted"); exit;
 }
 
-// --- 2. 获取数据 ---
+// --- 2. Fetch data ---
 $campaigns = $pdo->query("SELECT * FROM donation_campaign ORDER BY Created_At DESC")->fetchAll(PDO::FETCH_ASSOC);
 
 require '../header.php';
@@ -142,7 +142,7 @@ require '../header.php';
             <?php foreach ($campaigns as $camp): 
                 $percent = ($camp['Target_Points'] > 0) ? min(100, round(($camp['Current_Points'] / $camp['Target_Points']) * 100)) : 0;
                 
-                // 状态颜色逻辑
+                // Status color logic
                 $statusColor = 'bg-green-100 text-green-700';
                 if ($camp['Status'] == 'Completed') $statusColor = 'bg-blue-100 text-blue-700';
                 if ($camp['Status'] == 'Closed') $statusColor = 'bg-gray-100 text-gray-500';
@@ -192,13 +192,13 @@ require '../header.php';
 </div>
 
 <script>
-    // 1. 图片上传预览逻辑
+    // 1. Image upload preview logic
     function previewFile(input) {
         const file = input.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                // 如果是左侧添加表单
+                // If it is the left-side add form
                 const preview = document.getElementById('previewImg');
                 const placeholder = document.getElementById('uploadPlaceholder');
                 if (preview && placeholder) {
@@ -211,7 +211,7 @@ require '../header.php';
         }
     }
 
-    // 2. 编辑弹窗逻辑 (使用 SweetAlert2)
+    // 2. Edit modal logic (using SweetAlert2)
     function openEditModal(camp) {
         Swal.fire({
             title: 'Edit Campaign',

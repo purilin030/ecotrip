@@ -1,16 +1,16 @@
 <?php
 session_start();
-require '../database.php'; // 确保这里不仅有 $con 还有 $pdo
+require '../database.php'; // Ensure this provides both $con and $pdo
 
 // ==================================================
-// 1. 🛡️ 安全检查：必须是 Admin (Role 1)
+// 1. 🛡️ Security check: must be Admin (Role 1)
 // ==================================================
 if (!isset($_SESSION['user_id'])) {
     echo "<script>window.location.href='../module1/login.php';</script>"; 
     exit;
 }
 
-// 再次核对数据库权限 (防止 Session 伪造)
+// Re-verify DB permissions (guard against forged Sessions)
 $stmtAuth = $pdo->prepare("SELECT Role FROM user WHERE User_ID = ?");
 $stmtAuth->execute([$_SESSION['user_id']]);
 $currentUser = $stmtAuth->fetch();
@@ -20,22 +20,22 @@ if (!$currentUser || $currentUser['Role'] != 1) {
 }
 
 // ==================================================
-// 2. ⚙️ 处理 POST 请求 (发货 / 退单)
+// 2. ⚙️ Handle POST requests (fulfill / reject)
 // ==================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json'); // 响应 JSON
+    header('Content-Type: application/json'); // Respond with JSON
     
     $action = $_POST['action'] ?? '';
     $record_id = $_POST['record_id'] ?? 0;
 
     try {
         if ($action === 'fulfill') {
-            // --- 发货逻辑 ---
+            // --- Fulfillment logic ---
             $status = "Delivered";
             $admin_note = $_POST['admin_note'] ?? 'Order Fulfilled';
             $proof_path = null;
 
-            // 图片上传
+            // Image upload
             if (isset($_FILES['proof_photo']) && $_FILES['proof_photo']['error'] == 0) {
                 if (!is_dir('uploads')) mkdir('uploads', 0777, true);
                 $ext = pathinfo($_FILES["proof_photo"]["name"], PATHINFO_EXTENSION);
@@ -43,11 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $target_file = "uploads/" . $file_name;
                 
                 if (move_uploaded_file($_FILES["proof_photo"]["tmp_name"], $target_file)) {
-                    $proof_path = $target_file; // 存入数据库的路径 (相对路径)
+                    $proof_path = $target_file; // Path saved into DB (relative path)
                 }
             }
 
-            // 更新数据库
+            // Update database
             $sql = "UPDATE redeemrecord SET Status = ?, Admin_Note = ?";
             $params = [$status, $admin_note];
             
@@ -66,10 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
 
         } elseif ($action === 'reject') {
-            // --- 🛑 退单逻辑 (带事务) ---
+            // --- 🛑 Reject logic (with transaction) ---
             $pdo->beginTransaction();
 
-            // A. 获取订单详情 (锁行)
+            // A. Get order details (lock row)
             $stmtGet = $pdo->prepare("SELECT * FROM redeemrecord WHERE RedeemRecord_ID = ? FOR UPDATE");
             $stmtGet->execute([$record_id]);
             $order = $stmtGet->fetch(PDO::FETCH_ASSOC);
@@ -78,24 +78,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Cannot reject this order (Already delivered or invalid).");
             }
 
-            // 获取商品价格
+            // Get product price
             $stmtReward = $pdo->prepare("SELECT Points_Required FROM reward WHERE Reward_ID = ?");
             $stmtReward->execute([$order['Reward_ID']]);
             $reward = $stmtReward->fetch(PDO::FETCH_ASSOC);
             $pointsToRefund = $reward['Points_Required'] * $order['Redeem_Quantity'];
 
-            // B. 退还库存
+            // B. Return inventory
             $stmtStock = $pdo->prepare("UPDATE reward SET Stock = Stock + ? WHERE Reward_ID = ?");
             $stmtStock->execute([$order['Redeem_Quantity'], $order['Reward_ID']]);
 
-            // C. 退还积分
+            // C. Refund points
             $stmtRefund = $pdo->prepare("UPDATE user SET RedeemPoint = RedeemPoint + ? WHERE User_ID = ?");
             $stmtRefund->execute([$pointsToRefund, $order['Redeem_By']]);
 
-            // D. 删除记录 (或者设为 Cancelled，取决于你的数据库设计。这里为了简单直接删除，或者你可以改 Status='Cancelled' 如果数据库 Enum 支持)
-            // 假设 database.sql 里 Status Enum 不包含 'Cancelled'，我们这里选择删除记录，
-            // 或者更新 Admin_Note 并保留记录但状态仍为 Pending (不推荐)。
-            // 最佳实践是修改数据库 Enum。这里演示 **删除记录** (硬取消)。
+            // D. Delete record (or set to 'Cancelled', depending on DB design. Here we delete for simplicity, or set Status='Cancelled' if Enum supports it)
+            // Assuming database.sql's Status Enum doesn't include 'Cancelled', we choose to delete the record here,
+            // Or update Admin_Note and keep the record with status still Pending (not recommended).
+            // Best practice is to modify the DB Enum. This demonstrates **hard delete** (force cancel).
             $stmtDel = $pdo->prepare("DELETE FROM redeemrecord WHERE RedeemRecord_ID = ?");
             $stmtDel->execute([$record_id]);
 
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ==================================================
-// 3. 🔍 查询与筛选 (服务端处理)
+// 3. 🔍 Query and filtering (server-side)
 // ==================================================
 $filter = $_GET['filter'] ?? 'all';
 $search = trim($_GET['search'] ?? '');
@@ -125,14 +125,14 @@ $sql = "SELECT r.*, u.First_Name, u.Last_Name, u.Email, u.Avatar, rw.Type as Rew
 
 $params = [];
 
-// 状态筛选
+// Status filter
 if ($filter == 'pending') {
     $sql .= " AND r.Status != 'Delivered'";
 } elseif ($filter == 'delivered') {
     $sql .= " AND r.Status = 'Delivered'";
 }
 
-// 关键词搜索 (搜名字、邮箱或物品名)
+// Keyword search (search name, email, or item name)
 if (!empty($search)) {
     $sql .= " AND (u.First_Name LIKE ? OR u.Last_Name LIKE ? OR r.Reward_Name LIKE ?)";
     $params[] = "%$search%";
@@ -294,14 +294,14 @@ require '../background.php';
 </div>
 
 <script>
-    // 1. 发货逻辑 (Fulfill)
+    // 1. Fulfillment logic (Fulfill)
     async function fulfillOrder(recordId, rewardName, rewardType) {
         let formData = new FormData();
         formData.append('action', 'fulfill');
         formData.append('record_id', recordId);
 
         if (rewardType === 'Physical') {
-            // 物理商品：必须上传照片
+            // Physical products: must upload photo
             const { value: file } = await Swal.fire({
                 title: '📦 Ship Physical Item',
                 text: `Upload shipping proof for "${rewardName}"`,
@@ -320,7 +320,7 @@ require '../background.php';
             formData.append('admin_note', 'Shipped via Courier');
 
         } else {
-            // 虚拟商品：填写备注/卡密
+            // Virtual products: fill in remark / code
             const { value: note } = await Swal.fire({
                 title: '🎟️ Issue Virtual Reward',
                 text: `Enter voucher code or note for "${rewardName}"`,
@@ -338,7 +338,7 @@ require '../background.php';
         submitForm(formData);
     }
 
-    // 2. 退单逻辑 (Reject)
+    // 2. Reject logic (Reject)
     function rejectOrder(recordId) {
         Swal.fire({
             title: 'Reject & Refund?',
@@ -358,7 +358,7 @@ require '../background.php';
         });
     }
 
-    // 3. 通用提交函数
+    // 3. Common submit function
     function submitForm(formData) {
         Swal.fire({ title: 'Processing...', didOpen: () => Swal.showLoading() });
 
@@ -377,7 +377,7 @@ require '../background.php';
         });
     }
 
-    // 4. 查看凭证
+    // 4. View proof
     function showProof(url) {
         Swal.fire({
             imageUrl: url,

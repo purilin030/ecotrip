@@ -2,15 +2,15 @@
 session_start();
 
 // ==========================================
-// 1. 修复路径：引入数据库
+// 1. Fix path: include database
 // ==========================================
-// 使用 __DIR__ 确保无论从哪里调用都能找到上级目录的 database.php
+// Use __DIR__ to ensure database.php is found regardless of call location
 $path_to_db = __DIR__ . '/../database.php';
 
 if (file_exists($path_to_db)) {
     require $path_to_db;
 } else {
-    // 如果找不到，尝试直接引入（兼容文件在根目录的情况）
+    // If not found, try direct include (compatible when file is in project root)
     if (file_exists('database.php')) {
         require 'database.php';
     } else {
@@ -18,19 +18,19 @@ if (file_exists($path_to_db)) {
     }
 }
 
-// 2. 安全检查
+// 2. Security checks
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../index.php"); // 建议跳回根目录登录页
+    header("Location: ../index.php"); // Suggest redirect back to root login page
     exit();
 }
 
-// 3. 接收 Caption
+// 3. Receive Caption
 $caption = '';
 if (isset($_POST['caption'])) {
     $caption = trim($_POST['caption']);
 }
 
-/* 4. 图片上传逻辑 */
+/* 4. Image upload logic */
 if (!isset($_FILES['photo'])) {
     $_SESSION['flash'] = 'Please choose a photo to upload.';
     header('Location: profile.php');
@@ -72,9 +72,9 @@ else {
 }
 
 // ==========================================
-// 5. 修复路径：确保上传目录存在
+// 5. Fix path: ensure upload directory exists
 // ==========================================
-// 设定上传目录为项目根目录下的 avatars 文件夹
+// Set upload directory to the project's root avatars folder
 $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/avatars';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0775, true);
@@ -90,12 +90,12 @@ if (!move_uploaded_file($file['tmp_name'], $target)) {
     exit;
 }
 
-/* 6. 更新数据库 */
-// 注意：这里存入 ../avatars/... 是为了让你当前的相对路径逻辑能跑通
-// 如果以后首页头像不显示，需要修改这里或前端的读取逻辑
+/* 6. Update database */
+// Note: storing ../avatars/... keeps current relative path logic working
+// If homepage avatar later fails to display, modify this or the frontend retrieval logic
 
-// 这里的路径必须以 / 开头，代表从网站根目录开始找
-// 对应浏览器网址: http://localhost/ecotrip/avatars/图片名.jpg
+// This path must start with / to be absolute from the website root
+// Corresponding browser URL: http://localhost/ecotrip/avatars/image_name.jpg
 $image_path = '/ecotrip/avatars/' . $fname;
 
 $image_path_esc = mysqli_real_escape_string($con, $image_path);
@@ -108,8 +108,8 @@ $result = mysqli_query($con, $sql);
 if ($result) {
     $_SESSION['flash'] = 'Profile updated successfully!';
     
-    // 更新 Session 中的头像，这样不需要重新登录就能看到变化
-    // (假设你的 Session 里并没有存 Avatar，通常只存 ID，这行是可选的)
+    // Update avatar in Session so changes appear without re-login
+    // (If your Session doesn't store Avatar, commonly only ID is stored; this line is optional)
     // $_SESSION['Avatar'] = $image_path; 
 } else {
     $_SESSION['flash'] = 'Database error: ' . mysqli_error($con);

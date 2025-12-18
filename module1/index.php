@@ -1,5 +1,5 @@
 <?php
-// 防止 session 重复开启报错
+// Prevent session duplicate start warnings
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

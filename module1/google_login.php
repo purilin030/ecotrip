@@ -1,16 +1,16 @@
 <?php
-// 引入配置
+// Include configuration
 require_once 'config_google.php';
 
 // ==========================================
-// 🔴 关键修改：强制显示“选择账号”页面
+// 🔴 Key change: force display of the account chooser page
 // ==========================================
 $client->setPrompt('select_account');
 
-// 生成 Google 登录链接
+// Generate Google login link
 $authUrl = $client->createAuthUrl();
 
-// 跳转到 Google
+// Redirect to Google
 header('Location: ' . $authUrl);
 exit();
 ?>

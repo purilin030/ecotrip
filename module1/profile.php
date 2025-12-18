@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. 安全检查
+// 1. Security checks
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 2. 查询用户信息
+// 2. Query user information
 $sql = "SELECT u.*, t.Team_name 
         FROM user u 
         LEFT JOIN team t ON u.Team_ID = t.Team_ID 
@@ -20,18 +20,18 @@ $result = mysqli_query($con, $sql);
 $user_info = mysqli_fetch_assoc($result);
 
 // =========================================================
-// 🔴 修复重点：在这里定义头像逻辑
-// 优先使用数据库里的 Avatar，如果没有，才用 UI-Avatars 生成默认图
+// 🔴 Key fix: define avatar logic here
+// Prefer avatar from DB; if absent, generate default via UI-Avatars
 // =========================================================
 if (!empty($user_info['Avatar'])) {
-    // 如果数据库有头像（比如 Google 头像），就用它
+    // If DB has an avatar (e.g., Google avatar), use it
     $final_avatar = $user_info['Avatar'];
 } else {
-    // 如果数据库是空的，生成默认头像
+    // If DB is empty, generate default avatar
     $final_avatar = "https://ui-avatars.com/api/?name=" . $user_info['First_Name'] . "+" . $user_info['Last_Name'] . "&background=random&color=fff";
 }
 
-// 3. 处理数据显示逻辑
+// 3. Handle display logic for data
 $dob_display = !empty($user_info['User_DOB']) ? $user_info['User_DOB'] : '<span class="text-gray-400 italic">N/A</span>';
 $team_display = !empty($user_info['Team_name']) ? $user_info['Team_name'] : '<span class="text-gray-400 italic">No Team joined</span>';
 
@@ -63,7 +63,8 @@ include '../header.php';
                 <div class="flex flex-col items-center mb-8 border-b border-gray-100 pb-6">
                     <div
                         class="h-32 w-32 rounded-full bg-gray-200 overflow-hidden border-4 border-brand-100 shadow-md group relative">
-                        <img src="<?php echo $final_avatar; ?>" alt="User Avatar" class="h-full w-full object-cover">
+                        <img src="<?php echo $display_avatar; ?>" alt="User Avatar" referrerpolicy="no-referrer"
+                            class="h-full w-full object-cover">
                     </div>
                     <h3 class="mt-4 text-xl font-bold text-gray-900">
                         <?php echo $user_info['First_Name'] . " " . $user_info['Last_Name']; ?>

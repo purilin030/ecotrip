@@ -3,7 +3,7 @@
 // 引入数据库连接
 require_once __DIR__ . '/../database.php';
 
-// 开启 Session
+// Start Session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -16,7 +16,7 @@ $admin_id = $_SESSION['user_id'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sub_id = intval($_POST['submission_id']);
-    $action = $_POST['action']; // 'approve' 或 'deny'
+    $action = $_POST['action']; // 'approve' or 'deny'
     $note = isset($_POST['note']) ? trim($_POST['note']) : '';
     $action_date = date("Y-m-d");
 
@@ -44,26 +44,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $status_text = "";
     
     // ======================================================
-    // 逻辑分支处理：防止重复加分，处理扣分
+    // Logical branch processing: Preventing duplicate scoring and handling deductions
     // ======================================================
 
     if ($action == 'approve') {
         $status_text = "Approved";
 
-        // 情况 A: 之前已经是 Approved，现在只是更新备注
+        // Scenario A: Previously approved, now merely updating the remarks.
         if ($current_status === 'approved') {
-            // 不做积分操作，只更新 Note 和 QR
+            // No points operations; only updating Notes and QR codes.
         } 
-        // 情况 B: 之前是 Pending 或 Denied，现在变成 Approved -> 加分
+        // Scenario B: Previously Pending or Denied, now changed to Approved -> Points awarded
         else {
-            // 1. 更新 User 表积分
+            // renew user's point
             $update_user_sql = "UPDATE user SET Point = Point + ?, RedeemPoint = RedeemPoint + ? WHERE User_ID = ?";
             $update_user_stmt = $con->prepare($update_user_sql);
             $update_user_stmt->bind_param("iii", $points, $points, $target_user_id);
             $update_user_stmt->execute();
             $update_user_stmt->close();
 
-            // 2. 插入 PointsLedger 记录
+            // 2. insert PointsLedger record
             $ledger_sql = "INSERT INTO pointsledger (Points_Earned, Earned_Date, User_ID, Submission_ID, Team_ID) 
                            VALUES (?, ?, ?, ?, ?)";
             $ledger_stmt = $con->prepare($ledger_sql);
@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $ledger_stmt->close();
         }
 
-        // --- QR Code 生成逻辑 (无论是否重复批准，都更新/重新生成 QR) ---
+        // --- QR Code generation
         $folder_path = "../qr_code/";
         if (!file_exists($folder_path)) {
             mkdir($folder_path, 0777, true);
@@ -89,13 +89,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($image_data) {
             file_put_contents($local_file_path, $image_data);
-            // 更新 Submission
+            // renew Submission
             $sql = "UPDATE submissions SET Status = 'Approved', Verification_note = ?, QR_Code = ? WHERE Submission_ID = ?";
             $stmt = $con->prepare($sql);
             $stmt->bind_param("ssi", $note, $db_qr_path, $sub_id);
             $stmt->execute();
         } else {
-            // 即使 QR 失败，也要更新状态
+            // Even if the QR code fails, the status must be updated.
              $sql = "UPDATE submissions SET Status = 'Approved', Verification_note = ? WHERE Submission_ID = ?";
              $stmt = $con->prepare($sql);
              $stmt->bind_param("si", $note, $sub_id);
@@ -105,18 +105,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif ($action == 'deny') {
         $status_text = "Denied";
 
-        // 情况 C: 之前是 Approved，现在变成 Denied -> 必须扣分 (Revoke Points)
+        // Scenario C: Previously Approved, now changed to Denied -> Points must be deducted (Revoke Points)
         if ($current_status === 'approved') {
-            // 1. 从 User 表扣除积分
-            // 注意：要防止扣成负数 (虽然逻辑上不应该，但加上 GREATEST 0 比较安全)
-            // 这里简单直接减去
+          
+            // reduce user's points
             $deduct_sql = "UPDATE user SET Point = Point - ?, RedeemPoint = RedeemPoint - ? WHERE User_ID = ?";
             $deduct_stmt = $con->prepare($deduct_sql);
             $deduct_stmt->bind_param("iii", $points, $points, $target_user_id);
             $deduct_stmt->execute();
             $deduct_stmt->close();
 
-            // 2. 处理 Ledger (删除之前的加分记录)
+            // 2. execute Ledger that add point before 
             $del_ledger_sql = "DELETE FROM pointsledger WHERE Submission_ID = ? AND User_ID = ?";
             $del_ledger_stmt = $con->prepare($del_ledger_sql);
             $del_ledger_stmt->bind_param("ii", $sub_id, $target_user_id);
@@ -124,21 +123,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $del_ledger_stmt->close();
         }
         
-        // 更新 Submission 状态
+        // renew Submission's status
         $sql = "UPDATE submissions SET Status = 'Denied', Verification_note = ? WHERE Submission_ID = ?";
         $stmt = $con->prepare($sql);
         $stmt->bind_param("si", $note, $sub_id);
         $stmt->execute();
     }
 
-    // --- 记录到 Moderation 表 ---
+    // --- record to Moderation ---
     if (!empty($status_text)) {
         $mod_sql = "INSERT INTO moderation (Submission_ID, User_ID, Action, Action_date) VALUES (?, ?, ?, ?)";
         $mod_stmt = $con->prepare($mod_sql);
         $mod_stmt->bind_param("iiss", $sub_id, $admin_id, $status_text, $action_date);
         $mod_stmt->execute();
 
-        // 跳转
+        // jump
         header("Location: action_completed.php?id=" . $sub_id . "&status=" . strtolower($status_text));
         exit(); 
     }

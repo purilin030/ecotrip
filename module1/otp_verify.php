@@ -2,7 +2,7 @@
 session_start();
 require_once('database.php');
 
-// 安全检查：没经过登录页直接访问？踢出去！
+// Security check: accessing without going through login? Kick out!
 if (!isset($_SESSION['temp_otp']) || !isset($_SESSION['temp_user_id'])) {
     header("Location: login.php");
     exit();
@@ -14,33 +14,33 @@ $error_msg = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_otp = $_POST['otp'];
     
-    // 1. 检查是否过期
+    // 1. Check expiry
     if (time() > $_SESSION['temp_otp_expiry']) {
         $error_msg = "Code expired. Please login again.";
     } 
-    // 2. 比对验证码
+    // 2. Check OTP
     else if ($user_otp == $_SESSION['temp_otp']) {
         
-        // ✅ 验证成功！获取正式用户数据
+        // ✅ Verification successful! Fetch official user data
         $user_id = $_SESSION['temp_user_id'];
         $sql = "SELECT * FROM user WHERE User_ID = '$user_id'";
         $result = mysqli_query($con, $sql);
         $row = mysqli_fetch_assoc($result);
         
-        // 设置正式 Session
+        // Set official session variables
         $_SESSION['user_id']   = $row['User_ID'];
         $_SESSION['Firstname'] = $row['First_Name'];
         $_SESSION['Lastname']  = $row['Last_Name'];
         $_SESSION['Email']     = $row['Email'];
         $_SESSION['Avatar']    = $row['Avatar'];
         
-        // 清理垃圾 Session
+        // Clear temporary OTP session data
         unset($_SESSION['temp_otp']);
         unset($_SESSION['temp_otp_expiry']);
         unset($_SESSION['temp_user_id']);
         unset($_SESSION['temp_email']);
         
-        // 跳转首页
+        // Redirect to home page
         echo "<script>window.location.href = 'home.php';</script>";
         exit();
         

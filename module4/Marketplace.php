@@ -1,29 +1,29 @@
 <?php
-// 1. 开启 Session (如果 header.php 里没开，这里保底开一下)
+// 1. Start session (fallback if header.php didn't)
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 2. 引入数据库连接 (提供 $pdo)
+// 2. Include database connection (provides $pdo)
 
 require '../database.php';
 
 if (isset($_SESSION['user_id'])) {
     $current_user_id = $_SESSION['user_id'];
 
-    // 3. 从数据库查询 Role
-    // 即使 Session 里存了 Role，最好也从数据库查一次，以防管理员刚修改了权限但 Session 没更新
+    // 3. Query Role from database
+    // Even if Role is in Session, re-query database to avoid stale permissions
     $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
     $auth_res = mysqli_query($con, $auth_sql);
     
     if ($auth_row = mysqli_fetch_assoc($auth_res)) {
         
-        // 4. 判断：如果 Role 等于 1 (Admin)
+        // 4. Check: if Role equals 1 (Admin)
         if ($auth_row['Role'] == 1) {
             
-            // 跳转到目标页面 (记得改成你实际的文件名)
+            // Redirect to target page (remember to use your actual filename)
             header("Location: /ecotrip/module4/Redeem-Record.php");
-            exit(); // 必须加 exit，阻止后续代码执行
+            exit(); // Must add exit to stop further execution
         }
     }
 }
@@ -33,36 +33,36 @@ include '../background.php';
 
 
 
-// 3. 设置页面标题 (header.php 会用到这个变量)
+// 3. Set page title (header.php will use this variable)
 $page_title = "Rewards Marketplace";
 
-// 4. 检查登录状态
-// header.php 里可能已经检查过了，但这里为了逻辑严密，再次确认
+// 4. Check login status
+// header.php may have already checked, but verify again for robustness
 if (!isset($_SESSION['user_id'])) {
-    // 如果没登录，可以在这里跳转，或者暂时模拟一个 (测试用)
-    // $_SESSION['user_id'] = 18; // 测试完记得删掉这行！
+    // If not logged in, redirect here or temporarily simulate a user (for testing)
+    // $_SESSION['user_id'] = 18; // Remove this line after testing!
     header("Location:../index.php");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
 
-// 5. 获取当前用户的积分 (专门为了 Marketplace 显示余额)
-// 注意：header.php 可能只查了头像，没查 RedeemPoint，所以这里要单查一次
+// 5. Get current user's points (for Marketplace balance display)
+// Note: header.php may only fetch avatar, not RedeemPoint, so query it here
 $stmtUser = $pdo->prepare("SELECT RedeemPoint FROM user WHERE User_ID = ?");
 $stmtUser->execute([$user_id]);
 $currentUser = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
-// 如果查不到用户 (比如被删了)，给个默认值防止报错
+// If user not found (e.g., deleted), provide a default to avoid errors
 if (!$currentUser) {
     $currentUser = ['RedeemPoint' => 0];
 }
 
-// 6. 获取商品列表
+// 6. Fetch product list
 $stmtRewards = $pdo->query("SELECT * FROM reward WHERE Status = 'Active'");
 $rewards = $stmtRewards->fetchAll(PDO::FETCH_ASSOC);
 
-// --- 关键点：先准备好数据，再引入 Header ---
+// --- Key point: prepare data first, then include Header ---
 ?>
 
 <main class="flex-grow max-w-7xl mx-auto px-8 py-10 w-full">
@@ -133,18 +133,18 @@ $rewards = $stmtRewards->fetchAll(PDO::FETCH_ASSOC);
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <?php foreach ($rewards as $reward): ?>
             <?php 
-                // 逻辑判断
+                // Logical conditional
                 $isOutOfStock = $reward['Stock'] <= 0;
                 $notEnoughPoints = $currentUser['RedeemPoint'] < $reward['Points_Required'];
                 $isDisabled = $isOutOfStock || $notEnoughPoints;
                 
-                // 按钮样式
+                // Button styling
                 if ($isOutOfStock) {
                     $btnClass = "bg-gray-300 text-gray-500 cursor-not-allowed";
                     $btnText = "Out of Stock";
                 } elseif ($notEnoughPoints) {
                     $btnClass = "bg-gray-200 text-gray-400 cursor-not-allowed";
-                    // 计算还差多少分
+                    // Calculate remaining points required
                     $diff = $reward['Points_Required'] - $currentUser['RedeemPoint'];
                     $btnText = "Need {$diff} more";
                 } else {
@@ -158,10 +158,10 @@ $rewards = $stmtRewards->fetchAll(PDO::FETCH_ASSOC);
          data-points="<?php echo $reward['Points_Required']; ?>">
             <div class="h-48 w-full bg-gray-100 overflow-hidden relative">
     <?php 
-        // 1. 获取图片路径
+        // 1. Get image path
         $imgSrc = htmlspecialchars($reward['Reward_Photo']);
         
-        // 2. 如果数据库里是空的，使用默认图
+        // 2. If empty in DB, use default image
         if (empty($imgSrc)) {
             $imgSrc = "https://placehold.co/600x400/e2e8f0/94a3b8?text=No+Image";
         }
@@ -187,10 +187,13 @@ $rewards = $stmtRewards->fetchAll(PDO::FETCH_ASSOC);
                     
                     <div class="mt-auto">
                         <div class="flex justify-between items-center mb-4">
+                            <div class="text-xs font-bold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-md">
+                                <?php echo $reward['Points_Required']; ?> pts
+                            </div>
                             <div class="text-xs font-medium <?php echo $reward['Stock'] < 10 ? 'text-red-600 bg-red-50' : 'text-green-700 bg-green-50'; ?> px-2.5 py-1 rounded-md">
                                 <?php echo $reward['Stock']; ?> in stock
                             </div>
-                        </div>
+                    </div>
 
                         <button 
                             class="w-full py-2.5 rounded-lg text-sm font-bold <?php echo $btnClass; ?>"

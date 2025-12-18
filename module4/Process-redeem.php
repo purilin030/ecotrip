@@ -18,7 +18,7 @@ if (!$reward_id) {
 
 try{
     $pdo->beginTransaction();
-    //NOTE:FOR UPDATE 是用在要读取数据并且修改他,但是在修改之前先锁住数据,防止其他人修改.Avoid Race Condition Case.
+    // NOTE: FOR UPDATE is used when selecting rows to modify; it locks rows before modification to avoid race conditions.
     //2.CHECK USER current point [FOR UPDATE]
     $stmtUser = $pdo->prepare("SELECT RedeemPoint FROM user WHERE User_ID = ? FOR UPDATE");
     $stmtUser->execute([$user_id]);
@@ -48,12 +48,12 @@ $updatePoints -> execute([$reward['Points_Required'],$user_id]);
 //7.write record
 $insertRecord = $pdo->prepare("INSERT INTO redeemrecord (Reward_ID, Reward_Name, Redeem_Quantity, Redeem_By, Redeem_Date) VALUES (?, ?, 1, ?, NOW())");
     $insertRecord->execute([$reward_id, $reward['Reward_name'], $user_id]);
-// 提交事务
+// Commit transaction
     $pdo->commit();
     echo json_encode(['success' => true, 'message' => 'Redemption Successful!']);
     
 } catch (Exception $e) {
-    // 发生错误，回滚所有操作
+    // On error, roll back all operations
     $pdo->rollBack();
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

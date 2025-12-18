@@ -6,7 +6,7 @@ if (!isset($_GET['id'])) die("Invalid Request");
 $record_id = $_GET['id'];
 $user_id = $_SESSION['user_id'];
 
-// 查询数据
+// Query data
 $stmt = $pdo->prepare("
     SELECT r.*, u.First_Name, u.Last_Name 
     FROM redeemrecord r 
@@ -18,11 +18,11 @@ $record = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$record) die("Access Denied.");
 
-// --- 核心逻辑：判断是“证书”还是“券” ---
+// --- Core logic: determine whether it's a "certificate" or a "voucher" ---
 $rewardName = $record['Reward_Name'];
 $isCert = (stripos($rewardName, 'Tree') !== false || stripos($rewardName, 'Cert') !== false);
 
-// 生成 Code (通用)
+// Generate code (generic)
 $code = "ECO-" . strtoupper(substr(md5($record_id . 'salt'), 0, 8)) . "-2025";
 ?>
 

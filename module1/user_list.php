@@ -18,7 +18,7 @@ if ($auth_row['Role'] != 1 ) {
     exit();
 }
 
-// 2. Get all user data (Straight forward SELECT *，不关联 Team 表)
+// 2. Get all user data (simple SELECT *, not joining Team table)
 $sql = "SELECT * FROM user ORDER BY User_ID ASC";
 $result = mysqli_query($con, $sql);
 

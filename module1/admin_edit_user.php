@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. 安全检查
+// 1. Safety Check: Only Admin can access
 if (!isset($_SESSION['user_id'])) { header("Location: index.php"); exit(); }
 
 $current_user_id = $_SESSION['user_id'];
@@ -12,13 +12,13 @@ $auth_row = mysqli_fetch_assoc($auth_res);
 
 if ($auth_row['Role'] != 1 ) { header("Location: index.php"); exit(); }
 
-// 2. 获取目标 ID
+// 2. fetch ID
 if (!isset($_GET['id'])) { header("Location: user_list.php"); exit(); }
 $target_id = intval($_GET['id']);
 
-// 3. 保存逻辑 (修改了这里)
+// 3. Process "Save" logic (update info)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
-    // 基础信息
+    // basic info
     $fname = mysqli_real_escape_string($con, $_POST['firstname']);
     $lname = mysqli_real_escape_string($con, $_POST['lastname']);
     $email = mysqli_real_escape_string($con, $_POST['email']);
@@ -27,16 +27,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
     $caption = mysqli_real_escape_string($con, $_POST['caption']);
     $avatar_path = mysqli_real_escape_string($con, $_POST['avatar']); 
     
-    // 权限与数值
+    // Permissions and values
     $new_role  = intval($_POST['role']);
     $points = intval($_POST['points']);
     $redeem_points = intval($_POST['redeem_points']);
     $new_team_id = intval($_POST['team_id']);
     
-    // Team ID 处理 (0 转 NULL)
+    // Process Team ID (convert 0 to NULL)
     $team_sql_val = ($new_team_id == 0) ? "NULL" : "'$new_team_id'";
 
-    // 更新 User 表
+    // Update User table
     $update_sql = "UPDATE user SET 
                    First_Name='$fname', 
                    Last_Name='$lname', 
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
                    RedeemPoint='$redeem_points',
                    Team_ID=$team_sql_val";
 
-    // 密码处理
+    // Process Password Reset
     if (!empty($_POST['new_password'])) {
         $new_pass_hash = md5($_POST['new_password']); 
         $update_sql .= ", Password='$new_pass_hash'";
@@ -61,34 +61,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
     if (mysqli_query($con, $update_sql)) {
         
         // ======================================================
-        // 【新增】同步 Team Owner 逻辑
+        // 【NEW】Sync Team Owner Logic
         // ======================================================
         
-        // 情况 A: 用户被设为 Team Owner (Role 2) 且有队伍
+        // Case A: User set as Team Owner (Role 2) but also has a Team ID
         if ($new_role == 2 && $new_team_id > 0) {
             
-            // 1. 更新 Team 表：让这个队归顺新队长
+            // 1. Update Team table：Set Team ID to new Team owner
             $sync_team = "UPDATE team SET Owner_ID = '$target_id' WHERE Team_ID = '$new_team_id'";
             mysqli_query($con, $sync_team);
 
-            // 2. 冲突处理：如果这个队之前有别的队长，把他降级 (Role 0)
-            // 保护机制：不降级 Admin (Role 1)
+            // 2. Clash Process：if the team has other team owner，undergrade the Owner level (Role 0)
+            // Protect Mechanic：Does Not Undergrade Admin level (Role 1)
             $downgrade_others = "UPDATE user SET Role = 0 
                                  WHERE Team_ID = '$new_team_id' 
                                  AND User_ID != '$target_id' 
                                  AND Role != 1";
             mysqli_query($con, $downgrade_others);
 
-            // 3. 清理旧账：如果这个用户换了队，把他之前拥有的旧队的 Owner 设为 0
+            // 3. Clear Old Record： If the user change the Team，change his previous Team Owner set as 0
             $clear_old_team = "UPDATE team SET Owner_ID = 0 
                                WHERE Owner_ID = '$target_id' 
                                AND Team_ID != '$new_team_id'";
             mysqli_query($con, $clear_old_team);
         }
 
-        // 情况 B: 用户不再是 Team Owner (被降级为 0 或 1)
+        // Case B: User is not Team Owner any more (Downgrade as 0 or 1)
         elseif ($new_role != 2) {
-            // 把他之前拥有的所有队的 Owner 设为 0 (释放队伍)
+            // Set his previous team's Owner as 0 (relaease the team)
             $release_team = "UPDATE team SET Owner_ID = 0 WHERE Owner_ID = '$target_id'";
             mysqli_query($con, $release_team);
         }
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_user'])) {
     }
 }
 
-// 4. 读取数据
+// 4. Read current user data
 $sql = "SELECT * FROM user WHERE User_ID = '$target_id'";
 $result = mysqli_query($con, $sql);
 $user = mysqli_fetch_assoc($result);

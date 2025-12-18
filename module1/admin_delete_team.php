@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. 安全检查
+// 1. Safety Check: Only Admin can access
 if (!isset($_SESSION['user_id'])) { header("Location: index.php"); exit(); }
 
 $current_user_id = $_SESSION['user_id'];
@@ -12,15 +12,15 @@ $auth_row = mysqli_fetch_assoc($auth_res);
 
 if ($auth_row['Role'] != 1 ) { header("Location: index.php"); exit(); }
 
-// 2. 获取目标 ID
+// 2. fetach ID
 if (isset($_GET['id'])) {
     $target_team_id = intval($_GET['id']);
 
-    // A. 先把该队伍所有成员的 Team_ID 设为 NULL (解散队员)
+    // A. Set the Team member's Team_ID to NULL (Remove Team member from team)
     $release_members_sql = "UPDATE user SET Team_ID = NULL WHERE Team_ID = '$target_team_id'";
     mysqli_query($con, $release_members_sql);
 
-    // B. 删除队伍
+    // B. Delete the Team
     $delete_sql = "DELETE FROM team WHERE Team_ID = '$target_team_id'";
     
     if (mysqli_query($con, $delete_sql)) {

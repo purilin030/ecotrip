@@ -1,10 +1,10 @@
 <?php
-// 1. 确保 Session 开启
+// 1. Ensure session is started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 2. 只有在非公开页面才强制检查登录
+// 2. Enforce login check only on non-public pages
 $current_page = basename($_SERVER['PHP_SELF']);
 $public_pages = ['index.php', 'signup.php', 'home.php'];
 
@@ -21,11 +21,11 @@ $user_name_display = "Guest";
 $user_role_display = "Visitor";
 $role_badge_class = "bg-gray-100 text-gray-500";
 
-// 初始化角色
+// Initialize role
 $db_role = 0;
 
 if (isset($_SESSION['Firstname'])) {
-    // 默认备选：用名字生成头像
+    // Default fallback: generate avatar from name
     $display_avatar = "https://ui-avatars.com/api/?name=" . $_SESSION['Firstname'] . "+" . $_SESSION['Lastname'] . "&background=0D8ABC&color=fff&size=128";
     $user_name_display = $_SESSION['Firstname'] . " " . $_SESSION['Lastname'];
     $user_role_display = "Member";
@@ -39,20 +39,22 @@ if (isset($_SESSION['Firstname'])) {
             $h_row = mysqli_fetch_assoc($h_res);
 
             // =======================================================
-            // 🔴 修复重点：区分 Google 头像 (URL) 和本地上传头像 (File)
+            // 🔴 Key fix: distinguish Google avatar (URL) vs local uploaded avatar (File)
             // =======================================================
+            // 检查数据库字段不为空
             if (!empty($h_row['Avatar'])) {
-                $db_avatar = $h_row['Avatar'];
+                $avatar_url = $h_row['Avatar'];
 
-                // 检查 1：如果是 http 或 https 开头，说明是网络图片 (Google)，直接用
-                if (strpos($db_avatar, 'http') === 0) {
-                    $display_avatar = $db_avatar;
-                }
-                // 检查 2：如果是本地图片，先检查文件是否存在，防止破图
-                else {
-                    $physical_path = $_SERVER['DOCUMENT_ROOT'] . $db_avatar;
+                // 🌟 核心修复：检查是不是网络图片 (Google 头像)
+                if (strpos($avatar_url, 'http') === 0) {
+                    // 如果是 http 或 https 开头，直接使用，不检查本地文件
+                    $display_avatar = $avatar_url;
+                } else {
+                    // 只有是本地上传的文件，才去检查物理路径
+                    $physical_path = $_SERVER['DOCUMENT_ROOT'] . $avatar_url;
+
                     if (file_exists($physical_path)) {
-                        $display_avatar = $db_avatar;
+                        $display_avatar = $avatar_url;
                     }
                 }
             }
@@ -234,10 +236,10 @@ if (isset($_SESSION['Firstname'])) {
 
 
                         <?php
-                        // 1. 设置默认链接：所有人默认去 User Dashboard
+                        // 1. Everyone go User Dashboard
                         $dashboard_main_url = "/ecotrip/module5/dashboard_user.php";
 
-                        // 2. 如果是管理员，点击标题默认去 Admin Dashboard
+                        // 2. If admin, go Admin Dashboard
                         if ($db_role == 1) {
                             $dashboard_main_url = "/ecotrip/module5/dashboard_admin.php";
                         }
@@ -264,7 +266,7 @@ if (isset($_SESSION['Firstname'])) {
 
                     <div class="h-10 w-10 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-sm">
                         <a href="/ecotrip/module1/profile.php">
-                            <img src="<?php echo $display_avatar; ?>" alt="User Avatar"
+                            <img src="<?php echo $display_avatar; ?>" alt="User Avatar" referrerpolicy="no-referrer"
                                 class="h-full w-full object-cover">
                         </a>
                     </div>

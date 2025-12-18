@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. 安全检查
+// 1. Security checks
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -19,7 +19,7 @@ if ($auth_row['Role'] != 1) {
     exit();
 }
 
-// 2. 获取所有队伍
+// 2. Get all teams
 $sql = "SELECT t.*, u.First_Name, u.Last_Name 
         FROM team t 
         LEFT JOIN user u ON t.Owner_ID = u.User_ID 
@@ -63,17 +63,17 @@ include '../header.php';
                                 
                                 <?php 
                                     // ======================================================
-                                    // 【核心修改】实时计算队伍总分
+                                    // [Core change] Calculate team total points in real-time
                                     // ======================================================
                                     $tid = $row['Team_ID'];
                                     
-                                    // 1. 去 user 表找，条件是 Team_ID 等于当前队伍 ID
-                                    // 2. 使用 SUM(Point) 把分数列加起来
+                                    // 1. Query user table where Team_ID equals current team ID
+                                    // 2. Use SUM(Point) to add up points
                                     $sum_sql = "SELECT SUM(Point) as total_points FROM user WHERE Team_ID = '$tid'";
                                     $sum_res = mysqli_query($con, $sum_sql);
                                     $sum_row = mysqli_fetch_assoc($sum_res);
                                     
-                                    // 如果没有成员或积分为空，默认为 0
+                                    // If no members or points are null, default to 0
                                     $calculated_points = $sum_row['total_points'] ? $sum_row['total_points'] : 0;
                                 ?>
 

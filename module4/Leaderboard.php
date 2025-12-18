@@ -3,9 +3,9 @@ require '../database.php';
 include '../header.php';
 include '../background.php'; 
 
-// --- 逻辑处理区域 ---
+// --- Logic processing section ---
 
-// 1. 称号获取函数
+// 1. Title retrieval function
 function getEcoTitle($points) {
     if ($points >= 5000) return ['👑 Planet Hero', 'bg-yellow-100 text-yellow-800 border-yellow-200'];
     if ($points >= 2000) return ['🌳 Forest Guardian', 'bg-green-100 text-green-800 border-green-200'];
@@ -14,24 +14,24 @@ function getEcoTitle($points) {
     return ['🌰 Sprout', 'bg-gray-100 text-gray-600 border-gray-200'];
 }
 
-// 2. 获取当前用户排名 (底部悬浮条逻辑)
+// 2. Get current user's rank (bottom sticky bar logic)
 $myRankData = null;
 if (isset($_SESSION['user_id'])) {
     $myId = $_SESSION['user_id'];
     
-    // 查我的分数
+    // Query my score
     $stmtMe = $pdo->prepare("SELECT Point, Avatar, CONCAT(First_Name, ' ', Last_Name) as Name FROM user WHERE User_ID = ?");
     $stmtMe->execute([$myId]);
     $me = $stmtMe->fetch(PDO::FETCH_ASSOC);
     
     if ($me) {
         $myPoints = $me['Point'];
-        // 查排名 (分数比我高的人数 + 1)
+        // Query rank (number of users with higher score + 1)
         $stmtRank = $pdo->prepare("SELECT COUNT(*) as rank_above FROM user WHERE Point > ?");
         $stmtRank->execute([$myPoints]);
         $myRank = $stmtRank->fetch(PDO::FETCH_ASSOC)['rank_above'] + 1;
         
-        // 查前一名 (激励机制)
+        // Find the previous rank user (motivation mechanism)
         $stmtNext = $pdo->prepare("SELECT Point FROM user WHERE Point > ? ORDER BY Point ASC LIMIT 1");
         $stmtNext->execute([$myPoints]);
         $nextPlayer = $stmtNext->fetch(PDO::FETCH_ASSOC);
@@ -46,7 +46,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
-// 3. 获取主列表数据
+// 3. Get main list data
 $mode = $_GET['mode'] ?? 'individual';
 $period = $_GET['period'] ?? 'all';
 
@@ -59,7 +59,7 @@ if ($period === '7d') {
 
 if ($mode === 'individual') {
     if ($period === 'all') {
-        // 增加 User_ID ASC 作为第二排序，防止同分随机排序
+        // Add User_ID ASC as secondary sort to prevent random order for ties
         $sql = "SELECT CONCAT(First_Name, ' ', Last_Name) AS Name, Avatar, Point AS totalPoints, NULL AS LastUpdate FROM user ORDER BY Point DESC, User_ID ASC LIMIT 50";
     } else {
         $sql = "SELECT CONCAT(u.First_Name, ' ', u.Last_Name) AS Name, u.Avatar, COALESCE(SUM(p.Points_Earned), 0) AS totalPoints, MAX(p.Earned_Date) AS LastUpdate FROM user u LEFT JOIN pointsledger p ON u.User_ID = p.User_ID $dateCondition GROUP BY u.User_ID ORDER BY totalPoints DESC, MIN(p.Earned_Date) ASC LIMIT 50";
@@ -74,7 +74,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// 辅助函数：处理头像
+// Helper function: handle avatar
 function getAvatarUrl($avatarPath, $name, $mode) {
     $default = "https://ui-avatars.com/api/?name=" . urlencode($name) . "&background=random&color=fff&size=128";
     if ($mode === 'team') return $default;
@@ -91,7 +91,7 @@ $top3 = array_slice($rows, 0, 3);
 $rest = array_slice($rows, 3);
 $rank = 4;
 
-// 样式定义
+// Style definitions
 $activeTab = "flex-1 py-4 text-center text-sm font-bold text-green-700 border-b-4 border-green-600 bg-green-50/50 backdrop-blur-sm";
 $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:text-green-600 hover:bg-white/30 transition-all";
 ?>
@@ -198,7 +198,7 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
                 <?php foreach($rest as $row): 
                     if ($row['totalPoints'] == 0) continue; 
                     $rowClass = "hover:bg-white/90 hover:scale-[1.01] hover:shadow-sm transition-all duration-200 cursor-default"; 
-                    // 获取列表中的称号
+                    // Get titles for items in the list
                     list($titleText, $titleClass) = getEcoTitle($row['totalPoints']);
                 ?>
                 <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center <?php echo $rowClass; ?>">

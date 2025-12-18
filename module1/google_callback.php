@@ -1,22 +1,22 @@
 <?php
-// 1. 开启 Session
+// 1. Start Session
 session_start();
 
-// 2. 引入依赖
+// 2. Include dependencies
 require_once 'database.php';
 require_once 'config_google.php';
-require_once 'mail_config.php'; // 【新增】引入发邮件功能
+require_once 'mail_config.php'; // [new] include email sending helper
 
-// 3. 检查是否有 Code 返回
+// 3. Check if a code was returned
 if (isset($_GET['code'])) {
     
     try {
-        // --- A. 获取 Google 用户信息 ---
+        // --- A. Get Google user information ---
         
-        // 临时跳过 SSL 验证 (本地开发用)
+        // Temporarily disable SSL verification (for local development)
         $client->setHttpClient(new \GuzzleHttp\Client(['verify' => false]));
 
-        // 用 Code 换 Token
+        // Exchange code for token
         $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
         
         if (isset($token['error'])) {
@@ -25,34 +25,34 @@ if (isset($_GET['code'])) {
 
         $client->setAccessToken($token['access_token']);
 
-        // 获取详细资料
+        // Retrieve profile details
         $google_oauth = new Google_Service_Oauth2($client);
         $google_account_info = $google_oauth->userinfo->get();
 
-        // 准备数据
+        // Prepare data
         $email     = mysqli_real_escape_string($con, $google_account_info->email);
         $firstname = mysqli_real_escape_string($con, $google_account_info->givenName);
         $lastname  = mysqli_real_escape_string($con, $google_account_info->familyName);
         $avatar    = mysqli_real_escape_string($con, $google_account_info->picture);
 
-        // --- B. 数据库逻辑 (确保用户存在于数据库) ---
+        // --- B. Database logic (ensure user exists in DB) ---
 
-        $target_user_id = 0; // 用于记录最终的用户ID
+        $target_user_id = 0; // Will store the final user ID
 
-        // 查库
+        // Query the database
         $check_sql = "SELECT * FROM user WHERE Email = '$email'";
         $result = mysqli_query($con, $check_sql);
 
         if (mysqli_num_rows($result) > 0) {
-            // --- 情况 1: 老用户 ---
+            // --- Case 1: existing user ---
             $user = mysqli_fetch_assoc($result);
             $target_user_id = $user['User_ID'];
 
-            // (可选) 可以在这里更新一下头像，保证最新
+            // (Optional) Update avatar here to keep it current
             // mysqli_query($con, "UPDATE user SET Avatar='$avatar' WHERE User_ID='$target_user_id'");
 
         } else {
-            // --- 情况 2: 新用户 (自动注册) ---
+            // --- Case 2: new user (auto-register) ---
             $now = date("Y-m-d H:i:s");
             $random_password = md5(uniqid(rand(), true)); 
 
@@ -67,21 +67,21 @@ if (isset($_GET['code'])) {
         }
 
         // ============================================================
-        // 🛑 核心修改：不再直接设置 Session 登录，而是转入 OTP 流程
+        // 🛑 Core change: do not set session directly; use OTP verification instead
         // ============================================================
 
-        // 1. 生成 6 位随机验证码
+        // 1. Generate a 6-digit random OTP
         $otp = rand(100000, 999999);
 
-        // 2. 存入临时 Session (这部分逻辑和 login.php 一模一样)
+        // 2. Store in temporary session (same logic as login.php)
         $_SESSION['temp_otp'] = $otp;
-        $_SESSION['temp_otp_expiry'] = time() + 300; // 5分钟有效期
-        $_SESSION['temp_user_id'] = $target_user_id; // 关键：告诉 verify 页面要验谁
+        $_SESSION['temp_otp_expiry'] = time() + 300; // 5-minute expiry
+        $_SESSION['temp_user_id'] = $target_user_id; // Key: tell verify page which user to verify
         $_SESSION['temp_email'] = $email;
         
-        // 3. 发送邮件
+        // 3. Send email
         if (sendOTPEmail($email, $otp)) {
-            // 4. 跳转到统一的验证页面
+            // 4. Redirect to OTP verification page
             header("Location: otp_verify.php");
             exit();
         } else {

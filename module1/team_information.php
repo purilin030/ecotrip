@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. 检查登录状态
+// 1. Check Authentication
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -10,42 +10,40 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 2. 获取当前用户的 Team_ID
+// 2. Fetch user's Team_ID
 $user_sql = "SELECT Team_ID FROM user WHERE User_ID = '$user_id'";
 $user_res = mysqli_query($con, $user_sql);
 $user_data = mysqli_fetch_assoc($user_res);
 $my_team_id = $user_data['Team_ID'];
 
-// 3. 如果用户没有团队，跳转回 team.php
+// 3. If no team, redirect to team.php
 if ($my_team_id == NULL || $my_team_id == 0) {
     header("Location: team.php");
     exit();
 }
 
-// 4. 获取队伍基本信息
+// 4. Fetch team info
 $team_sql = "SELECT * FROM team WHERE Team_ID = '$my_team_id'";
 $team_res = mysqli_query($con, $team_sql);
 $my_team = mysqli_fetch_assoc($team_res);
 
 // ==========================================
-// 5. 【关键修改】计算团队总分
-// 逻辑：直接将该团队下所有用户的 Point 加起来
+// 5. Calculate Team Total Points
+// Logic: Simply sum up the Points of all users under this team.
 // ==========================================
 $points_sql = "SELECT SUM(Point) as total_points FROM user WHERE Team_ID = '$my_team_id'";
 $points_res = mysqli_query($con, $points_sql);
 $points_data = mysqli_fetch_assoc($points_res);
 
-// 如果结果为NULL（比如没人有分），就默认为0
+// If the result is NULL (e.g., no one has points), it defaults to 0.
 $team_total_points = $points_data['total_points'] ? $points_data['total_points'] : 0;
-
-// ... 上面是步骤 5 ...
 $points_res = mysqli_query($con, $points_sql);
 $points_data = mysqli_fetch_assoc($points_res);
 $team_total_points = $points_data['total_points'] ? $points_data['total_points'] : 0;
 
 // ==========================================
-// 5.5. 【新增】计算团队排名
-// 逻辑：计算所有队伍的总分，然后统计有多少队伍的分数 > 当前队伍分数
+// 5.5. [New] Calculate Team Rankings
+// Logic: Calculate the total score for all teams, then count how many teams have a score > the current team's score.
 // ==========================================
 $rank_sql = "
     SELECT COUNT(*) + 1 AS current_rank
@@ -62,14 +60,12 @@ $rank_res = mysqli_query($con, $rank_sql);
 $rank_data = mysqli_fetch_assoc($rank_res);
 $my_rank = $rank_data['current_rank'];
 
-// ... 下面是步骤 6 ...
 
-
-// 6. 获取队友列表
+// 6. Fetch team members
 $members_sql = "SELECT User_ID, First_Name, Last_Name, Avatar, Role FROM user WHERE Team_ID = '$my_team_id'";
 $members_res = mysqli_query($con, $members_sql);
 
-// 设置标题并引入 Header
+//  7. Page Header
 $page_title = htmlspecialchars($my_team['Team_name']) . " - My Team";
 include '../header.php';
 ?>
@@ -164,12 +160,9 @@ include '../header.php';
                     $is_owner = ($member['User_ID'] == $my_team['Owner_ID']);
                     $member_avatar = "https://ui-avatars.com/api/?name=" . $member['First_Name'] . "+" . $member['Last_Name'] . "&background=random&color=fff";
 
-                    // 修正后的头像路径检查逻辑
-                    // 假设数据库存的是 '/ecotrip/avatars/xxx.png' 这种Web路径
+                    // Revised avatar path validation logic
+                    
                     if (!empty($member['Avatar'])) {
-                        // 构建物理路径来检查文件是否存在
-                        // 注意：你需要根据你的实际文件结构调整这里的逻辑
-                        // 这里尝试去掉开头的 '/ecotrip/' 来拼接物理路径
                         $rel_path = str_replace('/ecotrip/', '', $member['Avatar']);
                         $phys_path = __DIR__ . '/../' . $rel_path;
 

@@ -2,7 +2,7 @@
 session_start();
 require 'database.php';
 
-// 1. 安全检查
+// 1. Security checks
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 2. 获取 Team
+// 2. Get Team
 $user_sql = "SELECT Team_ID FROM user WHERE User_ID = '$user_id'";
 $user_res = mysqli_query($con, $user_sql);
 $user_data = mysqli_fetch_assoc($user_res);
@@ -21,31 +21,31 @@ if ($my_team_id == NULL || $my_team_id == 0) {
     exit();
 }
 
-// 3. 获取 Team Info
+// 3. Get Team Info
 $team_sql = "SELECT * FROM team WHERE Team_ID = '$my_team_id'";
 $team_res = mysqli_query($con, $team_sql);
 $my_team = mysqli_fetch_assoc($team_res);
 
-// 4. 权限检查
+// 4. Permission check
 if ($my_team['Owner_ID'] != $user_id) {
     $_SESSION['flash_error'] = "Only the Team Owner can edit the team.";
     header("Location: team_information.php");
     exit();
 }
 
-// 5. 表单提交 (更新 Name 和 Bio)
+// 5. Form submit (update Name and Bio)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_team'])) {
     $new_name = mysqli_real_escape_string($con, trim($_POST['team_name']));
-    $new_bio = mysqli_real_escape_string($con, trim($_POST['team_bio'])); // 新增 Bio
+    $new_bio = mysqli_real_escape_string($con, trim($_POST['team_bio'])); // New Bio
 
     if (!empty($new_name)) {
-        // 检查重名 (排除自己)
+        // Check for duplicate name (exclude self)
         $check_sql = "SELECT Team_ID FROM team WHERE Team_name = '$new_name' AND Team_ID != '$my_team_id'";
         $check_res = mysqli_query($con, $check_sql);
         if (mysqli_num_rows($check_res) > 0) {
             $error_msg = "Team name '$new_name' is already taken.";
         } else {
-            // 更新 Name 和 Bio
+            // Update Name and Bio
             $update_sql = "UPDATE team SET Team_name = '$new_name', Team_Bio = '$new_bio' WHERE Team_ID = '$my_team_id'";
             if (mysqli_query($con, $update_sql)) {
                 $_SESSION['flash_success'] = "Team updated successfully!";
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_team'])) {
     }
 }
 
-// 6. 获取队友列表
+// 6. Get teammate list
 $members_sql = "SELECT User_ID, First_Name, Last_Name, Avatar, Email FROM user WHERE Team_ID = '$my_team_id'";
 $members_res = mysqli_query($con, $members_sql);
 
@@ -164,11 +164,11 @@ include '../header.php';
                     <?php
                     $is_me = ($member['User_ID'] == $user_id);
                     $mem_avatar = "https://ui-avatars.com/api/?name=" . $member['First_Name'] . "+" . $member['Last_Name'] . "&background=random&color=fff";
-                    // 拼接物理路径进行检查
+                    // Build physical path for checking
                     $phys_path = $_SERVER['DOCUMENT_ROOT'] . $member['Avatar'];
 
                     if (!empty($member['Avatar']) && file_exists($phys_path)) {
-                        // 检查通过，使用数据库里的 Web 路径显示
+                        // Check passed; use the web path stored in DB for display
                         $mem_avatar = $member['Avatar'];
                     }
                     ?>

@@ -1,12 +1,12 @@
 <?php
 // ==========================================
-// 1. 配置与数据库连接
+// 1. Configuration & DB connection
 // ==========================================
 $path_to_db = __DIR__ . '/../database.php';
 
 $path_to_header = __DIR__ . '/../header.php';
 
-// 检查数据库文件是否存在
+// Check if database file exists
 if (!file_exists($path_to_db)) {
     if (file_exists('database.php')) {
         require_once 'database.php';
@@ -17,54 +17,54 @@ if (!file_exists($path_to_db)) {
     require_once $path_to_db;
 }
 
-// 确保数据库连接变量 $con 存在
+// Ensure DB connection variable $con exists
 if (!isset($con)) {
     die("Error: Database connection variable \$con is not set. Please check database.php.");
 }
 
 
 // ==========================================
-// 2. 会话与权限
+// 2. Session and permissions
 // ==========================================
-// 开启 Session
+// Start Session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 引入顶部导航栏
-// header.php 通常会处理部分登录检查，但为了安全，我们在下面再做一次 ID 检查
+// Include top navigation
+// header.php may do some login checks; for safety, perform an ID check below
 if (file_exists($path_to_header)) {
-    // 设置页面标题
+    // Set page title
     $page_title = "Submission List";
     include $path_to_header;
 } else {
-    // 仅用于测试时的 fallback
+    // Fallback used only during testing
     echo '<!DOCTYPE html><html lang="en"><head><script src="https://cdn.tailwindcss.com"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"></head><body class="bg-gray-50">';
 }
 
-// --- 关键修改：获取当前登录 User ID ---
+// --- Key change: get current logged-in User ID ---
 
-// 1. 检查是否登录
+// 1. Check login status
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
 
-// 2. 获取当前用户 ID
+// 2. Get current user ID
 $user_id = $_SESSION['user_id'];
 
-// (可选) 如果你以后确实想限制只有特定角色能看，可以在这里加 Role 判断
-// 但对于“查看我的提交”功能，通常所有 Role 都可以访问。
+// (Optional) If you later want to restrict to specific roles, add a Role check here
+// But for 'view my submissions', typically all Roles can access
 
 // ==========================================
-// 3. 数据处理逻辑
+// 3. Data processing logic
 // ==========================================
 
-// 获取筛选状态，默认为 'All'
+// Get filter state, default to 'All'
 $filter_status = isset($_GET['status']) ? $_GET['status'] : 'All';
 
-// --- 构建主查询 SQL (submissions 表) ---
-// 这里使用 User_ID = ? 确保只查出当前用户的数据
+// --- Build main query SQL (submissions table) ---
+// Use User_ID = ? to ensure only current user's data is selected
 $sql = "SELECT 
             s.Submission_ID, 
             s.Submission_date, 
@@ -76,31 +76,31 @@ $sql = "SELECT
         JOIN challenge c ON s.Challenge_ID = c.Challenge_ID
         WHERE s.User_ID = ?";
 
-// 根据筛选条件追加 SQL
+// Append SQL according to filter conditions
 if ($filter_status != 'All') {
     $sql .= " AND s.Status = ?";
 }
 
 $sql .= " ORDER BY s.Submission_date DESC";
 
-// 预处理 SQL
+// Prepare SQL
 $stmt = $con->prepare($sql);
 if (!$stmt) {
     die("SQL Prepare Error: " . $con->error);
 }
 
-// 绑定参数
+// Bind parameters
 if ($filter_status != 'All') {
     $stmt->bind_param("is", $user_id, $filter_status);
 } else {
     $stmt->bind_param("i", $user_id);
 }
 
-// 执行查询
+// Execute query
 $stmt->execute();
 $result = $stmt->get_result();
 
-// --- 统计各状态数量 (用于顶部 Tab 显示) ---
+// --- Count statuses (for top tabs display) ---
 $count_sql = "SELECT 
     COUNT(*) as total,
     SUM(CASE WHEN Status = 'Pending' THEN 1 ELSE 0 END) as pending,
@@ -129,7 +129,7 @@ if ($stats_result) {
         <div class="border-b border-gray-200">
             <nav class="-mb-px flex" aria-label="Tabs">
                 <?php
-                // 定义 Tab 生成逻辑
+                // Define Tab generation logic
                 $tabs = [
                     'All' => ['label' => 'All Submissions', 'count' => $stats['total']],
                     'Pending' => ['label' => 'Pending', 'count' => $stats['pending']],
@@ -139,7 +139,7 @@ if ($stats_result) {
 
                 foreach ($tabs as $key => $tab) {
                     $isActive = ($filter_status == $key);
-                    // 动态设置样式
+                    // Dynamically set styles
                     $linkClass = $isActive 
                         ? "border-brand-500 text-brand-600" 
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300";
@@ -178,7 +178,7 @@ if ($stats_result) {
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <?php 
                                 $status = strtolower($row['Status']);
-                                // 状态颜色配置
+                                // Status color configuration
                                 if ($status == 'approved') {
                                     $badge = "bg-green-100 text-green-800";
                                     $dot = "text-green-400";
@@ -306,7 +306,7 @@ if ($stats_result) {
 
     // Close on click outside
     window.onclick = function(event) {
-        // 如果点击的是半透明背景层 (bg-opacity-75 的兄弟或其本身，取决于布局)，这里简单检查类名
+        // If clicking the translucent background layer (or its sibling), simply check the class name
         if (event.target.classList.contains('bg-opacity-75')) {
              closeQrModal();
         }
@@ -315,12 +315,12 @@ if ($stats_result) {
 
 <?php
 // ==========================================
-// 5. 资源清理
+// 5. Resource cleanup
 // ==========================================
 if (isset($stmt)) $stmt->close();
 if (isset($con)) $con->close();
 
-// 结束 HTML 标签
+// End HTML tags
 ?>
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php';
 include '../footer.php';
