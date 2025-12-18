@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once('database.php');
 require_once('mail_config.php'); // 引入发邮件功能 (确保你创建了这个文件)
 
-$error_msg = ""; 
+$error_msg = "";
 
 // 处理表单提交
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
@@ -28,16 +28,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
             // =================================================
             // 🛑 核心修改：密码正确，不直接登录，改为发送 OTP
             // =================================================
-            
+
             // 1. 生成 6 位随机验证码
             $otp = rand(100000, 999999);
-            
+
             // 2. 存入临时 Session (5分钟有效)
             $_SESSION['temp_otp'] = $otp;
-            $_SESSION['temp_otp_expiry'] = time() + 300; 
+            $_SESSION['temp_otp_expiry'] = time() + 300;
             $_SESSION['temp_user_id'] = $row['User_ID']; // 记住是谁
             $_SESSION['temp_email'] = $row['Email'];     // 用于显示
-            
+
             // 3. 发送邮件
             if (sendOTPEmail($email, $otp)) {
                 // 发送成功，跳转到输入验证码页面
@@ -145,6 +145,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
                     Create an account
                 </a>
             </p>
+        </div>
+
+        <div class="space-y-4">
+
+
+            <div>
+                <div class="mt-3 flex justify-end">
+                    <a href="forgot_password.php"
+                        class="text-xs font-semibold text-green-600 hover:text-green-700 transition-colors">
+                        Forgot Password?
+                    </a>
+                </div>
+
+            </div>
+
+
         </div>
     </div>
 </div>
