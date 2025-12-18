@@ -57,7 +57,7 @@ if (isset($_POST['edit_campaign'])) {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 
-    header("Location: manage_donation.php?msg=updated"); exit;
+    
 }
 
 // C. Delete campaign (optional)

@@ -1,53 +1,49 @@
 <?php
 session_start();
 require '../database.php';
+
+// --- 1. 權限與安全檢查 ---
 if (isset($_SESSION['user_id'])) {
     $current_user_id = $_SESSION['user_id'];
-
-    // 3. Get data from database Role
-    // Even if Role is in Session, re-query DB in case admin recently changed permissions
+    
+    // 重新從資料庫檢查角色，確保權限即時性
     $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
     $auth_res = mysqli_query($con, $auth_sql);
     
     if ($auth_row = mysqli_fetch_assoc($auth_res)) {
-        
-        // 4. Admin Redirect
+        // 如果是 Admin (Role 1)，跳轉到管理員專用的清單頁面
         if ($auth_row['Role'] == 1) {
             header("Location: /ecotrip/module4/Redemption_List.php");
-            exit(); // Must add exit to prevent further execution
+            exit();
         }
     }
 }
-require '../header.php';
-require '../background.php';
 
-// 1. Check login
+// 檢查登入狀態
 if(!isset($_SESSION['user_id'])){
     echo "<script>window.location.href='../module1/login.php';</script>"; 
     exit;
 }
 $user_id = $_SESSION['user_id'];
 
-
-// === 2. Receive filter parameters ===
+// --- 2. 接收過濾與搜尋參數 ---
 $filter_status = isset($_GET['status']) ? $_GET['status'] : 'all';
 $search_query = isset($_GET['q']) ? trim($_GET['q']) : '';
 
-// === 3. Build dynamic SQL ===
-$sql = "SELECT r.*, rw.Reward_Photo
+// --- 3. 構建動態 SQL (聯集查詢獎勵類型與照片) ---
+// 🌟 核心：LEFT JOIN reward 表以獲取獎勵類型 (Type) 和原始照片 (Reward_Photo)
+$sql = "SELECT r.*, rw.Reward_Photo, rw.Type
         FROM redeemrecord r 
         LEFT JOIN reward rw ON r.Reward_ID = rw.Reward_ID 
         WHERE r.Redeem_By = ?";
 
 $params = [$user_id];
 
-// Filter by status
 if ($filter_status !== 'all') {
     $sql .= " AND r.Status = ?";
     $params[] = $filter_status;
 }
 
-// Search keywords
 if (!empty($search_query)) {
     $sql .= " AND r.Reward_Name LIKE ?";
     $params[] = "%" . $search_query . "%";
@@ -58,13 +54,16 @@ $sql .= " ORDER BY r.Redeem_Date DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+require '../header.php';
+require '../background.php';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Redemption History</title>
+    <title>My Redemption History - ecoTrip</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -74,8 +73,8 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <a href="Marketplace.php" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-brand-600 transition group self-start md:self-auto">
-                <div class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center mr-2 shadow-sm group-hover:border-green-300 group-hover:text-green-600">
+            <a href="Marketplace.php" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-green-600 transition group self-start md:self-auto">
+                <div class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center mr-2 shadow-sm group-hover:border-green-300">
                     <i class="fa-solid fa-arrow-left"></i>
                 </div>
                 Back to Shop
@@ -99,7 +98,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Redemption History</h1>
-                <p class="text-gray-500 mt-2">Track your rewards and deliveries.</p>
+                <p class="text-gray-500 mt-2">Track your rewards and delivery proofs.</p>
             </div>
 
             <?php if (count($rows) === 0): ?>
@@ -120,7 +119,8 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php foreach($rows as $row): ?>
                         <?php 
                             $status = $row['Status']; 
-                            // Status style configuration
+                            
+                            // 設定狀態標籤樣式
                             if ($status == 'Delivered') {
                                 $statusBadge = '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200"><i class="fa-solid fa-check mr-1.5"></i> Delivered</span>';
                                 $cardClass = 'border-l-4 border-l-green-500'; 
@@ -129,16 +129,29 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 $cardClass = 'border-l-4 border-l-yellow-400'; 
                             }
                             
-                            // Image handling
-                            $imgSrc = !empty($row['Reward_Photo']) ? $row['Reward_Photo'] : "https://placehold.co/100x100?text=No+Img";
+                            // 🌟 核心修復：照片優先級邏輯
+                            $isProof = false;
+                            if (!empty($row['Proof_Photo'])) {
+                                // 如果管理員上傳了送貨證明照片，覆蓋原始獎勵照片
+                                $imgSrc = $row['Proof_Photo'];
+                                $isProof = true;
+                            } else {
+                                // 否則顯示獎勵原始照片
+                                $imgSrc = !empty($row['Reward_Photo']) ? $row['Reward_Photo'] : "https://placehold.co/100x100?text=No+Img";
+                            }
                         ?>
                         
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition duration-300 <?= $cardClass ?>">
                             <div class="p-6">
                                 <div class="flex gap-5 items-start">
                                     
-                                    <div class="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-100">
+                                    <div class="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-100 relative shadow-sm">
                                         <img src="<?= htmlspecialchars($imgSrc) ?>" class="w-full h-full object-cover">
+                                        <?php if ($isProof): ?>
+                                            <div class="absolute bottom-0 left-0 right-0 bg-black/60 text-[8px] text-white text-center py-0.5 font-bold uppercase tracking-tighter">
+                                                Delivery Proof
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
 
                                     <div class="flex-grow">
@@ -157,7 +170,6 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         </div>
 
                                         <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-50">
-                                            
                                             <div class="text-sm font-medium text-gray-600">
                                                 Quantity: <span class="text-gray-900 font-bold">x<?php echo $row['Redeem_Quantity']; ?></span>
                                             </div>
@@ -170,17 +182,17 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     </button>
                                                 <?php endif; ?>
 
-                                                <?php if($status == 'Delivered'): ?>
+                                                <?php if($status == 'Delivered' && $row['Type'] == 'Physical'): ?>
                                                     <a href="voucher.php?id=<?= $row['RedeemRecord_ID'] ?>" target="_blank" 
                                                        class="inline-flex items-center px-3 py-1.5 rounded text-xs font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200 transition">
-                                                        <i class="fa-solid fa-print mr-1.5"></i> Print Voucher
+                                                        <i class="fa-solid fa-print mr-1.5"></i> Print
                                                     </a>
                                                 <?php endif; ?>
                                                 
-                                                <?php if ($row['Proof_Photo']): ?>
+                                                <?php if (!empty($row['Proof_Photo'])): ?>
                                                     <button onclick="showProof('<?php echo htmlspecialchars($row['Proof_Photo']); ?>')" 
                                                             class="inline-flex items-center px-3 py-1.5 rounded text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300 transition">
-                                                        <i class="fa-solid fa-image mr-1.5"></i> Proof
+                                                        <i class="fa-solid fa-image mr-1.5"></i> View Proof
                                                     </button>
                                                 <?php endif; ?>
                                             </div>
@@ -209,17 +221,19 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </main>
 
     <script>
+        // 顯示送貨證明大圖彈窗
         function showProof(imageUrl) {
             Swal.fire({
                 title: 'Delivery Proof',
                 imageUrl: imageUrl,
-                imageAlt: 'Proof Image',
+                imageAlt: 'Delivery Proof Image',
                 imageHeight: 400,
                 confirmButtonText: 'Close',
                 confirmButtonColor: '#333'
             });
         }
 
+        // 複製文字功能
         function copyText(elementId) {
             var text = document.getElementById(elementId).innerText;
             navigator.clipboard.writeText(text).then(() => {
@@ -233,32 +247,32 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             });
         }
 
+        // 取消申請功能
         function cancelOrder(id) {
-  Swal.fire({
-    title: 'Cancel Request?',
-    text: "Are you sure? Points will be refunded.",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, cancel it!'
-  }).then(async (result) => {
-    if (!result.isConfirmed) return;
+            Swal.fire({
+                title: 'Cancel Request?',
+                text: "Are you sure? Points will be refunded.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then(async (result) => {
+                if (!result.isConfirmed) return;
 
-    const fd = new FormData();
-    fd.append('id', id);
+                const fd = new FormData();
+                fd.append('id', id);
 
-    const res = await fetch('cancel_redemption.php', { method: 'POST', body: fd });
-    const data = await res.json();
+                const res = await fetch('cancel_redemption.php', { method: 'POST', body: fd });
+                const data = await res.json();
 
-    if (data.success) {
-      Swal.fire('Cancelled', data.message, 'success').then(() => location.reload());
-    } else {
-      Swal.fire('Error', data.message, 'error');
-    }
-  });
-}
-
+                if (data.success) {
+                    Swal.fire('Cancelled', data.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            });
+        }
     </script>
     
     <?php include '../footer.php'; ?>
