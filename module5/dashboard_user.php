@@ -122,19 +122,32 @@ while ($row = mysqli_fetch_assoc($res_top5)) {
     $top5_data[] = $row['cnt'];
 }
 
-// Consistency
-$sql_consist = "SELECT DATE_FORMAT(Submission_Date, 'Wk %u') as wk, COUNT(*) as cnt 
+// --- 4. CONSISTENCY LOGIC (Fixed) ---
+// Finds the number of submissions per week for the current year
+$sql_consist = "SELECT WEEK(Submission_Date) as wk_num, 
+                       DATE_FORMAT(Submission_Date, 'Wk %u') as wk_label, 
+                       COUNT(*) as cnt 
                 FROM submissions 
                 WHERE User_ID = '$user_id' 
-                GROUP BY wk ORDER BY Submission_Date ASC LIMIT 8";
+                AND YEAR(Submission_Date) = YEAR(CURDATE())
+                GROUP BY wk_num 
+                ORDER BY wk_num ASC 
+                LIMIT 12"; 
+
 $res_consist = mysqli_query($con, $sql_consist);
 $weekly_labels = [];
 $weekly_counts = [];
-while($row = mysqli_fetch_assoc($res_consist)) {
-    $weekly_labels[] = $row['wk'];
-    $weekly_counts[] = $row['cnt'];
-}
 
+if ($res_consist && mysqli_num_rows($res_consist) > 0) {
+    while($row = mysqli_fetch_assoc($res_consist)) {
+        $weekly_labels[] = $row['wk_label'];
+        $weekly_counts[] = $row['cnt'];
+    }
+} else {
+    // Fallback data to keep the chart object valid
+    $weekly_labels = ['No Data'];
+    $weekly_counts = [0];
+}
 // History
 $check_table = mysqli_query($con, "SHOW TABLES LIKE 'donation_record'");
 $has_donations = ($check_table && mysqli_num_rows($check_table) > 0);

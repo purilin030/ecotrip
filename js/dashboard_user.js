@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize charts if data exists
     initializeCharts();
 });
@@ -12,7 +12,7 @@ function switchTab(tabName) {
 
     // 2. Show selected section
     const selectedSection = document.getElementById('view-' + tabName);
-    if(selectedSection) {
+    if (selectedSection) {
         selectedSection.classList.remove('hidden');
     }
 
@@ -25,7 +25,7 @@ function switchTab(tabName) {
 
     // Set active green
     const activeBtn = document.getElementById('tab-' + tabName);
-    if(activeBtn) {
+    if (activeBtn) {
         activeBtn.classList.remove('border-transparent', 'text-gray-500');
         activeBtn.classList.add('border-green-500', 'text-green-600');
     }
@@ -38,7 +38,7 @@ function initializeCharts() {
     // 1. My Activity Chart (Growth/Eco Journey)
     const ctxMyGrowth = document.getElementById('myGrowthChart');
     if (ctxMyGrowth) {
-        if(dashboardData.chartLabels && dashboardData.chartLabels.length > 0) {
+        if (dashboardData.chartLabels && dashboardData.chartLabels.length > 0) {
             new Chart(ctxMyGrowth.getContext('2d'), {
                 type: 'line',
                 data: {
@@ -57,9 +57,9 @@ function initializeCharts() {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { 
-                        y: { beginAtZero: true, grid: { borderDash: [2, 4] } }, 
-                        x: { grid: { display: false } } 
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                        x: { grid: { display: false } }
                     }
                 }
             });
@@ -68,7 +68,7 @@ function initializeCharts() {
             ctx2d.font = "14px Inter";
             ctx2d.fillStyle = "#9ca3af";
             ctx2d.textAlign = "center";
-            ctx2d.fillText("No recent activity data to display", ctxMyGrowth.width/2, ctxMyGrowth.height/2);
+            ctx2d.fillText("No recent activity data to display", ctxMyGrowth.width / 2, ctxMyGrowth.height / 2);
         }
     }
 
@@ -81,8 +81,8 @@ function initializeCharts() {
                 labels: ['Pending', 'Approved', 'Rejected'],
                 datasets: [{
                     data: [
-                        dashboardData.userStatus.Pending, 
-                        dashboardData.userStatus.Approved, 
+                        dashboardData.userStatus.Pending,
+                        dashboardData.userStatus.Approved,
                         dashboardData.userStatus.Rejected
                     ],
                     backgroundColor: ['#f59e0b', '#22c55e', '#ef4444'], // Amber, Green, Red
@@ -98,7 +98,7 @@ function initializeCharts() {
                     legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 let label = context.label || '';
                                 if (label) { label += ': '; }
                                 label += context.raw + ' submissions';
@@ -138,7 +138,7 @@ function initializeCharts() {
         });
     }
 
-    // 4. Consistency Score (Trend Line)
+    // 4. Consistency Score (Trend Line) - Modified for better visibility
     const ctxConsistency = document.getElementById('consistencyChart');
     if (ctxConsistency && dashboardData.weeklyLabels) {
         new Chart(ctxConsistency.getContext('2d'), {
@@ -149,51 +149,65 @@ function initializeCharts() {
                     label: 'Submissions',
                     data: dashboardData.weeklyCounts,
                     borderColor: '#6366f1', // Indigo
-                    backgroundColor: 'rgba(99, 102, 241, 0.05)',
-                    borderWidth: 2,
+                    backgroundColor: 'rgba(99, 102, 241, 0.2)', // Increased opacity
+                    borderWidth: 3,
                     tension: 0.4,
                     fill: true,
-                    pointRadius: 0
+                    pointRadius: 4, // Shows dots for each data entry
+                    pointBackgroundColor: '#6366f1'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { 
-                    y: { display: false, beginAtZero: true }, 
-                    x: { display: false } 
-                }
-            }
-        });
-    }
-
-    // 5. NEW: Difficulty Breakdown (Doughnut Chart)
-    const ctxDiff = document.getElementById('userDifficultyChart');
-    if (ctxDiff && dashboardData.difficultyCounts) {
-        new Chart(ctxDiff.getContext('2d'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Easy', 'Medium', 'Hard'],
-                datasets: [{
-                    data: [
-                        dashboardData.difficultyCounts.Easy || 0,
-                        dashboardData.difficultyCounts.Medium || 0,
-                        dashboardData.difficultyCounts.Hard || 0
-                    ],
-                    backgroundColor: ['#4ade80', '#fbbf24', '#f87171'], // Green, Yellow, Red
-                    borderWidth: 0,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } }
+                    legend: { display: false },
+                    tooltip: { enabled: true } // Allows users to see counts on hover
+                },
+                scales: {
+                    y: {
+                        display: true, // Visible for tracking progress
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: '#9ca3af', font: { size: 10 } },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        display: true, // Visible to show week labels
+                        ticks: { color: '#9ca3af', font: { size: 9 } },
+                        grid: { display: false }
+                    }
                 }
             }
         });
-    }
+    
+}
+
+// 5. NEW: Difficulty Breakdown (Doughnut Chart)
+const ctxDiff = document.getElementById('userDifficultyChart');
+if (ctxDiff && dashboardData.difficultyCounts) {
+    new Chart(ctxDiff.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Easy', 'Medium', 'Hard'],
+            datasets: [{
+                data: [
+                    dashboardData.difficultyCounts.Easy || 0,
+                    dashboardData.difficultyCounts.Medium || 0,
+                    dashboardData.difficultyCounts.Hard || 0
+                ],
+                backgroundColor: ['#4ade80', '#fbbf24', '#f87171'], // Green, Yellow, Red
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } }
+            }
+        }
+    });
+}
 }
