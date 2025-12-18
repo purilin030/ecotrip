@@ -1,6 +1,23 @@
 <?php
 session_start();
 require '../database.php';
+if (isset($_SESSION['user_id'])) {
+    $current_user_id = $_SESSION['user_id'];
+
+    // 3. Get data from database Role
+    // Even if Role is in Session, re-query DB in case admin recently changed permissions
+    $auth_sql = "SELECT Role FROM user WHERE User_ID = '$current_user_id'";
+    $auth_res = mysqli_query($con, $auth_sql);
+    
+    if ($auth_row = mysqli_fetch_assoc($auth_res)) {
+        
+        // 4. Admin Redirect
+        if ($auth_row['Role'] == 1) {
+            header("Location: /ecotrip/module4/Redemption_List.php");
+            exit(); // Must add exit to prevent further execution
+        }
+    }
+}
 require '../header.php';
 require '../background.php';
 
@@ -10,6 +27,7 @@ if(!isset($_SESSION['user_id'])){
     exit;
 }
 $user_id = $_SESSION['user_id'];
+
 
 // === 2. Receive filter parameters ===
 $filter_status = isset($_GET['status']) ? $_GET['status'] : 'all';
