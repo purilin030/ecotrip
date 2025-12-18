@@ -61,4 +61,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
     </div>
 </body>
+<?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php'; ?>
 </html>
