@@ -168,7 +168,7 @@ $stats['denied'] = $stats['denied'] ?? 0;
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-8 w-8 rounded-full overflow-hidden">
-                                            <img src="<?php echo htmlspecialchars($display_avatar); ?>" alt="User Avatar" class="h-full w-full object-cover">
+                                            <img src="<?php echo htmlspecialchars($display_avatar); ?>" alt="User Avatar" class="h-full w-full object-cover" referrerpolicy="no-referrer>
                                         </div>
                                         <div class="ml-3">
                                             <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($fullName); ?></div>
