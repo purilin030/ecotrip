@@ -261,18 +261,6 @@ if (!empty($my_team_id)) {
                         <canvas id="userTopChallengesChart"></canvas>
                     </div>
                 </div>
-                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col">
-                    <div class="mb-4">
-                        <h3 class="text-lg font-bold text-gray-800">Consistency Score</h3>
-                        <p class="text-xs text-gray-400">Your weekly submission streak</p>
-                    </div>
-                    <div class="relative flex-grow h-48">
-                        <canvas id="consistencyChart"></canvas>
-                    </div>
-                    <div class="mt-4 text-center">
-                        <p class="text-xs text-gray-400">Keep the line going up! 🚀</p>
-                    </div>
-                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -55,8 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_team_id = mysqli_insert_id($con);
 
         // B. Update the User table for the captain and populate the Team_ID field.
-        $update_user_sql = "UPDATE user SET Team_ID = '$new_team_id', Role = 2 WHERE User_ID = '$user_id'";
-        mysqli_query($con, $update_owner_sql);
+        $update_user_sql = "UPDATE user SET Team_ID = '$new_team_id', Role = 2 WHERE User_ID = '$owner_id'";
 
         if (mysqli_query($con, $update_user_sql)) {
             $_SESSION['flash_success'] = "Team '$team_name' created successfully! You are now a Team Owner.";
