@@ -174,9 +174,9 @@ require '../header.php';
                 <select id="difficultyFilter"
                     class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent">
                     <option value="">All Difficulty</option>
-                    <option value="Low">Low</option>
+                    <option value="Easy">Easy</option>
                     <option value="Medium">Medium</option>
-                    <option value="High">High</option>
+                    <option value="Hard">Hard</option>
                 </select>
             </div>
         </div>

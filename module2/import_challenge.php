@@ -103,7 +103,7 @@ while ($row = $city_res->fetch_assoc()) {
         const validCategories = <?php echo json_encode($valid_categories); ?>;
         const validCities = <?php echo json_encode($valid_cities); ?>;
     </script>
-    <script src="../js/import_logic.js"></script>
+    <script src="../js/import_logic.js?v=4"></script>
     <?php include $_SERVER['DOCUMENT_ROOT'] . '/ecotrip/background.php'; ?>
 </body>
 </html>
