@@ -5,33 +5,36 @@ include '../background.php';
 
 // --- Logic processing section ---
 
-// 1. Title retrieval function
+// 1. Title retrieval function based on points
 function getEcoTitle($points) {
-    if ($points >= 5000) return ['👑 Planet Hero', 'bg-yellow-100 text-yellow-800 border-yellow-200'];
-    if ($points >= 2000) return ['🌳 Forest Guardian', 'bg-green-100 text-green-800 border-green-200'];
-    if ($points >= 1000) return ['🌱 Tree Hugger', 'bg-emerald-100 text-emerald-800 border-emerald-200'];
-    if ($points >= 500)  return ['🌿 Eco Scout', 'bg-blue-100 text-blue-800 border-blue-200'];
+    if ($points >= 5000)
+        return ['👑 Planet Hero', 'bg-yellow-100 text-yellow-800 border-yellow-200'];
+    if ($points >= 2000)
+        return ['🌳 Forest Guardian', 'bg-green-100 text-green-800 border-green-200'];
+    if ($points >= 1000)
+        return ['🌱 Tree Hugger', 'bg-emerald-100 text-emerald-800 border-emerald-200'];
+    if ($points >= 500)
+        return ['🌿 Eco Scout', 'bg-blue-100 text-blue-800 border-blue-200'];
     return ['🌰 Sprout', 'bg-gray-100 text-gray-600 border-gray-200'];
 }
-
 // 2. Get current user's rank (bottom sticky bar logic)
 $myRankData = null;
 if (isset($_SESSION['user_id'])) {
     $myId = $_SESSION['user_id'];
     
-    // Query my score
+    // Query my current points and info
     $stmtMe = $pdo->prepare("SELECT Point, Avatar, CONCAT(First_Name, ' ', Last_Name) as Name FROM user WHERE User_ID = ?");
     $stmtMe->execute([$myId]);
     $me = $stmtMe->fetch(PDO::FETCH_ASSOC);
     
     if ($me) {
         $myPoints = $me['Point'];
-        // Query rank (number of users with higher score + 1)
+        // Calculate rank by counting users with higher points
         $stmtRank = $pdo->prepare("SELECT COUNT(*) as rank_above FROM user WHERE Point > ?");
         $stmtRank->execute([$myPoints]);
         $myRank = $stmtRank->fetch(PDO::FETCH_ASSOC)['rank_above'] + 1;
         
-        // Find the previous rank user (motivation mechanism)
+        // Find the points of the next player for motivation
         $stmtNext = $pdo->prepare("SELECT Point FROM user WHERE Point > ? ORDER BY Point ASC LIMIT 1");
         $stmtNext->execute([$myPoints]);
         $nextPlayer = $stmtNext->fetch(PDO::FETCH_ASSOC);
@@ -46,7 +49,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
-// 3. Get main list data
+// 3. Get main list data (Filters: mode and period)
 $mode = $_GET['mode'] ?? 'individual';
 $period = $_GET['period'] ?? 'all';
 
@@ -57,12 +60,20 @@ if ($period === '7d') {
     $dateCondition = "AND p.Earned_Date >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
 }
 
+
 if ($mode === 'individual') {
     if ($period === 'all') {
-        // Add User_ID ASC as secondary sort to prevent random order for ties
-        $sql = "SELECT CONCAT(First_Name, ' ', Last_Name) AS Name, Avatar, Point AS totalPoints, NULL AS LastUpdate FROM user ORDER BY Point DESC, User_ID ASC LIMIT 50";
+        $sql = "SELECT CONCAT(u.First_Name, ' ', u.Last_Name) AS Name, u.Avatar, u.Point AS totalPoints, MAX(p.Earned_Date) AS LastUpdate 
+                FROM user u 
+                LEFT JOIN pointsledger p ON u.User_ID = p.User_ID 
+                GROUP BY u.User_ID 
+                ORDER BY totalPoints DESC, u.User_ID ASC LIMIT 50";
     } else {
-        $sql = "SELECT CONCAT(u.First_Name, ' ', u.Last_Name) AS Name, u.Avatar, COALESCE(SUM(p.Points_Earned), 0) AS totalPoints, MAX(p.Earned_Date) AS LastUpdate FROM user u LEFT JOIN pointsledger p ON u.User_ID = p.User_ID $dateCondition GROUP BY u.User_ID ORDER BY totalPoints DESC, MIN(p.Earned_Date) ASC LIMIT 50";
+        $sql = "SELECT CONCAT(u.First_Name, ' ', u.Last_Name) AS Name, u.Avatar, COALESCE(SUM(p.Points_Earned), 0) AS totalPoints, MAX(p.Earned_Date) AS LastUpdate 
+                FROM user u 
+                LEFT JOIN pointsledger p ON u.User_ID = p.User_ID $dateCondition 
+                GROUP BY u.User_ID 
+                ORDER BY totalPoints DESC, MIN(p.Earned_Date) ASC LIMIT 50";
     }
 } else {
     $joinPart = ($period === 'all') ? "LEFT JOIN pointsledger p ON u.User_ID = p.User_ID" : "LEFT JOIN pointsledger p ON u.User_ID = p.User_ID $dateCondition";
@@ -74,11 +85,15 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Helper function: handle avatar
+// Helper function: handle avatar URL and fallback
 function getAvatarUrl($avatarPath, $name, $mode) {
     $default = "https://ui-avatars.com/api/?name=" . urlencode($name) . "&background=random&color=fff&size=128";
     if ($mode === 'team') return $default;
-    if (!empty($avatarPath)) return "/ecotrip/avatars/" . basename($avatarPath);
+    if (!empty($avatarPath)) {
+        // Check if it's an external URL (Google) or local path
+        if (filter_var($avatarPath, FILTER_VALIDATE_URL)) return $avatarPath;
+        return "/ecotrip/avatars/" . basename($avatarPath);
+    }
     return $default;
 }
 
@@ -91,7 +106,7 @@ $top3 = array_slice($rows, 0, 3);
 $rest = array_slice($rows, 3);
 $rank = 4;
 
-// Style definitions
+// Style definitions for Tabs
 $activeTab = "flex-1 py-4 text-center text-sm font-bold text-green-700 border-b-4 border-green-600 bg-green-50/50 backdrop-blur-sm";
 $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:text-green-600 hover:bg-white/30 transition-all";
 ?>
@@ -123,7 +138,7 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
         <?php if (isset($top3[1])): $p2 = $top3[1]; list($t2, $c2) = getEcoTitle($p2['totalPoints']); ?>
         <div class="flex flex-col items-center order-1 group cursor-default">
             <div class="relative mb-2 transition-transform duration-300 group-hover:-translate-y-2">
-                <img src="<?= $p2['display_avatar'] ?>" class="w-20 h-20 rounded-full border-4 border-gray-300 shadow-lg object-cover bg-white">
+                <img src="<?= $p2['display_avatar'] ?>" referrerpolicy="no-referrer" class="w-20 h-20 rounded-full border-4 border-gray-300 shadow-lg object-cover bg-white">
                 <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1 rounded-full border border-gray-300 shadow-sm">#2</div>
             </div>
             <div class="w-24 sm:w-28 h-24 bg-gradient-to-t from-gray-300/80 to-gray-100/30 backdrop-blur-sm rounded-t-lg border-t border-white/50 flex flex-col items-center justify-start pt-4 shadow-sm">
@@ -140,7 +155,7 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
         <div class="flex flex-col items-center order-2 z-10 group cursor-default">
             <div class="relative mb-3 transition-transform duration-300 group-hover:-translate-y-2">
                 <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 text-4xl animate-bounce drop-shadow-md">👑</div>
-                <img src="<?= $p1['display_avatar'] ?>" class="w-28 h-28 rounded-full border-4 border-yellow-400 shadow-xl object-cover bg-white ring-4 ring-yellow-400/30">
+                <img src="<?= $p1['display_avatar'] ?>" referrerpolicy="no-referrer" class="w-28 h-28 rounded-full border-4 border-yellow-400 shadow-xl object-cover bg-white ring-4 ring-yellow-400/30">
                 <div class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-yellow-900 text-sm font-extrabold px-4 py-1 rounded-full border-2 border-white shadow-md">#1</div>
             </div>
             <div class="w-28 sm:w-36 h-32 bg-gradient-to-t from-yellow-300/70 to-yellow-100/30 backdrop-blur-sm rounded-t-xl border-t border-white/50 flex flex-col items-center justify-start pt-6 shadow-lg">
@@ -156,7 +171,7 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
         <?php if (isset($top3[2])): $p3 = $top3[2]; list($t3, $c3) = getEcoTitle($p3['totalPoints']); ?>
         <div class="flex flex-col items-center order-3 group cursor-default">
             <div class="relative mb-2 transition-transform duration-300 group-hover:-translate-y-2">
-                <img src="<?= $p3['display_avatar'] ?>" class="w-20 h-20 rounded-full border-4 border-orange-300 shadow-lg object-cover bg-white">
+                <img src="<?= $p3['display_avatar'] ?>" referrerpolicy="no-referrer" class="w-20 h-20 rounded-full border-4 border-orange-300 shadow-lg object-cover bg-white">
                 <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full border border-orange-200 shadow-sm">#3</div>
             </div>
             <div class="w-24 sm:w-28 h-20 bg-gradient-to-t from-orange-200/70 to-orange-100/30 backdrop-blur-sm rounded-t-lg border-t border-white/50 flex flex-col items-center justify-start pt-4 shadow-sm">
@@ -181,13 +196,13 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
 
         <div class="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50/50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100 sticky top-0 backdrop-blur-sm">
             <div class="col-span-2 md:col-span-1">Rank</div>
-            <div class="col-span-6 md:col-span-7">User</div>
+            <div class="col-span-6 md:col-span-7">User / Team</div>
             <div class="col-span-2 text-right">Points</div>
-            <div class="col-span-2 text-right hidden md:block">Update</div>
+            <div class="col-span-2 text-right hidden md:block">Last Activity</div>
         </div>
 
         <div class="divide-y divide-gray-100/50">
-            <?php if(empty($rows) || ($rows[0]['totalPoints'] == 0 && count($rows) == 1 && $rows[0]['totalPoints'] !== null)): ?> 
+            <?php if(empty($rows)): ?> 
                 <div class="p-16 text-center flex flex-col items-center justify-center text-gray-500">
                     <div class="bg-gray-100 p-4 rounded-full mb-3 shadow-inner">
                         <i class="fa-solid fa-chart-simple text-gray-400 text-xl"></i>
@@ -196,9 +211,8 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
                 </div>
             <?php else: ?>
                 <?php foreach($rest as $row): 
-                    if ($row['totalPoints'] == 0) continue; 
+                    if ($row['totalPoints'] == 0 && $period !== 'all') continue; 
                     $rowClass = "hover:bg-white/90 hover:scale-[1.01] hover:shadow-sm transition-all duration-200 cursor-default"; 
-                    // Get titles for items in the list
                     list($titleText, $titleClass) = getEcoTitle($row['totalPoints']);
                 ?>
                 <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center <?php echo $rowClass; ?>">
@@ -213,7 +227,7 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
 
                     <div class="col-span-6 md:col-span-7 flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                         <div class="flex items-center gap-4">
-                            <img src="<?= htmlspecialchars($row['display_avatar']) ?>" class="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover shadow-sm bg-white border border-gray-100" alt="Avatar">
+                            <img src="<?= htmlspecialchars($row['display_avatar']) ?>" referrerpolicy="no-referrer" class="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover shadow-sm bg-white border border-gray-100" alt="Avatar">
                             <span class="font-bold text-gray-800 text-sm md:text-base truncate">
                                 <?= htmlspecialchars($row['Name']) ?>
                             </span>
@@ -244,8 +258,6 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
     </div>
 </main>
 
-
-
 <?php if ($myRankData && $mode === 'individual'): ?>
 <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 px-4 py-3">
     <div class="max-w-4xl mx-auto flex items-center justify-between">
@@ -254,7 +266,7 @@ $inactiveTab = "flex-1 py-4 text-center text-sm font-medium text-gray-500 hover:
                 <span class="text-xs text-gray-400 font-bold uppercase">Rank</span>
                 <span class="text-xl font-black text-brand-600">#<?= $myRankData['rank'] ?></span>
             </div>
-            <img src="<?= $myRankData['avatar'] ?>" class="w-10 h-10 rounded-full border border-gray-200">
+            <img src="<?= $myRankData['avatar'] ?>" referrerpolicy="no-referrer" class="w-10 h-10 rounded-full border border-gray-200">
             <div class="hidden sm:block">
                 <p class="text-sm font-bold text-gray-800">You</p>
                 <?php if ($myRankData['gap'] > 0): ?>
