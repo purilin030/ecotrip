@@ -331,7 +331,7 @@ if (mysqli_num_rows($table_check) > 0) {
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold text-gray-800">Recent Submissions</h3>
-                    <a href="../submission/submission.php" class="text-sm text-green-600 hover:text-green-700 font-medium">View All</a>
+                    <a href="../module3/admin_verification_list.php" class="text-sm text-green-600 hover:text-green-700 font-medium">View All</a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
