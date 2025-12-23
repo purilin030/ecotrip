@@ -56,7 +56,6 @@ if ($is_owner) {
         $update_team_sql = "UPDATE team SET Owner_ID = '$new_owner_id', Total_members = Total_members - 1 WHERE Team_ID = '$team_id'";
         mysqli_query($con, $update_team_sql);
 
-        // 🌟 新增：将接班人的角色改为 2 (Team Owner)
         $update_new_owner_role = "UPDATE user SET Role = 2 WHERE User_ID = '$new_owner_id'";
         mysqli_query($con, $update_new_owner_role);
         
@@ -74,7 +73,7 @@ if ($is_owner) {
 }
 
 // 4. Update User: Clear user's Team_ID AND Reset Role to 0
-// 🌟 修正：在这里加入 Role = 0，确保不论是队长还是队员，退出后角色都重置
+
 $update_user_sql = "UPDATE user SET Team_ID = NULL, Role = 0 WHERE User_ID = '$user_id'";
 mysqli_query($con, $update_user_sql);
 

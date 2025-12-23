@@ -8,3 +8,9 @@ After download composer, select the ecotrip folder and use the commands below:
 Or else you are unable to use google login methods.
 
 You can randomly access any one of these file, it will redirect to the index.php files.
+If you have any question, please feel free to DM me. 
+
+
+
+
+Copyright by Group 4 - UTAR Kampar Miniproject 12/2/2025  

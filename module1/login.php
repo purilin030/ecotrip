@@ -1,15 +1,14 @@
 <?php
-// 确保 Session 开启（虽然 index.php 开过了，加个保险）
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 require_once('database.php');
-require_once('mail_config.php'); // 引入发邮件功能 (确保你创建了这个文件)
+require_once('mail_config.php'); // included mail sending function
 
 $error_msg = ""; 
 
-// 处理表单提交
+// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
 
     $email = mysqli_real_escape_string($con, stripslashes($_POST['email']));
@@ -24,23 +23,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
 
         if (mysqli_num_rows($result) == 1) {
             $row = mysqli_fetch_assoc($result);
-
-            // =================================================
-            // 🛑 核心修改：密码正确，不直接登录，改为发送 OTP
-            // =================================================
             
-            // 1. 生成 6 位随机验证码
+            // 1. Generate OTP
             $otp = rand(100000, 999999);
             
-            // 2. 存入临时 Session (5分钟有效)
+            // 2. Store OTP and expiry in session
             $_SESSION['temp_otp'] = $otp;
             $_SESSION['temp_otp_expiry'] = time() + 300; 
-            $_SESSION['temp_user_id'] = $row['User_ID']; // 记住是谁
-            $_SESSION['temp_email'] = $row['Email'];     // 用于显示
+            $_SESSION['temp_user_id'] = $row['User_ID'];
+            $_SESSION['temp_email'] = $row['Email'];     
             
-            // 3. 发送邮件
+            // 3. Send OTP via email
             if (sendOTPEmail($email, $otp)) {
-                // 发送成功，跳转到输入验证码页面
+                // Redirect to OTP verification page
                 echo "<script>window.location.href = 'otp_verify.php';</script>";
                 exit();
             } else {
